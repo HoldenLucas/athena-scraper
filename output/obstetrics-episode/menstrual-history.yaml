@@ -1,0 +1,127 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/menstrualhistory:
+    put:
+      summary: Update menstrual history
+      description: 'BETA: Modifies the patients menstrual history data for the patient''s
+        OB episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if the put was successful, otherwise false.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidMenstrualhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                definite:
+                  type: boolean
+                  description: True if the date given for Last Menstral Period is
+                    definite or not.
+                menarche:
+                  type: integer
+                  description: Age at which first mensturation occurred.
+                frequency:
+                  type: integer
+                  description: The number of days between periods
+                priormenses:
+                  type: string
+                  description: Additional field to document date of last menstual
+                    period.
+                onbcpconcept:
+                  type: boolean
+                  description: Indicates whether or not the patient was on hormonal
+                    birth control at conception.
+                mensesmonthly:
+                  type: boolean
+                  description: Indicates whether or not the patient has a monthly
+                    menstrual cycle.
+                hcgpositivedate:
+                  type: string
+                  description: Date on which patient had positive urine or serum pregnancy
+                    test.
+                lastmenstrualperiod:
+                  type: string
+                  description: The date of the first day of the patient's last menstrual
+                    period. Use the Definite date field to record whether the date
+                    is definite.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

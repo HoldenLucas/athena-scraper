@@ -1,0 +1,825 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            system/Subscription.read: API Preview
+            system/Subscription.write: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            system/Subscription.read: API Production
+            system/Subscription.write: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /fhir/r4/Subscription:
+    post:
+      summary: Create a new subscription
+      description: Create a new subscription to a topic. You need to create a separate
+        subscription per topic. The request must conform to the FHIR R5 Backport Subscription
+        profile. Only one subscription is allowed per topic so if you want to subscribe
+        across multiple practices you will need to specify multiple practice IDs in
+        the ah-practice filter.
+      parameters:
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          default: application/fhir+json
+        required: true
+        description: Content type of the payload
+      - in: header
+        name: X-Hub-Secret
+        schema:
+          type: string
+        required: true
+        description: Shared secret for HMAC signature generation.  Use this to verify
+          authenticity of notification messages.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier for the created subscription
+                  meta:
+                    type: object
+                    properties:
+                      profile:
+                        type: array
+                        items:
+                          type: string
+                          description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                        description: Profile URL for backport subscription
+                      versionId:
+                        type: string
+                        description: Version identifier
+                      lastUpdated:
+                        type: string
+                        description: Last updated timestamp
+                    description: Metadata about the resource
+                  reason:
+                    type: string
+                    description: Brief description of the business purpose for which
+                      the subscription was created
+                  status:
+                    enum:
+                    - requested
+                    - active
+                    - error
+                    - 'off'
+                    type: string
+                    description: Subscription status
+                  channel:
+                    type: object
+                    properties:
+                      type:
+                        enum:
+                        - rest-hook
+                        type: string
+                        description: Channel type
+                      header:
+                        type: array
+                        items:
+                          type: string
+                        description: Optional array of custom HTTP headers
+                      payload:
+                        enum:
+                        - application/fhir+json
+                        type: string
+                        description: MIME type of the payload
+                      _payload:
+                        type: object
+                        properties:
+                          extension:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                url:
+                                  type: string
+                                  description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content
+                                valueCode:
+                                  enum:
+                                  - id-only
+                                  type: string
+                                  description: Payload content type
+                            description: Payload configuration
+                        description: Payload content extensions
+                      endpoint:
+                        type: string
+                        description: HTTPS URL of your webhook endpoint
+                    description: The channel on which to send notifications
+                  criteria:
+                    type: string
+                    description: URL of the SubscriptionTopic
+                  _criteria:
+                    type: object
+                    properties:
+                      extension:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                            valueString:
+                              type: string
+                              description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                                or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                        description: One extension per search parameter (ah-practice
+                          is required, others optional)
+                    description: Extensions for subscription filter criteria
+                  resourceType:
+                    type: string
+                    description: Subscription
+          description: Created
+      operationId: postSubscription
+      x-scopes:
+      - system/Subscription.write
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              type: object
+              required:
+              - resourceType
+              - status
+              - reason
+              - criteria
+              - _criteria
+              - channel
+              properties:
+                meta:
+                  type: object
+                  properties:
+                    profile:
+                      type: array
+                      items:
+                        type: string
+                        description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                      description: Profile URL for backport subscription
+                  description: Metadata about the resource
+                reason:
+                  type: string
+                  description: Brief description of the business purpose for which
+                    the subscription was created
+                status:
+                  enum:
+                  - requested
+                  - active
+                  - error
+                  - 'off'
+                  type: string
+                  description: Subscription status
+                channel:
+                  type: object
+                  required:
+                  - type
+                  - endpoint
+                  - _payload
+                  properties:
+                    type:
+                      enum:
+                      - rest-hook
+                      type: string
+                      description: Channel type
+                    header:
+                      type: array
+                      items:
+                        type: string
+                      description: Optional array of custom HTTP headers
+                    payload:
+                      enum:
+                      - application/fhir+json
+                      type: string
+                      description: MIME type of the payload
+                    _payload:
+                      type: object
+                      required:
+                      - extension
+                      properties:
+                        extension:
+                          type: array
+                          items:
+                            type: object
+                            required:
+                            - url
+                            - valueCode
+                            properties:
+                              url:
+                                type: string
+                                required: true
+                                description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content
+                              valueCode:
+                                enum:
+                                - id-only
+                                type: string
+                                required: true
+                                description: Payload content type
+                          description: Payload configuration
+                      description: Payload content extensions
+                    endpoint:
+                      type: string
+                      description: HTTPS URL of your webhook endpoint
+                  description: The channel on which to send notifications
+                criteria:
+                  type: string
+                  description: URL of the SubscriptionTopic (e.g., https://api.platform.athenahealth.com/fhir/r4/SubscriptionTopic/Patient.update)
+                _criteria:
+                  type: object
+                  required:
+                  - extension
+                  properties:
+                    extension:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                        - url
+                        - valueString
+                        properties:
+                          url:
+                            type: string
+                            required: true
+                            description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                          valueString:
+                            type: string
+                            required: true
+                            description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                              or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                      description: One extension per search parameter (ah-practice
+                        is required, others optional)
+                  description: Extensions for subscription filter criteria
+                resourceType:
+                  type: string
+                  description: Subscription
+        required: true
+      tags:
+      - Eventing
+      - Subscription Management
+    get:
+      summary: List all subscriptions
+      description: Retrieve all subscriptions created by the authenticated application.
+        Returns a searchset Bundle containing all Subscription resources.
+      parameters:
+      - in: query
+        name: status
+        schema:
+          enum:
+          - requested
+          - active
+          - error
+          - 'off'
+          type: string
+        required: false
+        description: The current state of the subscription
+      - in: query
+        name: criteria
+        schema:
+          type: string
+        required: false
+        description: The topic that was subscribed to
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier for the Bundle
+                  type:
+                    type: string
+                    description: searchset
+                  entry:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        fullUrl:
+                          type: string
+                          description: Absolute URL of the Subscription resource
+                        resource:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Unique identifier for the subscription
+                            meta:
+                              type: object
+                              properties:
+                                profile:
+                                  type: array
+                                  items:
+                                    type: string
+                                    description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                                  description: Profile URL for backport subscription
+                                versionId:
+                                  type: string
+                                  description: Version identifier
+                                lastUpdated:
+                                  type: string
+                                  description: Last updated timestamp
+                              description: Metadata about the resource
+                            reason:
+                              type: string
+                              description: Brief description of the business reason
+                                for which the subscription was created
+                            status:
+                              enum:
+                              - requested
+                              - active
+                              - error
+                              - 'off'
+                              type: string
+                              description: Subscription status
+                            channel:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: Channel type (rest-hook)
+                                header:
+                                  type: array
+                                  items:
+                                    type: string
+                                  description: Optional array of custom HTTP headers
+                                payload:
+                                  type: string
+                                  description: MIME type of the payload
+                                _payload:
+                                  type: object
+                                  properties:
+                                    extension:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          url:
+                                            type: string
+                                            description: Extension URL for payload
+                                              content
+                                          valueCode:
+                                            type: string
+                                            description: Payload content type
+                                      description: Payload configuration
+                                  description: Payload content extensions
+                                endpoint:
+                                  type: string
+                                  description: URL of your webhook endpoint
+                              description: The channel on which to send notifications
+                            criteria:
+                              type: string
+                              description: URL of the SubscriptionTopic
+                            _criteria:
+                              type: object
+                              properties:
+                                extension:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      url:
+                                        type: string
+                                        description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                                      valueString:
+                                        type: string
+                                        description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                                          or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                                  description: One extension per search parameter
+                                    (ah-practice is required, others optional)
+                              description: Extensions for subscription filter criteria
+                            resourceType:
+                              type: string
+                              description: Subscription
+                    description: Array of Subscription resources
+                  total:
+                    type: integer
+                    description: Total number of subscriptions
+                  resourceType:
+                    type: string
+                    description: Bundle
+          description: Success
+      operationId: getSubscription
+      x-scopes:
+      - system/Subscription.read
+      tags:
+      - Eventing
+      - Subscription Management
+  /fhir/r4/Subscription/{id}:
+    get:
+      summary: Read a subscription by ID
+      description: Retrieve a specific subscription by its unique identifier.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: Unique identifier of the subscription to retrieve
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      profile:
+                        type: array
+                        items:
+                          type: string
+                          description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                        description: Profile URL for backport subscription
+                    description: Metadata about the resource
+                  reason:
+                    type: string
+                    description: Brief description of the business purpose for which
+                      the subscription was created
+                  status:
+                    enum:
+                    - requested
+                    - active
+                    - error
+                    - 'off'
+                    type: string
+                    description: Subscription status
+                  channel:
+                    type: object
+                    properties:
+                      type:
+                        enum:
+                        - rest-hook
+                        type: string
+                        description: Channel type
+                      header:
+                        type: array
+                        items:
+                          type: string
+                        description: Optional array of custom HTTP headers
+                      payload:
+                        enum:
+                        - application/fhir+json
+                        type: string
+                        description: MIME type of the payload
+                      _payload:
+                        type: object
+                        properties:
+                          extension:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                url:
+                                  type: string
+                                  description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content
+                                valueCode:
+                                  enum:
+                                  - id-only
+                                  type: string
+                                  description: Payload content type
+                            description: Payload configuration
+                        description: Payload content extensions
+                      endpoint:
+                        type: string
+                        description: HTTPS URL of your webhook endpoint
+                    description: The channel on which to send notifications
+                  criteria:
+                    type: string
+                    description: URL of the SubscriptionTopic (e.g., https://api.platform.athenahealth.com/fhir/r4/SubscriptionTopic/Patient.update)
+                  _criteria:
+                    type: object
+                    properties:
+                      extension:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                            valueString:
+                              type: string
+                              description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                                or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                        description: One extension per search parameter (ah-practice
+                          is required, others optional)
+                    description: Extensions for subscription filter criteria
+                  resourceType:
+                    type: string
+                    description: Subscription
+          description: Success
+      operationId: getSubscriptionId
+      x-scopes:
+      - system/Subscription.read
+      tags:
+      - Eventing
+      - Subscription Management
+    put:
+      summary: Update an existing subscription
+      description: 'Update an existing subscription. You can modify filters (practices,
+        departments) and other subscription properties. Note: The webhook URL cannot
+        be updated; delete and recreate the subscription to change it.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: Unique identifier of the subscription to update
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+          default: application/fhir+json
+        required: true
+        description: Content type of the payload
+      - in: header
+        name: X-Hub-Secret
+        schema:
+          type: string
+        required: true
+        description: Shared secret for HMAC signature generation.  Use this to verify
+          authenticity of notification messages.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      profile:
+                        type: array
+                        items:
+                          type: string
+                          description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                        description: Profile URL for backport subscription
+                    description: Metadata about the resource
+                  reason:
+                    type: string
+                    description: Brief description of the business purpose for which
+                      the subscription was created
+                  status:
+                    enum:
+                    - requested
+                    - active
+                    - error
+                    - 'off'
+                    type: string
+                    description: Subscription status
+                  channel:
+                    type: object
+                    properties:
+                      type:
+                        enum:
+                        - rest-hook
+                        type: string
+                        description: Channel type
+                      header:
+                        type: array
+                        items:
+                          type: string
+                        description: Optional array of custom HTTP headers
+                      payload:
+                        enum:
+                        - application/fhir+json
+                        type: string
+                        description: MIME type of the payload
+                      _payload:
+                        type: object
+                        properties:
+                          extension:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                url:
+                                  type: string
+                                  description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content
+                                valueCode:
+                                  enum:
+                                  - id-only
+                                  type: string
+                                  description: Payload content type
+                            description: Payload configuration
+                        description: Payload content extensions
+                      endpoint:
+                        type: string
+                        description: HTTPS URL of your webhook endpoint
+                    description: The channel on which to send notifications
+                  criteria:
+                    type: string
+                    description: URL of the SubscriptionTopic (e.g., https://api.platform.athenahealth.com/fhir/r4/SubscriptionTopic/Patient.update)
+                  _criteria:
+                    type: object
+                    properties:
+                      extension:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            url:
+                              type: string
+                              description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                            valueString:
+                              type: string
+                              description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                                or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                        description: One extension per search parameter (ah-practice
+                          is required, others optional)
+                    description: Extensions for subscription filter criteria
+                  resourceType:
+                    type: string
+                    description: Subscription
+          description: Created
+      operationId: putSubscriptionId
+      x-scopes:
+      - system/Subscription.write
+      requestBody:
+        content:
+          application/fhir+json:
+            schema:
+              type: object
+              required:
+              - resourceType
+              - status
+              - reason
+              - criteria
+              - _criteria
+              - channel
+              properties:
+                meta:
+                  type: object
+                  properties:
+                    profile:
+                      type: array
+                      items:
+                        type: string
+                        description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-subscription
+                      description: Profile URL for backport subscription
+                  description: Metadata about the resource
+                reason:
+                  type: string
+                  description: Brief description of the business purpose for which
+                    the subscription was created
+                status:
+                  enum:
+                  - requested
+                  - active
+                  - error
+                  - 'off'
+                  type: string
+                  description: Subscription status
+                channel:
+                  type: object
+                  required:
+                  - type
+                  - endpoint
+                  - _payload
+                  properties:
+                    type:
+                      enum:
+                      - rest-hook
+                      type: string
+                      description: Channel type
+                    header:
+                      type: array
+                      items:
+                        type: string
+                      description: Optional array of custom HTTP headers
+                    payload:
+                      enum:
+                      - application/fhir+json
+                      type: string
+                      description: MIME type of the payload
+                    _payload:
+                      type: object
+                      required:
+                      - extension
+                      properties:
+                        extension:
+                          type: array
+                          items:
+                            type: object
+                            required:
+                            - url
+                            - valueCode
+                            properties:
+                              url:
+                                type: string
+                                description: http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-payload-content
+                              valueCode:
+                                enum:
+                                - id-only
+                                type: string
+                                description: Payload content type
+                          description: Payload configuration
+                      description: Payload content extensions
+                    endpoint:
+                      type: string
+                      description: HTTPS URL of your webhook endpoint
+                  description: The channel on which to send notifications
+                criteria:
+                  type: string
+                  description: URL of the SubscriptionTopic (e.g., https://api.platform.athenahealth.com/fhir/r4/SubscriptionTopic/Patient.update)
+                _criteria:
+                  type: object
+                  required:
+                  - extension
+                  properties:
+                    extension:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                        - url
+                        - valueString
+                        properties:
+                          url:
+                            type: string
+                            required: true
+                            description: 'Fixed value: "http://hl7.org/fhir/uv/subscriptions-backport/StructureDefinition/backport-filter-criteria"'
+                          valueString:
+                            type: string
+                            required: true
+                            description: 'Examples: "ah-practice=Organization/a-1.Practice-195900,Organization/a-2.Practice-195901"
+                              or "ah-department=Organization/a-195900.Department-1,Organization/a-195901.Department-*"'
+                      description: One extension per search parameter (ah-practice
+                        is required, others optional)
+                  description: Extensions for subscription filter criteria
+                resourceType:
+                  type: string
+                  description: Subscription
+        required: true
+      tags:
+      - Eventing
+      - Subscription Management
+    delete:
+      summary: Delete a subscription
+      description: Unsubscribe from a topic by soft-deleting the subscription.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: Unique identifier of the subscription to delete
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - resourceType
+                properties:
+                  resourceType:
+                    type: string
+                    description: OperationOutcome
+          description: Successfully deleted
+      operationId: deleteSubscriptionId
+      x-scopes:
+      - system/Subscription.write
+      tags:
+      - Eventing
+      - Subscription Management
+metadata: []
+security:
+- api_auth_preview:
+  - system/Subscription.read
+  - system/Subscription.write
+  api_auth:
+  - system/Subscription.read
+  - system/Subscription.write
+  bearer_auth: []

@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/booked/{appointmentid}:
+    put:
+      summary: Update booked appointment
+      description: Modifies the department, provider or appointment type of a booked
+        appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: This subroutine will return 1 on success, and will
+                      otherwise return an error message.
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsBookedAppointmentid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                providerid:
+                  type: integer
+                  description: New rendering provider for this appointment.
+                departmentid:
+                  type: integer
+                  description: New department ID for this appointment.
+                appointmenttypeid:
+                  type: integer
+                  description: New appointment type ID for this appointment.
+                schedulingproviderid:
+                  type: integer
+                  description: New scheduling provider ID for this appointment.
+                supervisingproviderid:
+                  type: integer
+                  description: New supervisingprovider ID for this appointment.
+        required: true
+      tags:
+      - Appointments
+      - Update Booked Appointments
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

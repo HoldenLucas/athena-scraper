@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/ptepisodes:
+    get:
+      summary: Get patient's list of PT Episodes.
+      description: 'Retrieves a list of PT Episodes for a specific patient. Note:
+        This endpoint may rely on specific settings to be enabled in athenaNet Production
+        to function properly that are not required in other environments. Please see
+        <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID.
+      - in: query
+        name: showclosed
+        schema:
+          type: boolean
+        required: false
+        description: Designates whether we will also show closed PT episodes. The
+          default value is false.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  closedby:
+                    description: The username of the user who closed the PT episode.
+                    type: string
+                  closeddate:
+                    description: The date and time this PT episode was closed.
+                    type: string
+                  correspondencegroups:
+                    description: Group of documents related to communication about
+                      the PT episode.
+                    items:
+                      properties:
+                        correspondence:
+                          items:
+                            properties:
+                              correspondenceid:
+                                description: ID of the correspondence.
+                                type: integer
+                              documentid:
+                                description: ID of the underlying document / letter.
+                                type: integer
+                              type:
+                                description: Type of correspondence (INITIAL, ORDER,
+                                  REPLY).
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  createdby:
+                    description: The username of the user who created the PT episode.
+                    type: string
+                  createddate:
+                    description: The date and time this PT episode was created.
+                    type: string
+                  episodeid:
+                    description: ID of the PT episode. Returned when CCB_316_PT_EPISODES_MDP_EXPOSE_IDS
+                      rollout toggle is enabled.
+                    type: integer
+                  lastmodifiedby:
+                    description: The username of the user who last modified the PT
+                      episode.
+                    type: string
+                  lastmodifieddate:
+                    description: The date and time this PT episode was last modified.
+                    type: string
+                  linkeddocuments:
+                    description: IDs of related documents.
+                    items:
+                      type: any
+                    type: array
+                  linkedencounters:
+                    description: IDs of related encounters.
+                    items:
+                      type: any
+                    type: array
+                  name:
+                    description: Name of the PT Episode.
+                    type: string
+                  referringprovider:
+                    description: ID of the referring provider.
+                    type: integer
+                  status:
+                    description: The status of this PT episode (OPEN, CLOSED).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidPtepisodes
+      x-scopes: []
+      tags:
+      - Chart
+      - PT Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

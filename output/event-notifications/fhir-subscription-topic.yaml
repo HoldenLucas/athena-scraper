@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            system/SubscriptionTopic.read: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            system/SubscriptionTopic.read: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /fhir/r4/SubscriptionTopic:
+    get:
+      summary: Discover available subscription topics
+      description: Discover the topics available for subscription. Returns a searchset
+        Bundle containing all available SubscriptionTopic resources.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier for the Bundle
+                  type:
+                    type: string
+                    description: searchset
+                  entry:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        fullUrl:
+                          type: string
+                          description: Absolute URL of the SubscriptionTopic resource
+                        resource:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: Topic identifier (e.g., Patient.create,
+                                Appointment.check-in)
+                            url:
+                              type: string
+                              description: Canonical identifier for this subscription
+                                topic
+                            status:
+                              type: string
+                              description: Publication status (active, draft, retired)
+                            canFilterBy:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  modifier:
+                                    type: array
+                                    items:
+                                      type: string
+                                    description: Modifiers that can be used with this
+                                      filter
+                                  resource:
+                                    type: string
+                                    description: athena resource type
+                                  description:
+                                    type: string
+                                    description: Human-readable description of this
+                                      filter
+                                  filterParameter:
+                                    type: string
+                                    description: Parameter name to use in backport-filter
+                                      extension
+                              description: Properties by which a Subscription can
+                                filter notifications for this topic
+                            description:
+                              type: string
+                              description: Human-readable description of the topic
+                            experimental:
+                              type: boolean
+                              description: Whether this is for testing purposes
+                            resourceType:
+                              type: string
+                              description: SubscriptionTopic
+                    description: Array of SubscriptionTopic resources
+                  resourceType:
+                    type: string
+                    description: Bundle
+          description: Success
+      operationId: getSubscriptionTopic
+      x-scopes:
+      - system/SubscriptionTopic.read
+      tags:
+      - Eventing
+      - Topic Discovery
+metadata: []
+security:
+- api_auth_preview:
+  - system/SubscriptionTopic.read
+  api_auth:
+  - system/SubscriptionTopic.read
+  bearer_auth: []

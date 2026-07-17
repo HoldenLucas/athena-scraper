@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/claimcollections:
+    post:
+      summary: Send patient claims that are managed by third party vendor to Collections
+      description: This API will allow third party vendors to indicate when a claim
+        should be moved to Collections. This implies that the customer already has
+        setup their collection agency and collection policy procedures within athena.
+        This API essentially tags the claim in way that athena's internal scripts
+        know that the claim is ready to be sent to Collections.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    description: Status of Claims sent to collections
+                    items:
+                      properties:
+                        claimid:
+                          description: Claim ID
+                          type: number
+                        status:
+                          description: Status - success/failure
+                          type: string
+                        statuscode:
+                          description: 'CLAIMNOTFOUND => Claim not found in Athena
+
+                            FAILEDACTION => Failed to update status code, an internal
+                            server error occurred
+
+                            Code describing the status
+
+                            '
+                          type: string
+                      type: object
+                    required:
+                    - status
+                    - claimid
+                    - statuscode
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodeClaimcollections
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - claimids
+              properties:
+                claimids:
+                  type: array
+                  items:
+                    type: number
+                  description: 'List of Claim IDs.Example: [123,124]'
+        required: true
+      tags:
+      - PatientPayVendors
+      - Update the Claim status to collections for a Patient Pay Vendor
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

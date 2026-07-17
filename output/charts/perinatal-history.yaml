@@ -1,0 +1,217 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/perinatalhistory:
+    get:
+      summary: Get patient's perinatal history
+      description: 'BETA: Retrieves prenatal history and birth history information'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: showunansweredquestions
+        schema:
+          type: boolean
+        required: false
+        description: Include questions where there is no current answer.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  birthhistory:
+                    description: Birth history.
+                    properties:
+                      notelastmodifieddate:
+                        description: Returns date and time of when the additional
+                          note was last modified by the provider.
+                        type: string
+                      notelastmodifieduser:
+                        description: Returns username of the provider who last modified
+                          the additional note.
+                        type: string
+                      questions:
+                        description: The birth history questions and answers for this
+                          patient.
+                        items:
+                          properties:
+                            answer:
+                              description: True if the birth history problem checkbox
+                                is checked.
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            deleted:
+                              description: Returns true if the practice has deleted
+                                the problem from the configuration list after the
+                                problem was added to the birth history section.
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            lastmodifieddatetime:
+                              description: Returns date and time of when the birth
+                                history answer or note was last modified by the provider.
+                              type: string
+                            lastmodifieduser:
+                              description: Returns username of the provider who last
+                                modified the answer or note for the given birth history.
+                              type: string
+                            note:
+                              description: The note that corresponds to this birth
+                                history problem.
+                              type: string
+                            ordering:
+                              description: Configured order for this birth history
+                                problem.
+                              type: integer
+                            question:
+                              description: The name of the birth history problem.
+                              type: string
+                          type: object
+                        type: array
+                      sectionnote:
+                        description: Additional notes for the birth history section,
+                          if any.
+                        type: string
+                      unremarkable:
+                        description: True if the birth history unremarkable checkbox
+                          is checked.
+                        enum:
+                        - ''
+                        - false
+                        - true
+                        type: string
+                      unremarkablelastmodifieddate:
+                        description: Returns date and time when provider last modified
+                          the checkbox which indicates whether the birth history is
+                          unremarkable.
+                        type: string
+                      unremarkablelastmodifieduser:
+                        description: Returns the username of the provider that last
+                          modified the checkbox which indicates whether the birth
+                          history is unremarkable.
+                        type: string
+                    type: object
+                  prenatalhistory:
+                    description: Prenatal history.
+                    properties:
+                      questions:
+                        description: The prenatal history questions and answers for
+                          this patient.
+                        items:
+                          properties:
+                            answer:
+                              description: True if the prenatal problem checkbox is
+                                checked.
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            deleted:
+                              description: Returns true if the practice has deleted
+                                the problem from the configuration list after the
+                                problem was added to the prenatal section.
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            lastmodifieddatetime:
+                              description: Returns date and time of when the prenatal
+                                history answer or note was last modified by the provider.
+                              type: string
+                            lastmodifieduser:
+                              description: Returns username of the provider who last
+                                modified the answer or note for the given prenatal
+                                history.
+                              type: string
+                            note:
+                              description: The note that corresponds to this prenatal
+                                problem.
+                              type: string
+                            ordering:
+                              description: Configured order for this prenatal problem.
+                              type: integer
+                            question:
+                              description: The name of the prenatal problem.
+                              type: string
+                          type: object
+                        type: array
+                      sectionnote:
+                        description: Additional notes for the prenatal history section,
+                          if any.
+                        type: string
+                      unremarkable:
+                        description: True if the prenatal history unremarkable checkbox
+                          is checked.
+                        enum:
+                        - ''
+                        - false
+                        - true
+                        type: string
+                    type: object
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidPerinatalhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Perinatal History Problems
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

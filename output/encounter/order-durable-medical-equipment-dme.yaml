@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/dme:
+    post:
+      summary: Create new DME order for given encounter
+      description: Creates a record of a DME order for a given ordertype to be rendered
+        by a specific facility
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentid:
+                    description: The ID of the document created.
+                    type: integer
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersDme
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - diagnosissnomedcode
+              - ordertypeid
+              properties:
+                facilityid:
+                  type: string
+                  description: The athena id of the supplier you want to send the
+                    prescription to. Defaults to the patient default supplier. Get
+                    a localized list using /chart/configuration/facilities.
+                ordertypeid:
+                  type: integer
+                  description: The athena ID of the DME to order. Get the IDs using
+                    /reference/order/dme
+                facilitynote:
+                  type: string
+                  description: A note to send to the supplying facility.
+                orderingmode:
+                  enum:
+                  - ''
+                  - PRESCRIBE
+                  - DISPENSE
+                  type: string
+                  default: PRESCRIBE
+                  description: Selects whether you wish to prescribe, or dispense
+                    this DME.
+                providernote:
+                  type: string
+                  description: An internal note for the provider or staff.
+                totalquantity:
+                  type: number
+                  description: The total amount of units of the DME being prescribed.
+                unstructuredsig:
+                  type: string
+                  description: The unstructured sig.
+                dispenseaswritten:
+                  type: boolean
+                  description: Whether the DME should be marked as dispense as written
+                    (i.e., no substitutions without consulting the doctor).
+                numrefillsallowed:
+                  type: integer
+                  description: The number of refills allowed for this DME. Defaults
+                    to 0.
+                diagnosissnomedcode:
+                  type: integer
+                  description: The SNOMED code for diagnosis this order is for.
+        required: true
+      tags:
+      - Encounter
+      - Order DME
+  /v1/{practiceid}/reference/order/dme:
+    get:
+      summary: Get list of orderable DMEs
+      description: Retrieves a list of orderable DME
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderDme
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order DME
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

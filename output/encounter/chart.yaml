@@ -1,0 +1,127 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/configuration/patientlocations:
+    get:
+      summary: Get list of patient locations
+      description: Retrieve a list of patient locations for a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  defaultoncheckin:
+                    description: Whether this is the default location once the appointment
+                      is checked in and the encounter is created
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  name:
+                    description: Name of this location
+                    type: string
+                  patientlocationid:
+                    description: Athena patient location ID
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationPatientlocations
+      x-scopes: []
+      tags:
+      - Encounter
+      - Patient Location / Status
+  /v1/{practiceid}/chart/configuration/patientstatuses:
+    get:
+      summary: Get list of patient statuses
+      description: Retrieves a list of patient statuses during their visit to the
+        provider
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientstatusid:
+                    description: The patient status ID.
+                    type: integer
+                  patientstatusname:
+                    description: The patient status name.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationPatientstatuses
+      x-scopes: []
+      tags:
+      - Encounter
+      - Patient Location / Status
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

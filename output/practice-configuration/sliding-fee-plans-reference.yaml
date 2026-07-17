@@ -1,0 +1,123 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/slidingfeeplans:
+    get:
+      summary: Get list of all sliding fee-plans
+      description: Retrieves a list of poverty-based and non-poverty-based sliding
+        fee plans
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  calculationtypeid:
+                    description: An ID representation the type of sliding fee plan;
+                      name and shortname also provided.
+                    type: string
+                  calculationtypename:
+                    description: The (long) name of the type of sliding fee plan
+                    type: string
+                  calculationtypeshortname:
+                    description: The (short) name of the type of sliding fee plan.
+                    type: string
+                  flatfeeresponsibility:
+                    description: The flat fee amount required under this plan.
+                    type: string
+                  name:
+                    description: The name of this sliding fee plan.
+                    type: string
+                  note:
+                    description: A note about this plan.  This may not be patient-facing!
+                    type: string
+                  ordering:
+                    description: The ordering in which this sliding fee plan is displayed.
+                    type: string
+                  percentageresponsibility:
+                    description: The percentage amount of the charge that the patient
+                      pays under this plan.
+                    type: string
+                  povertylevellowerbound:
+                    description: The percent of poverty lower bound that this plan
+                      applies to.
+                    type: string
+                  povertylevelupperbound:
+                    description: The percent of poverty upper bound that this plan
+                      applies to.
+                    type: string
+                  programid:
+                    description: The ID of the program that this plan belongs to.
+                    type: string
+                  programname:
+                    description: The name of the program that this plan belongs to.
+                    type: string
+                  programnote:
+                    description: Notes about the program that this plan belongs to.  May
+                      not be patient-facing!
+                    type: string
+                  slidingfeeplanid:
+                    description: The sliding fee plan ID.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidSlidingfeeplans
+      x-scopes: []
+      tags:
+      - Administrative
+      - Sliding Fee Plans
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,535 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/healthhistoryforms:
+    get:
+      summary: Get list of health history forms for given appointment
+      description: Retrieves a list of history forms for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: Description of the form.
+                    type: string
+                  filledin:
+                    description: Date of most recent user edit for this form.
+                    type: string
+                  formid:
+                    description: Athena ID for this form.
+                    type: integer
+                  formname:
+                    description: Name of the form.
+                    type: string
+                  lastupdated:
+                    description: The last time the structure of this form was modified.
+                    type: string
+                  percentcomplete:
+                    description: Percent of the form completed by the patient.
+                    type: string
+                  populated:
+                    description: Date this form was generated.
+                    type: string
+                  totalcompletedsections:
+                    description: The number of sections that have been submitted and
+                      marked as complete.
+                    type: string
+                  totalsections:
+                    description: Total number of sections in this form.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidHealthhistoryforms
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Health History Forms (appointment specific)
+  /v1/{practiceid}/appointments/{appointmentid}/healthhistoryforms/{formid}:
+    get:
+      summary: Get specific health history forms for given appointment
+      description: Retrieves a specific Health history form for an appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: formid
+        schema:
+          type: integer
+        required: true
+        description: formid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: query
+        name: shownullanswers
+        schema:
+          type: boolean
+        required: false
+        description: If true, unanswered questions in the medical history, surgical
+          history, and vaccine sections return null. If false (default), they return
+          'N'.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunit:
+                    description: The units minage and maxage are in. 'M' for months,
+                      'Y' for years.
+                    type: string
+                  complete:
+                    description: Marks whether this section has been completed by/signed
+                      off by the patient.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  empty:
+                    description: If there were no changes to this section. "complete"
+                      must also be true for this to be considered.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  fielddata:
+                    description: Describes the list of fields within 'questions' that
+                      are patient-editable, the input type, and any select option
+                      values.
+                    items:
+                      properties:
+                        default:
+                          description: The answer to this form question.
+                          type: string
+                      type: object
+                    type: array
+                  filledin:
+                    description: The date this section was last updated by the patient.
+                    type: string
+                  helptext:
+                    description: Patient-facing description of the section.
+                    type: string
+                  maxage:
+                    description: Maximum patient age for which this section should
+                      be shown.
+                    type: integer
+                  minage:
+                    description: Minimum patient age for which this section should
+                      be shown.
+                    type: integer
+                  name:
+                    description: Patient-facing name of the section.
+                    type: string
+                  populated:
+                    description: Date when the form was created.
+                    type: string
+                  populatedfrom:
+                    description: Source of the form data. Can be 'Chart' or 'Previous
+                      Answer', depending on whether any previous patient modifications
+                      have been made.
+                    type: string
+                  portalformsectionid:
+                    description: The athena ID for this section.
+                    type: integer
+                  questions:
+                    description: "List of questions and existing answers (if any)\
+                      \ for this section. All of the fields in here must be returned\
+                      \ as is, except the values within 'fields'.\n\t\t\t\t\t\tThose\
+                      \ can be set per the specified 'inputtype'. For the FAMILY history\
+                      \ section, the 'question' => 'fields' section is an array and\
+                      \ not a hash.\n\t\t\t\t\t\tEach element of the array contains\
+                      \ a hash of the specified 'fielddate' ('default', 'diedofage',\
+                      \ 'onsetage', 'relationkeyid' (required), and 'relation' (required)).\n\
+                      \t\t\t\t\t\tTo create new relations of a given type, specify\
+                      \ a different numerical relationkeyid.\n\t\t\t\t\t\tFor the\
+                      \ SOCIAL history section, questions with inputtype: \"DROPDOWN\"\
+                      \ will have an array of \"dropdownvalues\".\n\t\t\t\t\t\tEach\
+                      \ item in \"dropdownvalues\" is an array containing a key and\
+                      \ a value together, representing a dropdown option.\n\t\t\t\t\
+                      \t\tYou should always display the value and save/return the\
+                      \ key (\"fields[default]\" should be a dropdown key).\n\t\t\t\
+                      \t\t\tFor all SOCIAL history section questions, a property of\
+                      \ \"deprecated\" with a value of 1 indicates that the question\
+                      \ has been deprecated.\n\t\t\t\t\t\tA deprecated question is\
+                      \ a question that was previously supported, and is now considered\
+                      \ obsolete for any number of reasons;\n\t\t\t\t\t\tit could've\
+                      \ been replaced with another question, the nature of the question\
+                      \ is no longer relevant, etc. While these questions\n\t\t\t\t\
+                      \t\tmay still be answered, the use of them is not recommended,\
+                      \ and the question will display as \"deleted\" in the client's\
+                      \ workflow."
+                    items:
+                      properties:
+                        fields:
+                          items:
+                            properties:
+                              default:
+                                description: Default value for this field
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  sex:
+                    description: If set, this form only applies to the specified sex.
+                      Athena will be prefiltering on this field, so it's only for
+                      reference.
+                    type: string
+                  type:
+                    description: The section type. It can be MEDICATION, ALLERGY,
+                      MEDICAL, FAMILY, SURGICAL, SOCIAL, OBGYN, or VACCINATION.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidHealthhistoryformsFormid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Health History Forms (appointment specific)
+    put:
+      summary: Update specific health history forms for given appointment
+      description: Modifies a specific Health history form for an appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: formid
+        schema:
+          type: integer
+        required: true
+        description: formid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: 'Shows any error messages during processing. Larger
+                      errors will cause the PUT call to die. '
+                    type: string
+                  success:
+                    description: Indicates whether the submission was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidHealthhistoryformsFormid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - healthhistoryform
+              properties:
+                healthhistoryform:
+                  type: string
+                  description: 'JSON object containing the health history form to
+                    update. For the SOCIAL history section, questions with inputtype:
+                    "DROPDOWN" will have an array of "dropdownvalues" when retrieved
+                    with the given appointment GET endpoint. Each item in "dropdownvalues"
+                    is an array containing a key and a value together, representing
+                    a dropdown option. For the PUT endpoint, you should always save/return
+                    the key as the value is for display only. If entering a future
+                    date, it must be within the next year.'
+        required: true
+      tags:
+      - Forms and Documents
+      - Health History Forms (appointment specific)
+  /v1/{practiceid}/healthhistoryforms:
+    get:
+      summary: Get list of live health history forms at practice
+      description: Retrieves a list of health history forms
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunit:
+                    description: The units minage and maxage are in. 'M' for months,
+                      'Y' for years.
+                    type: string
+                  appointmenttypeids:
+                    description: A comma separated list of appointmenttypeids this
+                      form is shown for. It is 'all' if this filter is not used.
+                    type: string
+                  departmentids:
+                    description: A comma separated list of departmentids this form
+                      is shown for. It is 'all' if this filter is not used.
+                    type: string
+                  description:
+                    description: Description of the form.
+                    type: string
+                  formid:
+                    description: Athena ID for this form.
+                    type: integer
+                  formname:
+                    description: Name of the form.
+                    type: string
+                  lastupdated:
+                    description: The last time the structure of this form was modified.
+                    type: string
+                  maxage:
+                    description: Maximum patient age for which this section should
+                      be shown.
+                    type: integer
+                  minage:
+                    description: Minimum patient age for which this section should
+                      be shown.
+                    type: integer
+                  providerids:
+                    description: A comma separated list of providerids this form is
+                      shown for. It is 'all' if this filter is not used.
+                    type: string
+                  sex:
+                    description: If set, this form only applies to the specified sex.
+                    type: string
+                  specialties:
+                    description: A comma separated list of specialties this form is
+                      shown for. It is 'all' if this filter is not used.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidHealthhistoryforms
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Health History Forms (all)
+  /v1/{practiceid}/healthhistoryforms/{formid}:
+    get:
+      summary: Get contents of one generic health history form
+      description: Retrieves  the content of the health history form
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: formid
+        schema:
+          type: integer
+        required: true
+        description: formid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunit:
+                    description: The units minage and maxage are in. 'M' for months,
+                      'Y' for years.
+                    type: string
+                  complete:
+                    description: Marks whether this section has been completed by/signed
+                      off by the patient.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  empty:
+                    description: If there were no changes to this section. "complete"
+                      must also be true for this to be considered.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  fielddata:
+                    description: Describes the list of fields within 'questions' that
+                      are patient-editable, the input type, and any select option
+                      values.
+                    items:
+                      properties:
+                        default:
+                          description: The answer to this form question.
+                          type: string
+                      type: object
+                    type: array
+                  filledin:
+                    description: The date this section was last updated by the patient.
+                    type: string
+                  helptext:
+                    description: Patient-facing description of the section.
+                    type: string
+                  maxage:
+                    description: Maximum patient age for which this section should
+                      be shown.
+                    type: integer
+                  minage:
+                    description: Minimum patient age for which this section should
+                      be shown.
+                    type: integer
+                  name:
+                    description: Patient-facing name of the section.
+                    type: string
+                  populated:
+                    description: Date when the form was created.
+                    type: string
+                  populatedfrom:
+                    description: Source of the form data. Can be 'Chart' or 'Previous
+                      Answer', depending on whether any previous patient modifications
+                      have been made.
+                    type: string
+                  portalformsectionid:
+                    description: The athena ID for this section.
+                    type: integer
+                  questions:
+                    description: "List of questions and existing answers (if any)\
+                      \ for this section. All of the fields in here must be returned\
+                      \ as is, except the values within 'fields'.\n\t\t\t\t\t\tThose\
+                      \ can be set per the specified 'inputtype'. For the FAMILY history\
+                      \ section, the 'question' => 'fields' section is an array and\
+                      \ not a hash.\n\t\t\t\t\t\tEach element of the array contains\
+                      \ a hash of the specified 'fielddate' ('default', 'diedofage',\
+                      \ 'onsetage', 'relationkeyid' (required), and 'relation' (required)).\n\
+                      \t\t\t\t\t\tTo create new relations of a given type, specify\
+                      \ a different numerical relationkeyid.\n\t\t\t\t\t\tFor the\
+                      \ SOCIAL history section, questions with inputtype: \"DROPDOWN\"\
+                      \ will have an array of \"dropdownvalues\".\n\t\t\t\t\t\tEach\
+                      \ item in \"dropdownvalues\" is an array containing a key and\
+                      \ a value together, representing a dropdown option.\n\t\t\t\t\
+                      \t\tYou should always display the value and save/return the\
+                      \ key (\"fields[default]\" should be a dropdown key).\n\t\t\t\
+                      \t\t\tFor all SOCIAL history section questions, a property of\
+                      \ \"deprecated\" with a value of 1 indicates that the question\
+                      \ has been deprecated.\n\t\t\t\t\t\tA deprecated question is\
+                      \ a question that was previously supported, and is now considered\
+                      \ obsolete for any number of reasons;\n\t\t\t\t\t\tit could've\
+                      \ been replaced with another question, the nature of the question\
+                      \ is no longer relevant, etc. While these questions\n\t\t\t\t\
+                      \t\tmay still be answered, the use of them is not recommended,\
+                      \ and the question will display as \"deleted\" in the client's\
+                      \ workflow."
+                    items:
+                      properties:
+                        fields:
+                          items:
+                            properties:
+                              default:
+                                description: Default value for this field
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  sex:
+                    description: If set, this form only applies to the specified sex.
+                      Athena will be prefiltering on this field, so it's only for
+                      reference.
+                    type: string
+                  type:
+                    description: The section type. It can be MEDICATION, ALLERGY,
+                      MEDICAL, FAMILY, SURGICAL, SOCIAL, OBGYN, or VACCINATION.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidHealthhistoryformsFormid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Health History Forms (all)
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

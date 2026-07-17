@@ -1,0 +1,475 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/physicalexam:
+    get:
+      summary: Get list of Physical Exam/Mental Health Exam findings and notes for
+        given encounter
+      description: Retrieves a Physical Exam/Mental Health Exam summary for a specific
+        encounter
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: 'If templateids is passed in, it will return only the template
+          data for the array of ids passed in. The showstructured flag must be true
+          to use this. Please note: this will cause the results to return the physical
+          exam template, and not the data selected for the current encounter.'
+        in: query
+        name: templateids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: This parameter will place quotes around HTML tag qualifier values.
+        in: query
+        name: ccdaoutputformat
+        required: false
+        schema:
+          type: boolean
+      - description: If true, returns the physical exam/mental health exam as structured
+          data. If false, returns it via lightly-HTML marked up English text, as displayed
+          in the athenanet encounter summary.
+        in: query
+        name: showstructured
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: string
+                    description: The comma separated list of selected physical exam
+                      templates used
+                  sectionnote:
+                    type: string
+                    description: The structured section-level note for the physical
+                      exam/mental health exam section.
+                  summarytext:
+                    type: string
+                    description: The unstructured summary
+                  physicalexam:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sentences:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              findings:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    freetext:
+                                      type: string
+                                      description: Freetext for this finding
+                                    medcinid:
+                                      type: integer
+                                      description: Where available, the matching MEDCIN
+                                        ID for this clinical finding.
+                                    selected:
+                                      enum:
+                                      - ''
+                                      - false
+                                      - true
+                                      type: string
+                                      description: Whether the finding is selected.
+                                        If templateids are not passed in, this field
+                                        will not be returned.
+                                    findingid:
+                                      type: integer
+                                      description: ID of this Finding.
+                                    findingname:
+                                      type: string
+                                      description: The label for this finding. Note
+                                        that this may contain specific answers for
+                                        this finding (e.g. "wakes up 2 hours after
+                                        going to sleep").  See GENERICFINDINGNAME
+                                        for an example that does not contain specific
+                                        answers.
+                                    findingnote:
+                                      type: string
+                                      description: The note for this finding
+                                    findingtype:
+                                      type: string
+                                      description: Describes the finding -- either
+                                        NORMAL, ABNORMAL, or NEUTRAL.
+                                    optionlists:
+                                      type: string
+                                      description: An array of arrays.  Each inner
+                                        array contains the possible options for a
+                                        dropdown list. The order of the these arrays
+                                        corresponds to the ordering of dropdowns from
+                                        left to right within the finding.
+                                    selectedoptions:
+                                      type: string
+                                      description: The options the user has chosen
+                                        from any dropdowns for this finding.  The
+                                        order of these selections corresponds to the
+                                        order of the dropdowns from left to right
+                                        in the finding name.
+                                    contradictionids:
+                                      type: string
+                                      description: A string representing an array
+                                        of finding IDs that contradict the current
+                                        finding ID. What this means is that if this
+                                        finding is selected, any findings in the CONTRADICTIONIDS
+                                        should not be selected.
+                                    findingshortname:
+                                      type: string
+                                      description: The abbreviated label for this
+                                        finding
+                                    genericfindingname:
+                                      type: string
+                                      description: The general label for this finding.
+                                        It will not contain any specific answers for
+                                        this finding (e.g. "wakes up ___ {{minutes*|hours}}
+                                        after going to sleep").
+                                    findinglastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the value for this finding.
+                                    freetextlastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the value of the text field
+                                        sometimes associated with this finding.
+                                    findingnotelastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the note for this finding.
+                                    findinglastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the value
+                                        for this finding was last modified.
+                                    freetextlastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the value
+                                        of the text field sometimes associated with
+                                        this finding was last modified.
+                                    findingnotelastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the note
+                                        for this finding was last modified.
+                                description: The list of findings
+                              sentenceid:
+                                type: integer
+                                description: ID of this sentence.
+                              sentencename:
+                                type: string
+                                description: The label for this sentence
+                              sentencenote:
+                                type: string
+                                description: The note for this sentence
+                              sentencenotelastmodifiedby:
+                                type: string
+                                description: The username of the provider that last
+                                  modified the note for this sentence.
+                              sentencenotelastmodifieddatetime:
+                                type: string
+                                description: The date and time that the note for this
+                                  sentence was last modified.
+                        paragraphid:
+                          type: integer
+                          description: ID of this paragraph.
+                        paragraphname:
+                          type: string
+                          description: The label for this paragraph
+                    description: The structured physical exam/mental health exam data.
+                      It is structured as a list of paragraphs, each containing a
+                      list of sentences, each containing a list of findings.
+                  templatedata:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        templateid:
+                          type: integer
+                          description: ID of the template.
+                        templatename:
+                          type: string
+                          description: Name of the template.
+                    description: An array of objects each containing the name and
+                      id for physical exam templates attached to the encounter.
+                  lastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ the user who last modified the physical exam/mental health\
+                      \ exam section.\n\t\t\t"
+                  lastmodifieddatetime:
+                    type: string
+                    description: The last time any information in the physical exam/mental
+                      health exam section was modified
+                  sectionnotelastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ a the user who last modified the physical exam/mental health\
+                      \ exam section note.\n\t\t\t"
+                  sectionnotelastmodifieddatetime:
+                    type: string
+                    description: The last time the physical exam/mental health exam
+                      section note was modified
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridPhysicalexam
+      x-scopes: []
+      tags:
+      - Encounter
+      - Physical Exam
+    put:
+      summary: Update list of Physical Exam/Mental Health Exam findings and notes
+        for given encounter
+      description: Modifies a Physical Exam/Mental Health Exam summary for a specific
+        encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridPhysicalexam
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                sectionnote:
+                  type: string
+                  description: The text to be updated to the physical exam/mental
+                    health exam section note for this encounter.
+                templateids:
+                  type: array
+                  items:
+                    type: integer
+                  description: This is a JSON array of the template ids that should
+                    remain on (or be added to) the Physical Exam.  Any template ids
+                    not included in this list will be removed from the Physical Exam.
+                physicalexam:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sentences:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            findings:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  freetext:
+                                    type: string
+                                    description: The value of the text field sometimes
+                                      associated with this finding.
+                                  findingid:
+                                    type: string
+                                    description: The ID of this finding. Like sentences,
+                                      these are how specific findings are identified
+                                      as part of the new Physical Exam/Mental Health
+                                      Exam.
+                                  findingnote:
+                                    type: string
+                                    description: The note for this finding
+                                  selectedoptions:
+                                    type: array
+                                    description: 'The options the user has chosen
+                                      from any dropdowns for this finding. The order
+                                      of these selections should correspond to the
+                                      order of the dropdowns from left to right in
+                                      the finding name. Note: there must be some value
+                                      specified for every dropdown in OPTIONLISTS.
+                                      To indicate that no option is selected for a
+                                      particular dropdown, set the corresponding value
+                                      in SELECTEDOPTIONS to "" or null (e.g. SELECTEDOPTIONS:
+                                      [""] or SELECTEDOPTIONS: [null]).'
+                              description: The list of findings
+                            sentenceid:
+                              type: string
+                              description: ID of the sentence.  These are how sentences
+                                are identified as part of the new Physical Exam/Mental
+                                Health Exam.
+                            sentencenote:
+                              type: string
+                              description: The note for this sentence
+                        description: The list of sentences
+                      paragraphid:
+                        type: string
+                        description: ID of a paragraph that is part of the new Physical
+                          Exam/Mental Health Exam.
+                  description: This is a JSON structure containing everything you
+                    want the Physical Exam/Mental Health Exam to now contain.  If
+                    you call the GET version of this call you can see some sample
+                    output.  It is extremely important to note that anything you pass
+                    in will become the new Physical Exam/Mental Health Exam data.
+                    Even if you only wish to make an addition, you will need to pass
+                    in the whole output of the GET plus your addition, otherwise anything
+                    you don't pass in will be removed.
+                replacesectionnote:
+                  type: boolean
+                  description: If true, will replace the existing section note with
+                    the new one. If false, will append to the existing note.
+        required: true
+      tags:
+      - Encounter
+      - Physical Exam
+  /v1/{practiceid}/chart/encounter/{encounterid}/physicalexam/templates:
+    get:
+      summary: Get template for patient Physical Exam
+      description: 'BETA: Retrieves the list of Physical Exam templates for this encounter'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunits:
+                    description: The units for measuring age. (Y=years, M=months,
+                      W=weeks, D=days)
+                    type: string
+                  goals:
+                    description: If true, this template contains findings that can
+                      be used as goals in the Assessment and Plan.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  maxage:
+                    description: The maximum age filtered by this template
+                    type: integer
+                  minage:
+                    description: The minimum age filtered by this template
+                    type: integer
+                  name:
+                    description: The name of the template
+                    type: string
+                  note:
+                    description: The note attached to this template
+                    type: string
+                  sex:
+                    description: The sex filtered by this template
+                    type: string
+                  templateid:
+                    description: The template ID.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridPhysicalexamTemplates
+      x-scopes: []
+      tags:
+      - Encounter
+      - Physical Exam
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

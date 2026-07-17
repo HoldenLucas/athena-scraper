@@ -1,0 +1,335 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/collectpayment/paymentplan:
+    post:
+      summary: Create patient's payment plan
+      description: Creates a payment plan for the patient. If payment is to be made
+        via a credit card than provide the appropriate credit card fields.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  epaymentid:
+                    description: "\n\t\t\t\tAfter a successful payment, this ID can\
+                      \ be used to retrieve\n\t\t\t\tthe receipt.\n\t\t\t"
+                    type: integer
+                  errortext:
+                    description: The error text returned by the credit card processor.
+                    type: string
+                  paymentplanid:
+                    description: The ID of the payment plan.
+                    type: string
+                  success:
+                    description: true for success.  false for an error.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidCollectpaymentPaymentplan
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - claimids
+              - cycleamount
+              properties:
+                email:
+                  type: string
+                  description: The email address of the patient
+                claimids:
+                  type: array
+                  description: One or more claim IDs.
+                frequency:
+                  type: string
+                  description: How often should the patient be billed (ONETIMEON -
+                    One-time charge, WEEKLY - Weekly, BIWEEKLY - Every two weeks,
+                    TWICEAMONTH - First and fifteenth of month, MONTHLY - Monthly,
+                    MONTHLYFIRSTBUSDAY - Monthly, first business day, MONTHLYLASTBUSDAY
+                    - Monthly, last business day).
+                startdate:
+                  type: string
+                  description: The date the plan should start. Defaulted to tomorrow.
+                    If you set something to start today, it will NOT get billed today;
+                    it will be billed on the same day one month from today. Future
+                    payments of credit card plans will be billed on the same day of
+                    the month as the start date. For example, if the start date is
+                    01/15, then the credit card will be billed for the second time
+                    on 02/15.
+                trackdata:
+                  type: string
+                  description: The track data obtained from the credit card swipe.
+                    This can be track1 and/or track2 data. In either case, please
+                    including the start and end sentinels. ("%" and "?" for track1
+                    and ";" and "?" for track2.)
+                billingzip:
+                  type: string
+                  description: The billing zipcode for the credit card.  (Required
+                    if track data is not supplied.)
+                nameoncard:
+                  type: string
+                  description: 'The name on the credit card.  (Required if trackdata
+                    is not supplied; track 2 does NOT supply name.)  Please truncate
+                    at 30 characters. (Max length: 30)'
+                percentage:
+                  type: string
+                  description: The percentage of the current outstanding balance that
+                    the patient should be billed each period.
+                cycleamount:
+                  type: string
+                  description: The amount the patient is to be billed per cycle.
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                todayservice:
+                  type: boolean
+                  description: Apply the other amount value to today's service.
+                accountnumber:
+                  type: string
+                  description: The account number of the credit card.  (Required if
+                    trackdata is not supplied.)
+                appointmentid:
+                  type: integer
+                  description: The ID of the appointment where the copay should be
+                    applied.
+                billingmethod:
+                  enum:
+                  - ''
+                  - CREDITCARD
+                  - SENDSTATEMENTS
+                  type: string
+                  description: Valid values are SENDSTATEMENTS or CREDITCARD.
+                ecommercemode:
+                  type: boolean
+                  description: Use ECommerce credit card mode (e.g. for telemedicine).
+                    trackdata may NOT be used if this mode is true.
+                billingaddress:
+                  type: string
+                  description: 'The billing address for the credit card.  (Required
+                    if track data is not supplied.)  If more than 20 characters, please
+                    truncate. (Max length: 20)'
+                paymentplanname:
+                  type: string
+                  description: The name of the payment plan.
+                cardsecuritycode:
+                  type: integer
+                  description: 'The CVV2: the 3 (or 4 for Amex) digit value normally
+                    found on the back (or front for Amex) of the credit card.  When
+                    creating contracts, this is required if using accountnumber instead
+                    of track data.'
+                downpaymentamount:
+                  type: string
+                  description: Down payment to be billed.
+                expirationmonthmm:
+                  type: integer
+                  description: The month the credit card expires (MM).  (Required
+                    if trackdata is not supplied.)
+                expirationyearyyyy:
+                  type: integer
+                  description: The year the credit card expires (YYYY).  (Required
+                    if trackdata is not supplied.)
+                allowduplicatepayments:
+                  type: boolean
+                  description: Allows duplicate payments.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Payment
+    get:
+      summary: View patient's payment-plan
+      description: Retrieves payment plans for the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID.
+      - in: query
+        name: paymentplanids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more payment plan IDs.
+      - in: query
+        name: linkedclaiminfo
+        schema:
+          type: boolean
+        required: false
+        description: Get claims covered by the payment plan
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  amountdue:
+                    description: Remaining amount due for the patient.
+                    type: integer
+                  billingmethod:
+                    description: Billing method of the payment plan.
+                    type: string
+                  cycleamount:
+                    description: The amount the patient is billed per cycle.
+                    type: integer
+                  downpayment:
+                    description: Down payment billed to the patient.
+                    type: integer
+                  frequency:
+                    description: How often should the patient be billed (ONETIMEON
+                      - One-time charge, WEEKLY - Weekly, BIWEEKLY - Every two weeks,
+                      TWICEAMONTH - First and fifteenth of month, MONTHLY - Monthly,
+                      MONTHLYFIRSTBUSDAY - Monthly, first business day, MONTHLYLASTBUSDAY
+                      - Monthly, last business day).
+                    type: string
+                  name:
+                    description: Name of payment plan.
+                    type: string
+                  numfuturepayments:
+                    description: Number of future payments the patient has to make.
+                    type: integer
+                  outstanding:
+                    description: Total outstanding amount.
+                    type: integer
+                  paymentplanid:
+                    description: Unique id of the payment plan.
+                    type: integer
+                  paymentplantype:
+                    description: Type of payment plan.
+                    type: string
+                  plannotes:
+                    description: Comments for payment plan.
+                    type: string
+                  selectedclaims:
+                    description: Claims covered by the payment plan
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidCollectpaymentPaymentplan
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Payment
+  /v1/{practiceid}/configuration/validnonccpcreditcardmethods:
+    get:
+      summary: Get list of non-credit-card payment methods
+      description: Retrieves a list of valid credit card methods for practices not
+        using CCP for use with /patients/{patientid}/recordpayment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of this payment method (used in athenahealth's
+                      UI).
+                    type: string
+                  paymentmethod:
+                    description: The payment method identifier for use in /patients/{patientid}/recordpayment
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidConfigurationValidnonccpcreditcardmethods
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Payment
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

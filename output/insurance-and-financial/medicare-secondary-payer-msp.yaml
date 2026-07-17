@@ -1,0 +1,234 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/mspq:
+    get:
+      summary: Get appointment-specific MSP qualifier
+      description: Retrieves the Medicare Secondary Payer qualifier of a given appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  mspinsurancetypeid:
+                    description: MSP insurance type id and qualifier
+                    type: integer
+                  mspinsurancetypename:
+                    description: MSP insurance type name
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidMspq
+      x-scopes: []
+      tags:
+      - Appointments
+      - Medicare Secondary Payer (MSP)
+    put:
+      summary: Update appointment-specific MSP qualifier
+      description: Modifies the Medicare Secondary Payer qualifier of a given appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If success is not true, this will detail the error
+                      that occurred.
+                    type: string
+                  success:
+                    description: Returns true if the call to set the qualifier for
+                      the appointment was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidMspq
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - mspinsurancetypeid
+              properties:
+                patientid:
+                  type: integer
+                  description: The athenaNet patient ID.
+                departmentid:
+                  type: integer
+                  description: The department ID.
+                mspinsurancetypeid:
+                  type: integer
+                  description: The MSP insurance type id
+                mspinsurancetypesetyn:
+                  type: boolean
+                  description: Set the MSP Insurance Type
+        required: true
+      tags:
+      - Appointments
+      - Medicare Secondary Payer (MSP)
+    delete:
+      summary: Delete appointment-specific MSP qualifier
+      description: Deletes the Medicare Secondary Payer qualifier of a given appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If success is not true, this will detail the error
+                      that occurred.
+                    type: string
+                  success:
+                    description: Returns true if the call to set the qualifier for
+                      the appointment was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidAppointmentsAppointmentidMspq
+      x-scopes: []
+      tags:
+      - Appointments
+      - Medicare Secondary Payer (MSP)
+  /v1/{practiceid}/mspinsurancetypes:
+    get:
+      summary: Get list of appointment-specific MSP qualifiers
+      description: Retrieves a list of valid Medicare Secondary Payer insurance (MSP)
+        types to be used for the MSP Qualifier
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department id
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 5000)Please note
+          that this endpoint has a different default than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  mspinsurancetypeid:
+                    description: MSP insurance type id
+                    type: integer
+                  mspinsurancetypename:
+                    description: Name of the MSP insurance type
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMspinsurancetypes
+      x-scopes: []
+      tags:
+      - Appointments
+      - Medicare Secondary Payer (MSP)
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

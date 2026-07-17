@@ -1,0 +1,358 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/deliveryinformation:
+    put:
+      summary: Update delivery information for OB episode
+      description: 'BETA: Modifies the delivery information for an OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if the put was successful, otherwise false.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidDeliveryinformation
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - deliverydate
+              properties:
+                labor:
+                  enum:
+                  - ''
+                  - None
+                  - Spontaneous
+                  - Induced
+                  - Augmented
+                  type: string
+                  description: The type of labor.
+                comments:
+                  type: string
+                  description: Any notes on the delivery.
+                fetusdata:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sex:
+                        enum:
+                        - M
+                        - F
+                        - ''
+                        type: string
+                        description: Sex of the baby.
+                      races:
+                        type: array
+                        items:
+                          type: string
+                        description: 'The patient race, using the 2.16.840.1.113883.5.104
+                          codeset. See http://www.hl7.org/implement/standards/fhir/terminologies-v3.html
+                          Special case: use "declined" to indicate that the patient
+                          declined to answer. Multiple values are acceptable for multiple
+                          races for input. The first race will be considered "primary".  Note:
+                          you must update all values at once if you update any.'
+                      fetusid:
+                        type: integer
+                        description: The ID of the fetus. This field is required for
+                          each fetus.
+                      lastname:
+                        type: string
+                        description: The baby's last name.
+                      ethnicity:
+                        type: string
+                        description: 'Ethnicity of the patient, using the 2.16.840.1.113883.5.50
+                          codeset. See http://www.hl7.org/implement/standards/fhir/terminologies-v3.html
+                          Special case: use "declined" to indicate that the patient
+                          declined to answer.'
+                      firstname:
+                        type: string
+                        description: The baby's first name.
+                      outcomeid:
+                        type: integer
+                        description: Outcome of the delivery. Use GET /chart/reference/obdeliveryoutcomes
+                          to find valid outcome IDs.
+                      circumcision:
+                        type: boolean
+                        description: Whether or not the baby was circumcised. This
+                          input can only be used for males.
+                      birthweightoz:
+                        type: integer
+                        description: The number of oz the baby weighed. To be used
+                          with birthweightlbs. However, if the the value exceeds 16,
+                          then it will be properly added to the lbs value.
+                      admittedtonicu:
+                        type: boolean
+                        description: Whether or not the baby was admitted to the NICU.
+                      birthweightlbs:
+                        type: integer
+                        description: The number of pounds the baby weighed. To be
+                          used with birthweightoz.
+                      deliverytypeid:
+                        type: integer
+                        description: The type of delivery. Use GET /chart/configuration/obdeliverytypes
+                          to find valid valies.
+                      pediatriccomplications:
+                        type: string
+                        description: Free text to indicate any pediatric complications.
+                  description: The data about the fetuses delivered. The number of
+                    items in this array must reflect the number of fetuses in the
+                    OB Episode Information section. The input generally reflects the
+                    fetusdata output of GET /chart/{patientid}/obepisodes/{obepisodeid}
+                    with a couple of exceptions. This uses birthweightlbs and birthweightoz
+                    instead of grams. It also uses ID numbers for deliverytype, ethnicity,
+                    outcome, and race. See the documentation for those individual
+                    inputs for more information. If you update the information for
+                    one fetus you must update the information for all fetuses.
+                anesthesia:
+                  enum:
+                  - ''
+                  - General
+                  - Local
+                  - Regional-Epidural
+                  - Regional-Spinal
+                  - None
+                  type: string
+                  description: What, if any, anesthesia was used during labor and
+                    delivery.
+                deliveredby:
+                  type: string
+                  description: The name of the provider who delivered the baby.
+                deliverydate:
+                  type: string
+                  description: Date of delivery of termination or pregnancy.
+                incisiontype:
+                  enum:
+                  - ''
+                  - Low Transverse
+                  - Low Vertical
+                  - Classical
+                  type: string
+                  description: The type of incision.
+                pretermlabor:
+                  type: boolean
+                  description: Boolean to indicate if the labor was preterm.
+                dischargedate:
+                  type: string
+                  description: The date the mother was discharged.
+                deliverysiteid:
+                  type: integer
+                  description: The location (site) of the delivery. Use GET /chart/configuration/obdeliverysites
+                    to get the list of valid site IDs. If the location is not listed
+                    then use deliverysiteother. Please note that both cannot be specified.
+                laborlengthhrs:
+                  type: number
+                  description: Length of labor in hours.
+                weeksgestation:
+                  type: number
+                  description: 'The gestation time in the format weeks.days (ex: 35.2
+                    is 35 weeks and 2 days.)'
+                deliverysiteother:
+                  type: string
+                  description: A freetext field recording the location of the delivery.
+                    Cannot be specified along with deliverysiteid.
+                tubalsterilization:
+                  type: boolean
+                  description: Boolean to indicate tubal sterlization.
+                postpartumcomplications:
+                  enum:
+                  - ''
+                  - None
+                  - Hemorrhage
+                  - Infection
+                  - Hypertension
+                  - Mastitis
+                  - Other
+                  type: string
+                  description: Select any postpartum complications.
+        required: true
+      tags:
+      - Chart
+      - OB Episode Delivery Information
+  /v1/{practiceid}/chart/reference/obdeliveryoutcomes:
+    get:
+      summary: Get reference list for OB delivery outcomes
+      description: 'BETA: Retrieve a list of outcomes for an OB Delivery'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: A descriptive name for the gestation outcome.
+                    type: string
+                  outcomeid:
+                    description: The ID of the gestation outcome.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartReferenceObdeliveryoutcomes
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episode Delivery Information
+  /v1/{practiceid}/chart/configuration/obdeliverysites:
+    get:
+      summary: Get reference list for OB delivery sites
+      description: 'BETA: Retrieve a list of valid delivery sites for an OB Delivery'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  deliverysiteid:
+                    description: The ID of the delivery site.
+                    type: integer
+                  name:
+                    description: The name of the delivery site.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationObdeliverysites
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episode Delivery Information
+  /v1/{practiceid}/chart/configuration/obdeliverytypes:
+    get:
+      summary: Get reference list of OB delivery types
+      description: 'BETA: Retrieves a list of valid delivery types for an OB Delivery'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  deliverytypeid:
+                    description: The ID of the delivery type.
+                    type: integer
+                  name:
+                    description: The description of the delivery type.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationObdeliverytypes
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episode Delivery Information
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

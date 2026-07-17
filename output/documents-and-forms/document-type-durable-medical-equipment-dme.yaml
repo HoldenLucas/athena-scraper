@@ -1,0 +1,659 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/dme:
+    get:
+      summary: Get list of patient's DME documents
+      description: Retrieve list of Durable Medical Equipment of a specific patient
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: patientid
+        in: path
+        name: patientid
+        required: true
+        schema:
+          type: integer
+      - description: The status of the task to filter document results.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+      - description: The athenaNet department id.
+        in: query
+        name: departmentid
+        required: true
+        schema:
+          type: integer
+      - description: The document subclass to filter document results.
+        in: query
+        name: documentsubclass
+        required: false
+        schema:
+          type: string
+      - description: By default, deleted documents are not listed.  Set to list these.
+        in: query
+        name: showdeleted
+        required: false
+        schema:
+          type: boolean
+      - description: Show only documents attached to this encounter.
+        in: query
+        name: encounterid
+        required: false
+        schema:
+          type: integer
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dmeid:
+                    type: integer
+                    description: DME document id
+                  status:
+                    type: string
+                    description: Status of the document
+                  subject:
+                    type: string
+                    description: Subject of the document
+                  priority:
+                    type: string
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                  ordertype:
+                    type: string
+                    description: Order type group name
+                  patientid:
+                    type: integer
+                    description: The athenaNet patient ID.
+                  assignedto:
+                    type: string
+                    description: Person the document is assigned to
+                  documentid:
+                    type: integer
+                    description: The document ID of the new or modified document.
+                  facilityid:
+                    type: integer
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country.  These include providers as well as
+                      radiology centers, labs and pharmacies.
+                  providerid:
+                    type: integer
+                    description: This typically describes a provider id for a document,
+                      but in the case of DMEs, it references the prescriber id
+                  createddate:
+                    type: string
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                  encounterid:
+                    type: string
+                    description: Encounter ID
+                  departmentid:
+                    type: string
+                    description: Department for the document
+                  documentdate:
+                    type: string
+                    description: Date/time the observation was taken
+                  externalnote:
+                    type: string
+                    description: External note for the patient.
+                  internalnote:
+                    type: string
+                    description: The 'Internal Note' attached to this document
+                  documentclass:
+                    type: string
+                    description: Class of document
+                  documentroute:
+                    type: string
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                  patientcaseid:
+                    type: string
+                    description: The patient case id
+                  documentsource:
+                    enum:
+                    - ''
+                    - PATIENT
+                    - CAREGIVER
+                    - PARTNER
+                    - PHARMACY
+                    - LAB
+                    - PCP
+                    - SPECIALIST
+                    - STAFF
+                    - HOSPITAL
+                    - OTHER
+                    - PORTAL
+                    - Live Operator
+                    type: string
+                    description: Explains where this document originated.
+                  documenttypeid:
+                    type: integer
+                    description: The ID of the description for this document
+                  createddatetime:
+                    type: string
+                    description: Date/Time (ISO 8601) the document was created
+                  deleteddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was deleted
+                  documentsubclass:
+                    type: string
+                    description: Specific type of document
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  clinicalproviderid:
+                    type: integer
+                    description: 'DEPRECATED: This field has been deprecated and is
+                      now returned as ''facilityid''.'
+                  documentdescription:
+                    type: string
+                    description: This typically describes a document's type, but in
+                      the case of DMEs, it references the Supply Name
+                  externalaccessionid:
+                    type: string
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  internalaccessionid:
+                    type: string
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  lastmodifieddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was last modified
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsDme
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document List By Class
+  /v1/{practiceid}/patients/{patientid}/documents/dme/{dmeid}:
+    get:
+      summary: Get patient's DME document
+      description: Retrieves a specific Durable Medical Equipment document of the
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: dmeid
+        schema:
+          type: integer
+        required: true
+        description: dmeid
+      - in: query
+        name: showquestions
+        schema:
+          type: boolean
+        required: false
+        description: Some order types like labs and imaging orders have additional
+          pertinant information in a question/answer format. Setting this will return
+          that data.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sig:
+                    type: string
+                    description: Text sig for a prescription
+                  dmeid:
+                    type: integer
+                    description: DME document id
+                  pages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        href:
+                          type: string
+                          description: The URL to get the document image.
+                        pageid:
+                          type: string
+                          description: The ID to use in a call to get the page image.
+                        contenttype:
+                          type: string
+                          description: The content-type that will be returned by the
+                            page image call.
+                        pageordering:
+                          type: string
+                          description: Within this list of pages, the ordering (starting
+                            with 1).
+                    description: An array of image pages associated with this document.
+                  status:
+                    type: string
+                    description: Status of the document
+                  subject:
+                    type: string
+                    description: Subject of the document
+                  priority:
+                    type: string
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                  ordertype:
+                    type: string
+                    description: Order type group name
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        answer:
+                          type: string
+                          description: The answer
+                        question:
+                          type: string
+                          description: The question
+                    description: The custom list of questions and answers associated
+                      with this order. This list will vary by practice.
+                  actionnote:
+                    type: string
+                    description: The most recent action note for a document
+                  assignedto:
+                    type: string
+                    description: Person the document is assigned to
+                  documentid:
+                    type: integer
+                    description: The document ID of the new or modified document.
+                  facilityid:
+                    type: integer
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country.  These include providers as well as
+                      radiology centers, labs and pharmacies.
+                  providerid:
+                    type: integer
+                    description: This typically describes a provider id for a document,
+                      but in the case of DMEs, it references the prescriber id
+                  submitdate:
+                    type: string
+                    description: The future submit date in the format mm/dd/yyyy.
+                  createddate:
+                    type: string
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                  createduser:
+                    type: string
+                    description: The user who created this document.
+                  encounterid:
+                    type: string
+                    description: Encounter ID
+                  textconsent:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: This value is true or false for the order if PatientNotification
+                      feature is enabled for this context/provider/patient
+                  departmentid:
+                    type: string
+                    description: Department for the document
+                  documentdate:
+                    type: string
+                    description: Date/time the observation was taken
+                  externalnote:
+                    type: string
+                    description: External note for the patient.
+                  internalnote:
+                    type: string
+                    description: The 'Internal Note' attached to this document
+                  diagnosislist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        diagnosiscode:
+                          type: object
+                          properties:
+                            code:
+                              type: string
+                            codeset:
+                              type: string
+                            description:
+                              type: string
+                        snomedicdcodes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                              codeset:
+                                type: string
+                              description:
+                                type: string
+                              unstrippeddiagnosiscode:
+                                type: string
+                        imodiagnosislist:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                description: The athena id of the imo diagnosis
+                              imocode:
+                                type: object
+                                properties:
+                                  code:
+                                    type: string
+                                    description: The IMO code for this diagnosis
+                                  codeset:
+                                    type: string
+                                    description: Codeset for this code (IMO)
+                                  laterality:
+                                    type: string
+                                    description: The laterality for this IMO code
+                                  description:
+                                    type: string
+                                    description: The provider facing description for
+                                      this IMO code
+                                  needsrefinement:
+                                    enum:
+                                    - ''
+                                    - false
+                                    - true
+                                    type: string
+                                    description: Whether or not the IMO term supports
+                                      further refinement
+                                description: IMO code details for this diagnosis
+                              icdcodes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: ICD code for this diagnosis
+                                    codeset:
+                                      type: string
+                                      description: Codeset for this code (ICD9 or
+                                        ICD10)
+                                    description:
+                                      type: string
+                                      description: Brief description for this code
+                                description: List of relevant ICD codes for this IMO
+                                  code
+                              snomedcodes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: SNOMED code for this diagnosis
+                                    codeset:
+                                      type: string
+                                      description: Codeset for this code (SNOMED)
+                                    description:
+                                      type: string
+                                      description: Brief description for this code
+                                description: List of relevant SNOMED codes for this
+                                  IMO code
+                              patientfacingdescription:
+                                type: string
+                                description: The patient facing description for this
+                                  IMO code
+                              providerfacingdescription:
+                                type: string
+                                description: The provider facing description for this
+                                  IMO code
+                          description: List of IMO codes and data for this diagnosis
+                            This API attribute is being rolled out and will be Generally
+                            Available on or before TBD
+                    description: Diagnoses for this document
+                  documentclass:
+                    type: string
+                    description: Class of document
+                  documentroute:
+                    type: string
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                  patientcaseid:
+                    type: string
+                    description: The patient case id
+                  totalquantity:
+                    type: number
+                    description: Value for prescription quantity
+                  documentsource:
+                    enum:
+                    - ''
+                    - PATIENT
+                    - CAREGIVER
+                    - PARTNER
+                    - PHARMACY
+                    - LAB
+                    - PCP
+                    - SPECIALIST
+                    - STAFF
+                    - HOSPITAL
+                    - OTHER
+                    - PORTAL
+                    - Live Operator
+                    type: string
+                    description: Explains where this document originated.
+                  documenttypeid:
+                    type: integer
+                    description: The ID of the description for this document
+                  notetosupplier:
+                    type: string
+                    description: A note to send to the pharmacy.
+                  refillsallowed:
+                    type: integer
+                    description: Number of refills allowed
+                  createddatetime:
+                    type: string
+                    description: Date/Time (ISO 8601) the document was created
+                  deleteddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was deleted
+                  isstructuredsig:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If sig for a prescription was specified as structured
+                      entry, versus unstructured free text
+                  documentsubclass:
+                    type: string
+                    description: Specific type of document
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  supplierfaxnumber:
+                    type: string
+                    description: The supplier's fax number
+                  documentdescription:
+                    type: string
+                    description: This typically describes a document's type, but in
+                      the case of DMEs, it references the Supply Name
+                  externalaccessionid:
+                    type: string
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  internalaccessionid:
+                    type: string
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  isdispenseaswritten:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether this prescription is labeled Dispense As
+                      Written
+                  lastmodifieddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was last modified
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsDmeDmeid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+  /v1/{practiceid}/patients/{patientid}/documents/dme/{dmeid}/pages/{pageid}:
+    get:
+      summary: Get page from patient's DME document
+      description: Retrieves a specific page of Durable Medical Equipment document
+        of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: dmeid
+        schema:
+          type: integer
+        required: true
+        description: dmeid
+      - in: path
+        name: pageid
+        schema:
+          type: integer
+        required: true
+        description: pageid
+      - in: query
+        name: filesize
+        schema:
+          enum:
+          - SMALL
+          - LARGE
+          type: string
+          x-enumDescriptions:
+          - Small
+          - Large
+        required: false
+        description: The file size of the document being requested.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attachment:
+                    type: string
+                    description: The image of the page in png format.
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsDmeDmeidPagesPageid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

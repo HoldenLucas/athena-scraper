@@ -1,0 +1,290 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/claims/{claimid}/note:
+    post:
+      summary: Create new claim notes
+      description: Creates a new note for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidClaimsClaimidNote
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - claimnote
+              properties:
+                claimnote:
+                  type: string
+                  description: The text of the note.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/claims/{claimid}/claimnotes:
+    get:
+      summary: View all notes for a claim
+      description: Retrieves the list of notes for a specific clinical document
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: query
+        name: showholdonly
+        schema:
+          type: boolean
+        required: false
+        description: Return only claimnotes that currently have a HOLD or HOLD-like
+          status. Defaults to 'false'.
+      - in: query
+        name: pendingflags
+        schema:
+          enum:
+          - All
+          - Pending
+          - Overridden
+          type: string
+          x-enumDescriptions:
+          - All
+          - Pending
+          - Overridden
+        required: false
+        description: Select claimnotes based on pendingflag values. 'All' selects
+          claimnotes with any pendingflag ('Y', 'O', 'N', or null); pending claimnotes
+          have a pendingflag of 'Y'; overridden claimntoes have a pendingflag of 'O'.
+          Default is 'All'.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  athenakickcode:
+                    description: The athena-internal kick code used to bin biller-submitted
+                      kick codes into like groups
+                    type: string
+                  athenakickcodename:
+                    description: The name for the athena-internal kick code on this
+                      claim
+                    type: string
+                  claimnote:
+                    description: A user-entered value associated with this claim note
+                    type: string
+                  claimnoteid:
+                    description: The athena-internal ID given to this claimnote
+                    type: integer
+                  fixtext:
+                    description: "A description of why the claim note is active\n\t\
+                      \t\t\tand preventing the claim from dropping. Sometimes also\
+                      \ includes\n\t\t\t\tinstructions for fixing the problem causing\
+                      \ the hold."
+                    type: string
+                  globalclaimruleid:
+                    description: The athena-internal ID for a global rule on this
+                      claim note
+                    type: integer
+                  globalclaimrulename:
+                    description: The athena-internal name for a global rule on this
+                      claim note
+                    type: string
+                  kickcode:
+                    description: The kick code returned from the biller
+                    type: integer
+                  kickcodename:
+                    description: The athena-internal name for a kick code on this
+                      claim
+                    type: string
+                  kickcodenextsteps:
+                    description: The next steps associated with this kick code
+                    type: string
+                  localclaimruleid:
+                    description: The athena-internal ID for a local rule on this claim
+                      note
+                    type: integer
+                  localclaimrulename:
+                    description: The athena-internal name for a local rule on this
+                      claim note
+                    type: string
+                  networkclaimruleid:
+                    description: The athena-internal ID for a network rule on this
+                      claim note
+                    type: integer
+                  networkclaimrulename:
+                    description: The athena-internal name for a network rule on this
+                      claim note
+                    type: string
+                  overrideable:
+                    description: Whether the claim is overridable. Either 'Y' or null
+                    type: string
+                  pendingflag:
+                    description: The status of whether this claim is pending. One
+                      of 'Y', 'N', 'O' or null
+                    type: string
+                  status:
+                    description: The claim status as a result of this claim note.
+                      Can be different across claim notes
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsClaimidClaimnotes
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/claims/{claimid}/claimnotes/override:
+    put:
+      summary: Update/Override existing note for a claim
+      description: Modifies an existing note for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  overrides:
+                    description: Number of claimnotes overridden
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidClaimsClaimidClaimnotesOverride
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - username
+              properties:
+                username:
+                  type: string
+                  description: The user overriding these claimnotes. Must have permission
+                    to override ADVICE and RULE claimnote types.
+                overrideall:
+                  type: boolean
+                  description: Select ALL elligible claimnotes to override or to undo
+                    overrides. Cannot be selected when a specific list of claimnote
+                    IDs is specified.
+                claimnoteids:
+                  type: array
+                  items:
+                    type: integer
+                  description: A list of claimnotes to override. Claimnotes MUST be
+                    overridable
+                undooverrides:
+                  type: boolean
+                  description: Undo overridden claimnotes.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

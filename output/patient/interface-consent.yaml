@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/interfaceconsents:
+    get:
+      summary: Get patient's interface consents
+      description: Retrieves patient's consent to share health data
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  consentby:
+                    description: The party deciding to give consent or not. This will
+                      either be PATIENT or PARENTGUARDIAN.
+                    type: string
+                  consentdate:
+                    description: The date the consent decision was made
+                    type: string
+                  consentquestion:
+                    description: The description text for the consent.
+                    type: string
+                  consentsetting:
+                    description: The name of the setting for the interface vendor
+                    type: string
+                  consentvalue:
+                    description: The explicit value of the consent. This will be Y
+                      or N
+                    type: string
+                  interfacevendorid:
+                    description: The interface vendor ID
+                    type: string
+                  isconsenting:
+                    description: This value will be 1 if the patient gives consent
+                      to the vendor. It is possible that the patient/gaurdian has
+                      not actively given consent, in which case this value is determined
+                      by whether the vendor is opt-in or opt-out.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidInterfaceconsents
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Health Data Exchange Consents
+    put:
+      summary: Update patient's interface consents
+      description: Modifies the existing patient's consent to share health data
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Returns true/false if the operation was successful
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidInterfaceconsents
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                consents:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      consentby:
+                        type: string
+                        description: The party deciding to give consent or not. This
+                          will either be PATIENT or PARENTGUARDIAN.
+                      consentdate:
+                        type: string
+                        description: The date the consent decision was made.
+                      consentvalue:
+                        enum:
+                        - ''
+                        - Y
+                        - N
+                        type: string
+                        description: The explicit value of the consent. This must
+                          be Y or N.
+                      consentsetting:
+                        type: string
+                        description: The name of the setting for the interface vendor
+                      interfacevendorid:
+                        type: string
+                        description: The interface vendor ID
+                  required:
+                  - consentvalue
+                  - interfacevendorid
+                  - consentby
+                  - consentdate
+                  - consentsetting
+                  description: A JSON array of consents to be updated.
+                departmentid:
+                  type: integer
+                  description: Department ID
+        required: true
+      tags:
+      - Patients
+      - Patient Health Data Exchange Consents
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

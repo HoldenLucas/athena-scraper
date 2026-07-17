@@ -1,0 +1,448 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/appointmentreminders:
+    post:
+      summary: Create appointment reminder
+      description: Creates an appointment reminder to indicate to the practice when
+        a patient should be scheduled for a future appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentreminderid:
+                    description: An athenaNet appointment reminder ID.
+                    type: integer
+                  errormessage:
+                    description: If operation was unsuccessful, detail as to why.
+                    type: string
+                  success:
+                    description: Indicates whether creation of the appointment reminder
+                      was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentreminders
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - approximatedate
+              - departmentid
+              - patientid
+              properties:
+                note:
+                  type: string
+                  description: Miscellaneous notes for this reminder.
+                patientid:
+                  type: integer
+                  description: An athenaNet patient ID.
+                providerid:
+                  type: integer
+                  description: An athenaNet provider ID.
+                departmentid:
+                  type: integer
+                  description: An athenaNet department ID.
+                approximatedate:
+                  type: string
+                  description: The approximate date on which an appointment for this
+                    reminder should be scheduled.
+                appointmenttypeid:
+                  type: integer
+                  description: An athenaNet appointment type ID.
+                patientinstructions:
+                  type: string
+                  description: Patient instructions regarding this reminder.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Reminders
+    get:
+      summary: Get list of appointment reminders
+      description: Retrieves a list appointment reminders for a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: appointmenttypeid
+        schema:
+          type: integer
+        required: false
+        description: An athenaNet appointment type ID.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: An athenaNet department ID.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: An athenaNet provider ID.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: An athenaNet patient ID.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: true
+        description: Find reminders for appointments whose approximate date is on
+          or before this date.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, we do not return reminders that have been deleted.
+          Setting this to true will show all reminders regardless of status.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: true
+        description: Find reminders for appointments whose approximate date is on
+          or after this date.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 5000)Please note
+          that this endpoint has a different default than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentreminderid:
+                    description: The athenaNet appointment reminder ID.
+                    type: integer
+                  appointmenttype:
+                    description: Type of appointment.
+                    type: string
+                  appointmenttypeid:
+                    description: The athenaNet appointment type ID.
+                    type: integer
+                  approximatedate:
+                    description: The approximate date on which an appointment for
+                      this reminder should be scheduled.
+                    type: string
+                  created:
+                    description: The date when appointment reminder was created.
+                    type: string
+                  createdby:
+                    description: The name of the person who created/updated the reminder.
+                    type: string
+                  deleted:
+                    description: If set, the date on which this reminder was deleted.
+                    type: string
+                  departmentid:
+                    description: The athenaNet department ID.
+                    type: integer
+                  encounterid:
+                    description: Appointment encounter ID.
+                    type: integer
+                  note:
+                    description: Free-text notes entered by the practice about this
+                      reminder.
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  patientinstructions:
+                    description: Free-text instructions for the patient entered by
+                      the practice for this reminder.
+                    type: string
+                  providerbilledname:
+                    description: The name of the provider .
+                    type: string
+                  providerid:
+                    description: The athenaNet provider ID.
+                    type: integer
+                  staffinstructions:
+                    description: Free-text instructions for the staff about the content
+                      of the next appointment.
+                    type: string
+                  status:
+                    description: Status of the reminder.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentreminders
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Reminders
+  /v1/{practiceid}/appointments/appointmentreminders/{appointmentreminderid}:
+    get:
+      summary: Get details of an appointment reminder.
+      description: Retrieves details of an appointment reminder.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentreminderid
+        schema:
+          type: integer
+        required: true
+        description: appointmentreminderid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentreminderid:
+                    description: The athenaNet appointment reminder ID.
+                    type: integer
+                  appointmenttype:
+                    description: Type of appointment.
+                    type: string
+                  appointmenttypeid:
+                    description: The athenaNet appointment type ID.
+                    type: integer
+                  approximatedate:
+                    description: The approximate date on which an appointment for
+                      this reminder should be scheduled.
+                    type: string
+                  created:
+                    description: The date when appointment reminder was created.
+                    type: string
+                  createdby:
+                    description: The name of the person who created/updated the reminder.
+                    type: string
+                  deleted:
+                    description: If set, the date on which this reminder was deleted.
+                    type: string
+                  departmentid:
+                    description: The athenaNet department ID.
+                    type: integer
+                  encounterid:
+                    description: Appointment encounter ID.
+                    type: integer
+                  note:
+                    description: Free-text notes entered by the practice about this
+                      reminder.
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  patientinstructions:
+                    description: Free-text instructions for the patient entered by
+                      the practice for this reminder.
+                    type: string
+                  providerbilledname:
+                    description: The name of the provider .
+                    type: string
+                  providerid:
+                    description: The athenaNet provider ID.
+                    type: integer
+                  staffinstructions:
+                    description: Free-text instructions for the staff about the content
+                      of the next appointment.
+                    type: string
+                  status:
+                    description: Status of the reminder.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentremindersAppointmentreminderid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Reminders
+    put:
+      summary: Update appointment reminder.
+      description: Updates an appointment reminder based on user inputs.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentreminderid
+        schema:
+          type: integer
+        required: true
+        description: appointmentreminderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If operation was unsuccessful, detail as to why.
+                    type: string
+                  success:
+                    description: Indicates whether creation of the appointment reminder
+                      was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentremindersAppointmentreminderid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: Miscellaneous notes for this reminder.
+                status:
+                  enum:
+                  - ''
+                  - CONTACTED
+                  - NOANSWER
+                  type: string
+                  description: Status of the reminder.
+                providerid:
+                  type: integer
+                  description: An athenaNet provider ID.
+                approximatedate:
+                  type: string
+                  description: The approximate date on which an appointment for this
+                    reminder should be scheduled.
+                appointmenttypeid:
+                  type: integer
+                  description: An athenaNet appointment type ID.
+                patientinstructions:
+                  type: string
+                  description: Patient instructions regarding this reminder.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Reminders
+    delete:
+      summary: Delete an existing reminder.
+      description: Delete an existing reminder.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentreminderid
+        schema:
+          type: integer
+        required: true
+        description: appointmentreminderid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If operation was unsuccessful, detail as to why.
+                    type: string
+                  success:
+                    description: Indicates whether creation of the appointment reminder
+                      was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidAppointmentsAppointmentremindersAppointmentreminderid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Reminders
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

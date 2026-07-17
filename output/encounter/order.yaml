@@ -1,0 +1,1593 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders:
+    get:
+      summary: Get list of orders for given encounter
+      description: 'Retrieves a list of orders based on the diagnosis for a specific
+        encounter Note: This endpoint may rely on specific settings to be enabled
+        in athenaNet Production to function properly that are not required in other
+        environments. Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: If set, this will return diagnoses with empty orders lists.
+        in: query
+        name: showdiagnoseswithoutorders
+        required: false
+        schema:
+          type: boolean
+      - description: If set, this will allow getting orders for a discharge encounter
+          type.
+        in: query
+        name: allowdischargetype
+        required: false
+        schema:
+          type: boolean
+      - description: If set, this will show the information about the provider receiving
+          the order.
+        in: query
+        name: showclinicalprovider
+        required: false
+        schema:
+          type: boolean
+      - description: If set, include orders that were declined
+        in: query
+        name: showdeclinedorders
+        required: false
+        schema:
+          type: boolean
+      - description: If set, translate the order information to relevant external
+          vocabularies, where available. Examples are medictions to RxNorm and NDC,
+          vaccines to CVX and MVX, labs to LOINC, etc. Our mappings are not exhaustive.
+        in: query
+        name: showexternalcodes
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ndc:
+                          type: string
+                          description: The National Drug Code for the order
+                        class:
+                          type: string
+                          description: The primary class of this order -- PRESCRIPTION,
+                            VACCINE, LAB, IMAGING, PATIENTINFO, etc.
+                        status:
+                          type: string
+                          description: The status the document is in (PEND, CLOSED,
+                            SUBMIT, SUBMITTED, etc).
+                        orderid:
+                          type: integer
+                          description: The order (aka document) ID for this order.
+                        refills:
+                          type: string
+                          description: The number of refills allowed.
+                        ndccodes:
+                          type: array
+                          items:
+                            type: string
+                          description: The list of NDC numbers that correspond to
+                            this medication.
+                        priority:
+                          type: integer
+                          description: Priority of an order. 1 is high; 2 is normal.
+                        ordertype:
+                          type: string
+                          description: The type of this order (Lab, Vaccine, etc.)
+                        providerid:
+                          type: integer
+                          description: ID of the ordering provider.
+                        createduser:
+                          type: string
+                          description: The username of the person who created the
+                            order.
+                        dateordered:
+                          type: string
+                          description: The timestamp when the order was created.
+                        description:
+                          type: string
+                          description: A human readable description for this order
+                        ordertypeid:
+                          type: integer
+                          description: The athena ID for this type of order. Can be
+                            used to create another order of this type.
+                        assigneduser:
+                          type: string
+                          description: The username of the user who this order task
+                            is currently assigned to for further processing as needed.
+                        departmentid:
+                          type: integer
+                          description: Department ID of the provider.
+                        externalnote:
+                          type: string
+                          description: The External note for this order
+                        ordergenusid:
+                          type: integer
+                          description: The ClinicalOrderGenus ID.
+                        providernote:
+                          type: string
+                          description: The Provider note for this order
+                        quantityunit:
+                          type: string
+                          description: The External note for this order
+                        diagnosislist:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              diagnosiscode:
+                                type: object
+                                properties:
+                                  code:
+                                    type: string
+                                    description: SNOMED Diagnosis Code
+                                  codeset:
+                                    type: string
+                                    description: CodeSet the SNOMED code belongs to.
+                                  description:
+                                    type: string
+                                    description: Description of the SNOMED Code
+                              snomedicdcodes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: ICD 10 Code
+                                    codeset:
+                                      type: string
+                                      description: 'Code set the ICD10 code belongs
+                                        to '
+                                    description:
+                                      type: string
+                                      description: Brief description of the code
+                                    unstrippeddiagnosiscode:
+                                      type: string
+                                      description: Unstripped Diagnosis Code
+                                description: ICD equivalent Codes for the SNOMED Code
+                              imodiagnosislist:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: integer
+                                      description: The athena id of the imo diagnosis
+                                    imocode:
+                                      type: object
+                                      properties:
+                                        code:
+                                          type: string
+                                          description: The IMO code for this diagnosis
+                                        codeset:
+                                          type: string
+                                          description: Codeset for this code (IMO)
+                                        laterality:
+                                          type: string
+                                          description: The laterality for this IMO
+                                            code
+                                        description:
+                                          type: string
+                                          description: The provider facing description
+                                            for this IMO code
+                                        needsrefinement:
+                                          enum:
+                                          - ''
+                                          - false
+                                          - true
+                                          type: string
+                                          description: Whether or not the IMO term
+                                            supports further refinement
+                                      description: IMO code details for this diagnosis
+                                    icdcodes:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          code:
+                                            type: string
+                                            description: ICD code for this diagnosis
+                                          codeset:
+                                            type: string
+                                            description: Codeset for this code (ICD9
+                                              or ICD10)
+                                          description:
+                                            type: string
+                                            description: Brief description for this
+                                              code
+                                      description: List of relevant ICD codes for
+                                        this IMO code
+                                    snomedcodes:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          code:
+                                            type: string
+                                            description: SNOMED code for this diagnosis
+                                          codeset:
+                                            type: string
+                                            description: Codeset for this code (SNOMED)
+                                          description:
+                                            type: string
+                                            description: Brief description for this
+                                              code
+                                      description: List of relevant SNOMED codes for
+                                        this IMO code
+                                    patientfacingdescription:
+                                      type: string
+                                      description: The patient facing description
+                                        for this IMO code
+                                    providerfacingdescription:
+                                      type: string
+                                      description: The provider facing description
+                                        for this IMO code
+                                description: List of IMO codes and data for this diagnosis
+                                  This API attribute is being rolled out and will
+                                  be Generally Available on or before TBD
+                          description: List of Diagnosis related to this order.
+                        externalcodes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                                description: The code in the external vocabulary.
+                              codeset:
+                                type: string
+                                description: Name of the external vocabulary. Currently
+                                  LOINC (for labs and some imaging orders), CVX (for
+                                  vaccines), RXNORM and NDC (for prescriptions and
+                                  some DMEs).
+                              description:
+                                type: string
+                                description: When available, a description of the
+                                  code from the external vocabulary.
+                          description: When available, contains how this order maps
+                            to external vocabularies like LOINC, CVX, SNOMED, RXNORM,
+                            etc.
+                        ordertypename:
+                          type: string
+                          description: The ClinicalOrderType name.
+                        quantityvalue:
+                          type: string
+                          description: A administer note description for this order
+                        administernote:
+                          type: string
+                          description: The Administrator note for this order
+                        declinedreason:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                                description: The code indicating why the order was
+                                  not given.
+                              codeset:
+                                type: string
+                                description: The codeset that the code belongs to.
+                              description:
+                                type: string
+                                description: The plaintext description of the reason
+                                  the order was not given.
+                          description: List of codes indicating why the order was
+                            not given. If this field is not present, the order was
+                            not declined. If the array is empty, no reason has been
+                            chosen.
+                        lastmodifiedby:
+                          type: string
+                          description: The username of the person who last modified
+                            the order.
+                        ordergenusname:
+                          type: string
+                          description: The ClinicalOrderGenus name.
+                        classdescription:
+                          type: string
+                          description: The human-readable description of this document
+                            class, including sub class (prescription - new vs. prescription
+                            - renewal).
+                        clinicalprovider:
+                          type: object
+                          properties:
+                            zip:
+                              type: integer
+                              description: Zip code for the provider
+                            city:
+                              type: string
+                              description: City of the provider
+                            name:
+                              type: string
+                              description: Name of the provider
+                            state:
+                              type: string
+                              description: State the provider resides
+                            address1:
+                              type: string
+                              description: First part of provider address
+                            address2:
+                              type: string
+                              description: Second part of provider address
+                            clianumber:
+                              type: string
+                              description: The CLIA number of the clinical provider
+                                on file.
+                            phonenumber:
+                              type: string
+                              description: Phone number for the provider
+                            faxphonenumber:
+                              type: string
+                              description: Fax number for the provider
+                            clinicalproviderid:
+                              type: string
+                              description: ID for the provider
+                          description: Details about the provider the order is sent
+                            to.
+                        earliestfilldate:
+                          type: string
+                          description: The earliest date a prescription may be filled,
+                            in the format mm/dd/yyyy.
+                        futuresubmitdate:
+                          type: string
+                          description: The date this order will be submitted.
+                        orderingprovider:
+                          type: string
+                          description: The username of the ordering provider, which
+                            is different than the ordering user -- who may be an intake
+                            nurse for example.
+                        documentationonly:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: If true, this order is here just as a record,
+                            and does not need to actually go out.
+                        facilityordercode:
+                          type: object
+                          properties:
+                            code:
+                              type: string
+                              description: The code in the facility specific vocabulary.
+                            description:
+                              type: string
+                              description: When available, a description of the code
+                                from the facility specific vocabulary.
+                          description: Facility specific coding for the type of order
+                        clinicalproviderid:
+                          type: integer
+                          description: ID of the clinical provider
+                        declinedreasontext:
+                          type: string
+                          description: The user-facing description of the reason the
+                            order was not given.
+                        provideridentifier:
+                          type: integer
+                          description: ID of the ordering provider.
+                        clinicalprovidername:
+                          type: string
+                          description: Name of the clinical provider.
+                        lastmodifieddatetime:
+                          type: string
+                          description: The date this order was last modified.
+                        contraindicationreason:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                                description: The code indicating why the order was
+                                  contraindicated.
+                              codeset:
+                                type: string
+                                description: The codeset that the code belongs to.
+                              description:
+                                type: string
+                                description: The plaintext description of the contraindication
+                                  reason.
+                          description: List of codes indicating why the order was
+                            contraindicated (for vaccines only). If this field is
+                            not present, the order does not contain a contraindication
+                            reason.
+                        specimencollectionsite:
+                          type: string
+                          description: Gives the location of the clinical specimen
+                            collected if any
+                    description: List of orders for this diagnosis.
+                  diagnosis:
+                    type: string
+                    description: The name of the diagnosis
+                  diagnosisicd:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The ICD9/10 code
+                        codeset:
+                          type: string
+                          description: ICD9 or ICD10
+                        description:
+                          type: string
+                          description: The description of the ICD code. Note that
+                            an ICD code can be a superset or a subset of the SNOMED
+                            code.
+                    description: The matching ICD9 or ICD10 codes for this diagnosis,
+                      where available.
+                  diagnosissnomed:
+                    type: integer
+                    description: The SNOMED code for this diagnosis. 0 means No Diagnosis.
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridOrders
+      x-scopes: []
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/{orderid}/actions:
+    post:
+      summary: Create action note to selected order
+      description: Creates an action note for a specific existing order
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: orderid
+        schema:
+          type: integer
+        required: true
+        description: orderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersOrderidActions
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - actionnote
+              properties:
+                actionnote:
+                  type: string
+                  description: The action note to add to the order.
+        required: true
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/{orderid}/deny:
+    post:
+      summary: Deny specific order request with reasons
+      description: Declines an order request with specific reasoning
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: orderid
+        schema:
+          type: integer
+        required: true
+        description: orderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersOrderidDeny
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - denyreasonid
+              properties:
+                username:
+                  type: string
+                  description: The username of the person/entity denying the order.  Use
+                    this field to receive a proper error message when the user does
+                    not have adequate permission to deny the order.  This is NOT used
+                    for authentication.
+                denyreasonid:
+                  type: integer
+                  description: The ID of the deny reason.
+        required: true
+      tags:
+      - Encounter
+      - Orders
+    get:
+      summary: Get denial reasons for selected order
+      description: Retrieves the list of denial reasons for the specific order
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: orderid
+        schema:
+          type: integer
+        required: true
+        description: orderid
+      - in: query
+        name: username
+        schema:
+          type: string
+        required: false
+        description: The username of the person/entity denying the order.  Will return
+          any denial reason that is valid for that user, or error if none exist.  This
+          is NOT used for authentication.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  denyreason:
+                    type: string
+                    description: A human readable description for this deny reason
+                  denyreasonid:
+                    type: integer
+                    description: The athena ID for this reason for denying the order.
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridOrdersOrderidDeny
+      x-scopes: []
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/{orderid}/returntosubmit:
+    post:
+      summary: Revert order state to submit status
+      description: Changes the order status to "Submit" if they are currently in the
+        SUBMITTED status
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: orderid
+        schema:
+          type: integer
+        required: true
+        description: orderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersOrderidReturntosubmit
+      x-scopes: []
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/{orderid}/submit:
+    post:
+      summary: Submit order for given encounter
+      description: Changes the status of the order to Submit when the order is routed
+        via ATHENAFAX, MANUALFAX, MANUALPRINT, and MANUALPHONE
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: orderid
+        schema:
+          type: integer
+        required: true
+        description: orderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersOrderidSubmit
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - submitvia
+              properties:
+                submitvia:
+                  type: string
+                  description: The route to submit via (ATHENAFAX, MANUALFAX, MANUALPRINT,
+                    and MANUALPHONE are currently the only supported options)
+        required: true
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/outstanding:
+    get:
+      summary: Get list of outstanding orders for given encounter
+      description: Retrieves a list of orders for a specific encounter which are yet
+        to be submitted
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: showprescriptions
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, include prescriptions and medications along with
+          other orders in response. Parameter will be set to false by default.
+      - in: query
+        name: showdeclinedorders
+        schema:
+          type: boolean
+        required: false
+        description: If set, include orders that were declined
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of this order.
+                  class:
+                    type: string
+                    description: 'The document class of this order: ORDER (for labs,
+                      imaging, consult (referral), procedure, and other), SURGERY,
+                      DME, and VACCINE.'
+                  status:
+                    type: string
+                    description: The status of the order document. New orders start
+                      in REVIEW status and Open Orders include Review, Pending, Administer,
+                      Submit, Submitted, Perform, Followup, Dispense, Schedule, Scheduled,
+                      and Athena Error.
+                  documentid:
+                    type: integer
+                    description: The linked document for this order.
+                  dateordered:
+                    type: string
+                    description: The timestamp when the order was created. Returned
+                      in mm/dd/yyyy hh:mi AM/PM format
+                  description:
+                    type: string
+                    description: Brief description for this order.
+                  assigneduser:
+                    type: string
+                    description: The username of the user who this order task is currently
+                      assigned to for further processing as needed.
+                  departmentid:
+                    type: integer
+                    description: The athenaNet department ID.
+                  declinedreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was not given.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the reason the
+                            order was not given.
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                  classdescription:
+                    type: string
+                    description: The human-readable description of this document class
+                  orderingprovider:
+                    type: string
+                    description: The username of the ordering provider, which is different
+                      than the ordering user - who may be an intake nurse for example.
+                  documentationonly:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this order is here just as a record, and
+                      does not need to actually go out.
+                  declinedreasontext:
+                    type: string
+                    description: The user-facing description of the reason the order
+                      was not given.
+                  contraindicationreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was contraindicated.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the contraindication
+                            reason.
+                    description: List of codes indicating why the order was contraindicated
+                      (for vaccines only). If this field is not present, the order
+                      does not contain a contraindication reason.
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridOrdersOutstanding
+      x-scopes: []
+      tags:
+      - Encounter
+      - Outstanding Encounter Orders
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/{orderid}:
+    get:
+      summary: Retrieve some data regarding an order, including the list of documents
+        attached to the order. Useful for finding attached letters, prescription renewal
+        chains, and lab/imaging results.
+      description: 'Some data regarding this order, including the list of documents
+        attached to the order. Useful for finding attached letters, prescription renewal
+        chains, and lab/imaging results. Note: This endpoint may rely on specific
+        settings to be enabled in athenaNet Production to function properly that are
+        not required in other environments. Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: orderid
+        in: path
+        name: orderid
+        required: true
+        schema:
+          type: integer
+      - description: Some order types like labs and imaging orders have additional
+          pertinant information in a question/answer format. Setting this will return
+          that data.
+        in: query
+        name: showquestions
+        required: false
+        schema:
+          type: boolean
+      - description: When set, returns Prior Authorization and insurances for some
+          order types, separately and in a structured version than those returned
+          in showquestions.
+        in: query
+        name: showstructuredauthorizationdetails
+        required: false
+        schema:
+          type: boolean
+      - description: If set, translate the order information to relevant external
+          vocabularies, where available. Examples are medictions to RxNorm and NDC,
+          vaccines to CVX and MVX, labs to LOINC, etc. Our mappings are not exhaustive.
+        in: query
+        name: showexternalcodes
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  class:
+                    type: string
+                    description: The primary class of this order -- PRESCRIPTION,
+                      VACCINE, LAB, IMAGING, PATIENTINFO, etc.
+                  status:
+                    type: string
+                    description: The status the document is in (PEND, CLOSED, SUBMIT,
+                      SUBMITTED, etc).
+                  orderid:
+                    type: integer
+                    description: The order (aka document) ID for this order.
+                  priority:
+                    type: integer
+                    description: Priority of an order. 1 is high; 2 is normal.
+                  documents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        class:
+                          type: string
+                          description: The class of the child document. E.g., LETTER,
+                            PRESCRIPTION.
+                        status:
+                          type: string
+                          description: The status of the child document.
+                        subclass:
+                          type: string
+                          description: The subclass of the child document.. E.g.,
+                            LETTER_SUMMARYCARERECORD, PRESCRIPTION_RENEWAL.
+                        documentid:
+                          type: integer
+                          description: The ID of the child document.
+                        clinicalproviderid:
+                          type: integer
+                          description: The ID of the facility (facilityid), person,
+                            or group that the child document was received from (results,
+                            prescription changes/authorizations) or is being sent
+                            to (new prescriptions, etc).
+                    description: The list of documents attached to this order. This
+                      can be letters, lab or imaging results, prescription renewals,
+                      etc.
+                  ordertype:
+                    type: string
+                    description: The type of this order (Lab, Vaccine, etc.)
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        answer:
+                          type: string
+                          description: The answer
+                        question:
+                          type: string
+                          description: The question
+                    description: The custom list of questions and answers associated
+                      with this order. This list will vary by practice.
+                  insurances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the insurance.
+                        memberid:
+                          type: string
+                          description: Member id.
+                        sequence:
+                          type: integer
+                          description: 'Number indicating insurance sequence: 1 -
+                            Primary, 2 - Secondary, 3 - Tertiary, 4 - Quaternary.'
+                        visitsapproved:
+                          type: integer
+                          description: The number of visits approved.
+                        effectiveenddate:
+                          type: string
+                          description: Effective end date.
+                        effectivestartdate:
+                          type: string
+                          description: Effective start date.
+                        insurancepackageid:
+                          type: string
+                          description: Insurance package id.
+                        patientinsuranceid:
+                          type: string
+                          description: Patient insurance id.
+                        authorizationnumber:
+                          type: string
+                          description: Authorization number.
+                        authorizationstatus:
+                          type: string
+                          description: The authorizatin status for this insurance.
+                        additionalinformation:
+                          type: string
+                          description: Additional information note.
+                    description: Insurances used in prior authorization of the oder.
+                  providerid:
+                    type: integer
+                    description: ID of the Provider
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        documentid:
+                          type: integer
+                          description: ID of the attached document.
+                        encounterid:
+                          type: integer
+                          description: ID of the attached encounter or order group
+                        flowsheetid:
+                          type: integer
+                          description: ID of the attached flowsheet
+                        sectionname:
+                          type: string
+                          description: Section name for the attached document.
+                        documentclass:
+                          type: string
+                          description: Class of the attached document.
+                        sectionnamekey:
+                          type: string
+                          description: Key name of the section of the attached document.
+                        documentdescription:
+                          type: string
+                          description: A description of the attached document
+                    description: Set of attachments on an order.
+                  createduser:
+                    type: string
+                    description: The username of the person who created the order.
+                  dateordered:
+                    type: string
+                    description: The timestamp when the order was created.
+                  description:
+                    type: string
+                    description: A human readable description for this order
+                  ordertypeid:
+                    type: integer
+                    description: The athena ID for this type of order. Can be used
+                      to create another order of this type.
+                  departmentid:
+                    type: integer
+                    description: Department ID of the Provider
+                  dateofservice:
+                    type: string
+                    description: Date of service for this order.
+                  diagnosislist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        diagnosiscode:
+                          type: object
+                          properties:
+                            code:
+                              type: string
+                              description: SNOMED Diagnosis Code
+                            codeset:
+                              type: string
+                              description: CodeSet the SNOMED code belongs to.
+                            description:
+                              type: string
+                              description: Description of the SNOMED Code
+                        snomedicdcodes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                                description: ICD 10 Code
+                              codeset:
+                                type: string
+                                description: 'Code set the ICD10 code belongs to '
+                              description:
+                                type: string
+                                description: Brief description of the code
+                              unstrippeddiagnosiscode:
+                                type: string
+                                description: Unstripped Diagnosis Code
+                          description: ICD equivalent Codes for the SNOMED Code
+                    description: List of Diagnosis related to this order.
+                  externalcodes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code in the external vocabulary.
+                        codeset:
+                          type: string
+                          description: Name of the external vocabulary. Currently
+                            LOINC (for labs and some imaging orders), CVX (for vaccines),
+                            RXNORM and NDC (for prescriptions and some DMEs).
+                        description:
+                          type: string
+                          description: When available, a description of the code from
+                            the external vocabulary.
+                    description: When available, contains how this order maps to external
+                      vocabularies like LOINC, CVX, SNOMED, RXNORM, etc.
+                  declinedreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was not given.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the reason the
+                            order was not given.
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                  placeofservice:
+                    type: string
+                    description: CMS Place of Service name.
+                  procedurecodes:
+                    type: string
+                    description: CPT codes associated with this order.
+                  requestedvisits:
+                    type: integer
+                    description: The number of requested visits.
+                  classdescription:
+                    type: string
+                    description: The human-readable description of this document class,
+                      including sub class (prescription - new vs. prescription - renewal).
+                  clinicalprovider:
+                    type: string
+                    description: The name of the facility, person, or group that the
+                      order is being sent to.
+                  orderingprovider:
+                    type: string
+                    description: The username of the ordering provider, which is different
+                      than the ordering user -- who may be an intake nurse for example.
+                  placeofserviceid:
+                    type: string
+                    description: CMS Place of Service code.
+                  documentationonly:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this order is here just as a record, and
+                      does not need to actually go out.
+                  facilityordercode:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The code in the facility specific vocabulary.
+                      description:
+                        type: string
+                        description: When available, a description of the code from
+                          the facility specific vocabulary.
+                    description: Facility specific coding for the type of order
+                  clinicalproviderid:
+                    type: integer
+                    description: The ID of the facility (facilityid), person, or group
+                      that the order is being sent to.
+                  declinedreasontext:
+                    type: string
+                    description: The user-facing description of the reason the order
+                      was not given.
+                  contraindicationreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was contraindicated.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the contraindication
+                            reason.
+                    description: List of codes indicating why the order was contraindicated
+                      (for vaccines only). If this field is not present, the order
+                      does not contain a contraindication reason.
+                  specimencollectionsite:
+                    type: string
+                    description: The location where a clinical specimen if any was
+                      collected.
+                  clinicalproviderordertype:
+                    type: string
+                    description: The Name for the type of order referred to by a clinical
+                      provider (A clinical provider here refers to a facility).
+                  clinicalproviderordertypeid:
+                    type: integer
+                    description: The Unique ID for the type of order referred to by
+                      a clinical provider (A clinical provider here refers to a facility).
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridOrdersOrderid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Orders
+  /v1/{practiceid}/configuration/ordertype:
+    get:
+      summary: Get list of orderable concept (ordertype or CPOT)
+      description: 'Retrieves a list of all orderable COTs and CPOTs Note: This endpoint
+        may rely on specific settings to be enabled in athenaNet Production to function
+        properly that are not required in other environments. Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: The athena ID of the lab facility that would be responsible for
+          filling any lab orders. Get a localized list using /chart/configuration/facilities
+        in: query
+        name: labfacilityid
+        required: false
+        schema:
+          type: integer
+      - description: The SNOMED code for a diagnosis. If this is passed in, the API
+          will take the SNOMED code into account while determining which order types
+          are more relevant. If this field is passed in, both the encounter id and
+          the provider id must also be passed in, or the search query must be at least
+          2 characters long.
+        in: query
+        name: snomedcode
+        required: false
+        schema:
+          type: string
+      - description: The athena ID of the provider making the search.
+        in: query
+        name: providerid
+        required: false
+        schema:
+          type: integer
+      - description: Whether to filter orders by any configured practice-preferred
+          order lists. This has no effect unless an encounter ID is also passed in.
+        in: query
+        name: useppol
+        required: false
+        schema:
+          type: boolean
+      - description: The number of items returned from this endpoint, up to a maximum
+          of 100.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The athena ID of the encounter in which the order will be placed.
+        in: query
+        name: encounterid
+        required: false
+        schema:
+          type: integer
+      - description: The athena ID of the imaging facility that would be responsible
+          for filling any imaging orders. Get a localized list using /chart/configuration/facilities
+        in: query
+        name: imagingfacilityid
+        required: false
+        schema:
+          type: integer
+      - description: The term to search for.
+        in: query
+        name: searchterm
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  facilityid:
+                    type: integer
+                    description: The athena ID of the facility responsible for filling
+                      the order.
+                  ordertypeid:
+                    type: integer
+                    description: The id of an order type which matches the search
+                      string.
+                  ordertypename:
+                    type: string
+                    description: The name of an orderable concept (ordertype or CPOT)
+                      which matches the search string.
+                  ordergenusname:
+                    type: string
+                    description: The Order genus Name
+                  ordertypegroupid:
+                    type: integer
+                    description: The athena ID of the order type group under which
+                      the orderable falls (eg. 11 for LAB).
+                  ordertypegroupname:
+                    type: string
+                    description: The name of the order type group under which the
+                      orderable falls (eg. LAB).
+                  electronicordercode:
+                    type: string
+                    description: The electronic order code that identifies the order
+                      in external systems.
+                  clinicalproviderordertypeid:
+                    type: integer
+                    description: The athena ID describing the Clinical Provider Order
+                      Type matching the search string.
+          description: Success
+      operationId: getPracticeidConfigurationOrdertype
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Type
+  /v1/{practiceid}/reference/clinicalproviderordertype/imaging:
+    get:
+      summary: Get list of imaging studies for CPOT
+      description: Retrieves a list of imaging studies for CPOT
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      - in: query
+        name: facilityid
+        schema:
+          type: integer
+        required: true
+        description: The athena ID of the facility. Get a localized list using /chart/configuration/facilities.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clinicalproviderordertypeid:
+                    description: The athena ID of the clinical provider order type
+                    type: integer
+                  name:
+                    description: The name of the clinical provider order type
+                    type: string
+                  ordercode:
+                    description: The order code pertaining to the clinical provider
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceClinicalproviderordertypeImaging
+      x-scopes: []
+      tags:
+      - Encounter
+      - Clinical Provider Order Types
+  /v1/{practiceid}/reference/clinicalproviderordertype/lab:
+    get:
+      summary: Get list of labs for CPOT
+      description: Retrieves a list of laboratories for CPOT
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      - in: query
+        name: facilityid
+        schema:
+          type: integer
+        required: true
+        description: The athena ID of the facility. Get a localized list using /chart/configuration/facilities.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clinicalproviderordertypeid:
+                    description: The athena ID of the clinical provider order type
+                    type: integer
+                  name:
+                    description: The name of the clinical provider order type
+                    type: string
+                  ordercode:
+                    description: The order code pertaining to the clinical provider
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceClinicalproviderordertypeLab
+      x-scopes: []
+      tags:
+      - Encounter
+      - Clinical Provider Order Types
+  /v1/{practiceid}/encounter/configuration/modifiers:
+    get:
+      summary: Get list of non-fee affecting modifiers
+      description: Gets a list of non-fee-affecting modifiers that can be attached
+        to a service.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: Description of the modifier.
+                    type: string
+                  modifierid:
+                    description: ID of the modifier.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidEncounterConfigurationModifiers
+      x-scopes: []
+      tags:
+      - Encounter
+      - Billing Slip
+  /v1/{practiceid}/chart/configuration/officeordertypes:
+    get:
+      summary: Get List of Ordertypes
+      description: Retrieves a list of ordertypes configured for a Practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clinicalordertypeid:
+                    description: The athena ID for this order type
+                    type: integer
+                  clinicalprovider:
+                    description: The name of the clinical provider / department handling
+                      this point of care order
+                    type: string
+                  clinicalproviderid:
+                    description: The athena ID of the clinical provider / department
+                      handling this point of care order
+                    type: integer
+                  departmentids:
+                    description: The list of departments that have this point of care
+                      order type configured
+                    type: string
+                  loinc:
+                    description: The LOINC code matching this order, if available
+                    type: string
+                  ordertype:
+                    description: The name of the order type
+                    type: string
+                  ordertypecategory:
+                    description: The type of order -- LAB, IMAGING, etc.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationOfficeordertypes
+      x-scopes: []
+      tags:
+      - Encounter
+      - Office Order Types
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

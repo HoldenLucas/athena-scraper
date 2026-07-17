@@ -1,0 +1,457 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/insurances/{insuranceid}/ccmenrollmentstatus:
+    get:
+      summary: Get CCM enrollment status for an insurance
+      description: Retrieves the Chronic Care Management enrollment status of a patient's
+        specific insurance package
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: insuranceid
+        schema:
+          type: integer
+        required: true
+        description: insuranceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The current department ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  currenteffectivedate:
+                    description: The effective date for the current status of CCM
+                      enrollment. Only applicable for "Enrolled."
+                    type: string
+                  currentexpirationdate:
+                    description: The expiration date for the current status of CCM
+                      enrollment. Only applicable for "Enrolled."
+                    type: string
+                  currentstatusid:
+                    description: Current status ID of CCM enrollment.
+                    type: integer
+                  currentstatusname:
+                    description: Current status of CCM enrollment.
+                    type: string
+                  eligibleinsurance:
+                    description: This field is true if the insurance is eligible for
+                      CCM.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  history:
+                    properties:
+                      asofdate:
+                        description: Date of this became the CCM status.
+                        type: string
+                      effectivedate:
+                        description: The effective date for the status. Only applicable
+                          for "Enrolled."
+                        type: string
+                      expirationdate:
+                        description: The expiration date for the status. Only applicable
+                          for "Enrolled."
+                        type: string
+                      statusname:
+                        description: The name of the CCM enrollment status.
+                        type: string
+                    type: object
+                  insuranceid:
+                    description: ID of insurance policy.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidInsurancesInsuranceidCcmenrollmentstatus
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Chronic Care Management
+    put:
+      summary: Update CCM enrollment status for an insurance
+      description: Modifies the Chronic Care Management enrollment status for a specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: insuranceid
+        schema:
+          type: integer
+        required: true
+        description: insuranceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns whether or not the change to CCM enrollment
+                      was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidInsurancesInsuranceidCcmenrollmentstatus
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - status
+              - departmentid
+              properties:
+                status:
+                  enum:
+                  - ''
+                  - 0
+                  - 1
+                  - 2
+                  - 3
+                  - 4
+                  - 21
+                  type: integer
+                  description: The new status of CCM enrollment.
+                departmentid:
+                  type: integer
+                  description: The current department ID.
+                effectivedate:
+                  type: string
+                  description: The effective date for the status. Only applicable
+                    for "Enrolled."
+                expirationdate:
+                  type: string
+                  description: The expiration date for the status. Only applicable
+                    for "Enrolled."
+        required: true
+      tags:
+      - Insurance/Financial
+      - Chronic Care Management
+  /v1/{practiceid}/ccmenrollmentstatus/changed/subscription/events:
+    get:
+      summary: Get list of change events for CCM enrollment status
+      description: Retrieve list of all events that can be input for this subscription.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidCcmenrollmentstatusChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - CCM Enrollment Status Subscription
+  /v1/{practiceid}/ccmenrollmentstatus/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for CCM enrollment status
+      description: Subscribes for changed CCM enrollment status events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      ccm enrollment was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidCcmenrollmentstatusChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+        required: true
+      tags:
+      - Insurance/Financial
+      - CCM Enrollment Status Subscription
+    get:
+      summary: Get list of subscribed events for changes in CCM enrollment status
+      description: Retrieves list of events applicable for CCM enrollment status changed
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidCcmenrollmentstatusChangedSubscription
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - CCM Enrollment Status Subscription
+    delete:
+      summary: Unsubscribe to all/specific events for changes in CCM enrollment status
+      description: Delete an specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      ccm enrollment was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidCcmenrollmentstatusChangedSubscription
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - CCM Enrollment Status Subscription
+  /v1/{practiceid}/ccmenrollmentstatus/changed:
+    get:
+      summary: Get list of changes in CCM enrollment status
+      description: Retrieve list of records whose enrollment status is modified
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed.
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ccmenrollmentstatus:
+                    description: The new, human-readable CCM Enrollment status.
+                    type: string
+                  ccmenrollmentstatusid:
+                    description: The new CCM Enrollment status ID.
+                    type: integer
+                  departmentid:
+                    description: The department ID related to this patient and the
+                      chart sharing group this insurance is a part of.
+                    type: integer
+                  insuranceid:
+                    description: The athena-specific insurance ID.
+                    type: integer
+                  patientid:
+                    description: The ID of the patient that just received an update
+                      to their CCM Enrollment status.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidCcmenrollmentstatusChanged
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - CCM Enrollment Status Subscription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

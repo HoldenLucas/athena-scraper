@@ -1,0 +1,378 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/orcase/changed:
+    get:
+      summary: Get list of changes in OR-cases based on subscribed events
+      description: Retrieves a list of new or updated OR-cases.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed.
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  cancellationdatetime:
+                    description: 'The date and time that the procedure was canceled.
+                      MM/DD/YYYY 24HH:MM. Note: Preference cards will be an empty
+                      array for canceled OR cases.'
+                    type: string
+                  orcaseid:
+                    description: Booking id associated with the procedure.
+                    type: integer
+                  orcaselocation:
+                    description: The room where the booking is scheduled to take place
+                    type: string
+                  patientid:
+                    description: The id of the patient the booking is for.
+                    type: integer
+                  preferencecards:
+                    description: An array of case preference cards. (an empty array
+                      if the OR case has been canceled)
+                    items:
+                      properties:
+                        caseprefcardid:
+                          description: An integer uniquely identifying the preference
+                            card for a procedure on a surgical case.
+                          type: integer
+                        items:
+                          description: An array of inventory items on the preference
+                            card
+                          items:
+                            properties:
+                              athenainventoryitemid:
+                                description: The id of the item in athena
+                                type: integer
+                              categoryid:
+                                description: The id of the category of the item.
+                                type: integer
+                              categoryname:
+                                description: The name of the category of the item.
+                                type: string
+                              description:
+                                description: The description of the item.
+                                type: string
+                              holdquantity:
+                                description: The quantity of the item that should
+                                  be set aside, but not opened
+                                type: integer
+                              inventorysystemitemid:
+                                description: The id of the item in the external inventory
+                                  management system
+                                type: string
+                              manufacturername:
+                                description: The name of the manufacturer of the item
+                                type: string
+                              manuracturerid:
+                                description: The id of the manufacturer of the item
+                                type: string
+                              name:
+                                description: The name of the item.
+                                type: string
+                              openquantity:
+                                description: The quantity of the item that should
+                                  be opened
+                                type: integer
+                              returnquantity:
+                                description: The quantity of the item returned during
+                                  the surgical case.
+                                type: integer
+                              sku:
+                                description: A unique ID for the item assigned by
+                                  the vendor
+                                type: string
+                              unit:
+                                description: The unit of measure for the item
+                                type: string
+                              usedquantity:
+                                description: The quantity of the item used during
+                                  the surgical case.
+                                type: integer
+                              vendorid:
+                                description: The id of the vendor of the item
+                                type: string
+                              vendorname:
+                                description: The name of the vendor of the item
+                                type: string
+                              wastedquantity:
+                                description: The quantity of the item wasted during
+                                  the surgical case.
+                                type: integer
+                            type: object
+                          type: array
+                        procedurename:
+                          description: The name of the procedure associated with the
+                            preference card
+                          type: string
+                      type: object
+                    type: array
+                  primarysurgeonname:
+                    description: The name of the primary surgeon on the booking
+                    type: string
+                  primarysurgeonproviderid:
+                    description: The id of the primary surgeon on the booking.
+                    type: integer
+                  startdatetime:
+                    description: The date and time that the procedure is scheduled
+                      to start. MM/DD/YYYY 24HH:MM
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidOrcaseChanged
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Case
+  /v1/{practiceid}/orcase/changed/subscription:
+    get:
+      summary: Get list of subscribed events for changes in hospital OR-cases
+      description: Retrieves list of events applicable for hospital OR-cases changes
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidOrcaseChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Case
+    post:
+      summary: Subscribe to all/specific change events for hospital OR-cases
+      description: Subscribes for change events for hospital OR-cases
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      orcase was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidOrcaseChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+        required: true
+      tags:
+      - Inpatient
+      - Surgery Case
+    delete:
+      summary: Unsubscribe to all/specific change events for hospital OR-cases
+      description: Delete a specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      orcase was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidOrcaseChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Case
+  /v1/{practiceid}/orcase/changed/subscription/events:
+    get:
+      summary: Get list of hospital OR-cases change events to which you can subscribe
+      description: Retrieves a list of events you can subscribe to when OR-cases are
+        added or updated.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidOrcaseChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Case
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

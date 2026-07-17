@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/misc/remindercallsettings:
+    get:
+      summary: Get reminder-call settings
+      description: Retrieves the reminder call settings
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the department. Required if also passing in the provider
+          ID.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the provider.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  earlyleaddays:
+                    description: Number of days before an appointment that an early
+                      call gets made.
+                    type: integer
+                  endtime:
+                    type: string
+                  leaddays:
+                    description: Number of days before an appointment that a call
+                      is made.
+                    type: integer
+                  source:
+                    type: string
+                  starttime:
+                    type: string
+                  status:
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMiscRemindercallsettings
+      x-scopes: []
+      tags:
+      - Administrative
+      - ReminderCall Settings
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

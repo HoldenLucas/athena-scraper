@@ -1,0 +1,499 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/waitlist:
+    post:
+      summary: Update appointment waitlist
+      description: Modify the wait list request details for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  waitlistid:
+                    description: The ID of the wait list entry that was created.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsWaitlist
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - patientid
+              properties:
+                note:
+                  type: string
+                  description: Practice-facing note about why the wait list entry
+                    exists.
+                hourto:
+                  type: integer
+                  description: The hour (24 hour clock) before which an appointment
+                    is desired by a patient.  Inclusive.
+                hourfrom:
+                  type: integer
+                  description: The hour (24 hour clock) after which an appointment
+                    is desired by a patient.  Inclusive.
+                priority:
+                  enum:
+                  - ''
+                  - LOW
+                  - NORMAL
+                  - HIGH
+                  type: string
+                  description: One of "LOW", "NORMAL", or "HIGH", indicating the priorty
+                    of this wait list entry.
+                patientid:
+                  type: integer
+                  description: The patient ID of the patient who is on the wait list.
+                providerid:
+                  type: integer
+                  description: The provider ID of the desired provider.  This can
+                    be blank if any provider is acceptable.
+                dayofweekids:
+                  type: array
+                  items:
+                    type: integer
+                  description: A list (JSON array) of day of week IDs that are desired
+                    by the patient, with 1 being Sunday, and 7 being Saturday.
+                departmentid:
+                  type: integer
+                  description: The department ID of the desired department.  This
+                    can be blank if any department is acceptable.
+                appointmentid:
+                  type: integer
+                  description: The booked appointment ID of the appointment that this
+                    wait list entry would replace.
+                appointmenttypeid:
+                  type: integer
+                  description: The appointment type ID of the desired appointment.
+                allowanydepartment:
+                  type: boolean
+                  description: While a department is required when creating a wait
+                    list entry, this flag indicates that any department is accpetable
+                    for an appointment.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Wait List
+    get:
+      summary: Get appointment waitlist
+      description: Retrieves the list all waiting list request appointments for all
+        patients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: appointmentid
+        schema:
+          type: integer
+        required: false
+        description: The booked appointment ID of the appointment that this wait list
+          entry would replace.
+      - in: query
+        name: appointmenttypeid
+        schema:
+          type: integer
+        required: false
+        description: The appointment type ID of the desired appointment.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID of the desired department.  This can be blank
+          if any department is acceptable.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: The provider ID of the desired provider.  This can be blank if
+          any provider is acceptable.
+      - in: query
+        name: hourto
+        schema:
+          type: integer
+        required: false
+        description: The hour (24 hour clock) before which an appointment is desired
+          by a patient.  Inclusive.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: The patient ID of the patient who is on the wait list.
+      - in: query
+        name: hourfrom
+        schema:
+          type: integer
+        required: false
+        description: The hour (24 hour clock) after which an appointment is desired
+          by a patient.  Inclusive.
+      - in: query
+        name: priority
+        schema:
+          enum:
+          - LOW
+          - NORMAL
+          - HIGH
+          type: string
+          x-enumDescriptions:
+          - LOW
+          - NORMAL
+          - HIGH
+        required: false
+        description: One of "LOW", "NORMAL", or "HIGH", indicating the priorty of
+          this wait list entry.
+      - in: query
+        name: dayofweekids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: A list (JSON array) of day of week IDs that are desired by the
+          patient, with 1 being Sunday, and 7 being Saturday.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    description: The booked appointment ID of the appointment that
+                      this wait list entry would replace.
+                    type: integer
+                  appointmenttypeid:
+                    description: The appointment type ID of the desired appointment.
+                    type: integer
+                  created:
+                    description: The date and time that this wait list entry was created.
+                    type: string
+                  dayofweekids:
+                    description: A list of day of week IDs that are desired by the
+                      patient, with 1 being Sunday, and 7 being Saturday.
+                    type: integer
+                  departmentid:
+                    description: The department ID of the desired department.  This
+                      can be blank if any department is acceptable.
+                    type: integer
+                  hourfrom:
+                    description: The hour (24 hour clock) after which an appointment
+                      is desired by a patient.  Inclusive.
+                    type: integer
+                  hourto:
+                    description: The hour (24 hour clock) before which an appointment
+                      is desired by a patient.  Inclusive.
+                    type: integer
+                  note:
+                    description: Practice-facing note about why the wait list entry
+                      exists.
+                    type: string
+                  patientid:
+                    description: The patient ID of the patient who is on the wait
+                      list.
+                    type: integer
+                  priority:
+                    description: One of "LOW", "NORMAL", or "HIGH", indicating the
+                      priorty of this wait list entry.
+                    type: string
+                  providerid:
+                    description: The provider ID of the desired provider.  This can
+                      be blank if any provider is acceptable.
+                    type: integer
+                  waitlistid:
+                    description: The wait list ID, used in other calls.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsWaitlist
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Wait List
+  /v1/{practiceid}/appointments/waitlist/{waitlistid}:
+    get:
+      summary: Get one entry on the wait list.
+      description: Entries on the wait list
+      parameters:
+      - in: path
+        name: waitlistid
+        schema:
+          type: integer
+        required: true
+        description: waitlistid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  note:
+                    type: string
+                    description: Practice-facing note about why the wait list entry
+                      exists.
+                  hourto:
+                    type: integer
+                    description: The hour (24 hour clock) before which an appointment
+                      is desired by a patient.  Inclusive.
+                  created:
+                    type: string
+                    description: The date and time that this wait list entry was created.
+                  hourfrom:
+                    type: integer
+                    description: The hour (24 hour clock) after which an appointment
+                      is desired by a patient.  Inclusive.
+                  priority:
+                    type: string
+                    description: One of "LOW", "NORMAL", or "HIGH", indicating the
+                      priorty of this wait list entry.
+                  patientid:
+                    type: integer
+                    description: The patient ID of the patient who is on the wait
+                      list.
+                  providerid:
+                    type: integer
+                    description: The provider ID of the desired provider.  This can
+                      be blank if any provider is acceptable.
+                  waitlistid:
+                    type: integer
+                    description: The wait list ID, used in other calls.
+                  dayofweekids:
+                    type: integer
+                    description: A list of day of week IDs that are desired by the
+                      patient, with 1 being Sunday, and 7 being Saturday.
+                  departmentid:
+                    type: integer
+                    description: The department ID of the desired department.  This
+                      can be blank if any department is acceptable.
+                  appointmentid:
+                    type: integer
+                    description: The booked appointment ID of the appointment that
+                      this wait list entry would replace.
+                  appointmenttypeid:
+                    type: integer
+                    description: The appointment type ID of the desired appointment.
+          description: Success
+      operationId: getPracticeidAppointmentsWaitlistWaitlistid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Wait List
+    put:
+      summary: Update a wait list entry.
+      description: Generic success/error response
+      parameters:
+      - in: path
+        name: waitlistid
+        schema:
+          type: integer
+        required: true
+        description: waitlistid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsWaitlistWaitlistid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: Practice-facing note about why the wait list entry
+                    exists.
+                hourto:
+                  type: integer
+                  description: The hour (24 hour clock) before which an appointment
+                    is desired by a patient.  Inclusive.
+                hourfrom:
+                  type: integer
+                  description: The hour (24 hour clock) after which an appointment
+                    is desired by a patient.  Inclusive.
+                priority:
+                  enum:
+                  - ''
+                  - LOW
+                  - NORMAL
+                  - HIGH
+                  type: string
+                  description: One of "LOW", "NORMAL", or "HIGH", indicating the priorty
+                    of this wait list entry.
+                providerid:
+                  type: integer
+                  description: The provider ID of the desired provider.  This can
+                    be blank if any provider is acceptable.
+                dayofweekids:
+                  type: array
+                  items:
+                    type: integer
+                  description: A list (JSON array) of day of week IDs that are desired
+                    by the patient, with 1 being Sunday, and 7 being Saturday.
+                departmentid:
+                  type: integer
+                  description: The department ID of the desired department.  This
+                    can be blank if any department is acceptable.
+                appointmentid:
+                  type: integer
+                  description: The booked appointment ID of the appointment that this
+                    wait list entry would replace.
+                appointmenttypeid:
+                  type: integer
+                  description: The appointment type ID of the desired appointment.
+                allowanydepartment:
+                  type: boolean
+                  description: While a department is required when creating a wait
+                    list entry, this flag indicates that any department is accpetable
+                    for an appointment.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Wait List
+    delete:
+      summary: Remove an entry from the wait list.
+      description: Generic success/error response
+      parameters:
+      - in: path
+        name: waitlistid
+        schema:
+          type: integer
+        required: true
+        description: waitlistid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidAppointmentsWaitlistWaitlistid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Wait List
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

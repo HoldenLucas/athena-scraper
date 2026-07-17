@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/discussionitems:
+    put:
+      summary: Update discussion items of OB Episode
+      description: 'BETA: Modifies the discussion notes of an OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true if the call was a success.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidDiscussionitems
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - discussions
+              properties:
+                discussions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemid:
+                        type: integer
+                        description: ID of the item to update.
+                      discussedby:
+                        type: string
+                        description: You may specify a specific user as the person
+                          that discussed this item with this field.  This will default
+                          to your MDP user ID if it is not passed in.
+                      discussionnotes:
+                        type: string
+                        description: Discussion notes for this item. Note that newline
+                          and tab characters will be replaced by a single space.
+                      resetdiscussion:
+                        type: boolean
+                        description: If you wish to mark the item as not discussed,
+                          check this box.  It will update the DISCUSSIONNOTE and DISCUSSEDBY
+                          fields, so you must pass in the current value if you do
+                          not want it to be updated.
+                  required:
+                  - itemid
+                  description: This is a JSON array of objects that is used to update
+                    the question specific information. Note that while DISCUSSIONNOTES
+                    and DISCUSSEDBY are not required, they will be reset if you update
+                    the question and do not pass them in.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/configuration/obepisodes/discussionitems:
+    get:
+      summary: Get reference list of discussion items for OB Episode
+      description: 'BETA: Retrieves a list of discussion items for the practice that
+        may be filtered by trimester'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: trimester
+        schema:
+          enum:
+          - 1
+          - 2
+          - 3
+          type: integer
+          x-enumDescriptions:
+          - 1
+          - 2
+          - 3
+        required: false
+        description: Optionally, only include elements from this trimester.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: Description of this discussion item.
+                    type: string
+                  discussionitemid:
+                    description: ID of this discussion item.
+                    type: integer
+                  ordering:
+                    description: Ordering of this discussion item within this trimester.
+                    type: integer
+                  trimester:
+                    description: Trimester of this discussion item.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationObepisodesDiscussionitems
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,695 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/ccda/{patientid}/vitals:
+    get:
+      summary: Get patient's vitals
+      description: Retrieves the vital signs data obtained from the patient during
+        the clinical encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department from which to retrieve the patient's chart.
+      - in: query
+        name: encounterid
+        schema:
+          type: string
+        required: true
+        description: The encounter vitals are associated with.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: For date filterable items, exclude data after this datetime.
+          Format is MM/DD/YYYY HH24:MM:SS.
+      - in: query
+        name: xmloutput
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, use XML (not JSON) as output.  Not needed if
+          an Accept header with application/xml header is included in the request.
+          If set to false, it will return the CCDA format (XML) wrapped in a JSON
+          response.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: For date filterable items, exclude data before this datetime.
+          Format is MM/DD/YYYY HH24:MM:SS.
+      - in: query
+        name: format
+        schema:
+          enum:
+          - AmbulatorySummary
+          - EncounterSummary
+          - DataPortability
+          - ReferralNote
+          type: string
+          x-enumDescriptions:
+          - Ambulatory Summary
+          - Encounter Summary
+          - Data Portability
+          - Referral Note
+        required: false
+        description: Document type.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  abbreviation:
+                    description: Short human-readable string for this vital group.
+                      E.g., Ht.
+                    type: string
+                  key:
+                    description: Key for this vital group. E.g., HEIGHT.
+                    type: string
+                  ordering:
+                    description: Configured order for this vital group
+                    type: integer
+                  readings:
+                    description: List of vital attribute readings. One entry per attribute
+                      (so the temperature and where the temperature was taken are
+                      two different readings, tied together by the readingid
+                    items:
+                      properties:
+                        clinicalelementid:
+                          description: Key used to identify this particular vital
+                            attribute
+                          type: string
+                        code:
+                          description: Code indentifier for the reading.
+                          type: string
+                        codedescription:
+                          description: Description of the code identifier.
+                          type: string
+                        codeset:
+                          description: Codeset of the code.
+                          type: string
+                        createdby:
+                          description: The athenaNet username of the person who entered
+                            the vital.
+                          type: string
+                        createddate:
+                          description: The date this vital was entered into the chart.
+                            Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        isgraphable:
+                          description: Flag indicating if this vital is graphable.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: The athenaNet username of the user that last
+                            modified the reading.
+                          type: string
+                        lastmodifieddate:
+                          description: The date this vital was last modified. Returned
+                            in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        percentilespec:
+                          properties:
+                            high:
+                              description: The highest value the y value could be.
+                              type: integer
+                            highordinal:
+                              description: Ordinal of the high value.
+                              type: string
+                            low:
+                              description: The lowest value that y could be.
+                              type: integer
+                            lowordinal:
+                              description: Ordinal of the lowest value.
+                              type: string
+                            prefix:
+                              description: 'Indicator of less than or greater. Possible
+                                values: (>,<)'
+                              type: string
+                          type: object
+                        readingid:
+                          description: Numeric key used to tie related and distinguish
+                            separate readings. So the diastolic and systolic blood
+                            pressure should have the same readingid.
+                          type: integer
+                        readingtaken:
+                          description: Date that the reading was taken.
+                          type: string
+                        source:
+                          description: The source of this reading.
+                          type: string
+                        sourceid:
+                          description: External key to source.
+                          type: integer
+                        unit:
+                          description: Unit that describes this vital's value.
+                          type: string
+                        value:
+                          description: 'The value of this reading. NOTE: for numeric
+                            values, the units are always in the ''native'' units per
+                            the configuration.'
+                          type: string
+                        vitalid:
+                          description: Unique ID for this vital attribute reading.
+                            Used to update/delete this reading.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidCcdaPatientidVitals
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Vitals
+  /v1/{practiceid}/chart/{patientid}/vitals:
+    post:
+      summary: Add vitals to patient's chart
+      description: Records the source of the data and vitals measurements of the patient.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  vitalids:
+                    description: The IDs and clinical element IDs of the newly added
+                      vital readings.
+                    items:
+                      properties:
+                        clinicalelementid:
+                          description: The clinical element ID of a newly added vital
+                            reading.
+                          type: string
+                        vitalid:
+                          description: The ID of a newly added vital reading.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidVitals
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - source
+              - departmentid
+              - vitals
+              properties:
+                source:
+                  enum:
+                  - DEVICEGENERATED
+                  type: string
+                  default: DEVICEGENERATED
+                  description: Where this vital was collected. For now only device
+                    generated is allowed. Later, we will use this to differentiate
+                    between patient reported, device generated, and practice collected
+                    vitals outside of an encounter.
+                vitals:
+                  type: array
+                  items:
+                    type: array
+                  description: This is an array of arrays in JSON. Each subarray contains
+                    a group of related readings, like systolic and diastolic blood
+                    pressure. They will be assigned the same readingID.
+                departmentid:
+                  type: integer
+                  description: The ID of the department of the patient. Used to choose
+                    the correct patient chart.
+                returnvitalids:
+                  type: boolean
+                  description: Return the IDs of the newly added vitals, mapped to
+                    their vital attribute IDs, in addition to any regular success/error
+                    messages.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+        required: true
+      tags:
+      - Chart
+      - Patient Vitals
+    get:
+      summary: List patient's vitals from all sources
+      description: Retrieves the list of Vitals information of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: Only retrieve vitals that were taking on or before this date
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department for this patient. A patient may have multiple
+          charts, and the department determines which chart to retrieve.
+      - in: query
+        name: showemptyvitals
+        schema:
+          type: boolean
+        required: false
+        description: Show configured vitals that have no readings for this patient.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: Only retrieve vitals that were taking on or after this date
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  abbreviation:
+                    description: Short human-readable string for this vital group.
+                      E.g., Ht.
+                    type: string
+                  key:
+                    description: Key for this vital group. E.g., HEIGHT.
+                    type: string
+                  ordering:
+                    description: Configured order for this vital group
+                    type: integer
+                  readings:
+                    description: List of vital attribute readings. One entry per attribute
+                      (so the temperature and where the temperature was taken are
+                      two different readings, tied together by the readingid
+                    items:
+                      properties:
+                        clinicalelementid:
+                          description: Key used to identify this particular vital
+                            attribute
+                          type: string
+                        code:
+                          description: Code indentifier for the reading.
+                          type: string
+                        codedescription:
+                          description: Description of the code identifier.
+                          type: string
+                        codeset:
+                          description: Codeset of the code.
+                          type: string
+                        createdby:
+                          description: The athenaNet username of the person who entered
+                            the vital.
+                          type: string
+                        createddate:
+                          description: The date this vital was entered into the chart.
+                            Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        isgraphable:
+                          description: Flag indicating if this vital is graphable.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: The athenaNet username of the user that last
+                            modified the reading.
+                          type: string
+                        lastmodifieddate:
+                          description: The date this vital was last modified. Returned
+                            in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        percentilespec:
+                          properties:
+                            high:
+                              description: The highest value the y value could be.
+                              type: integer
+                            highordinal:
+                              description: Ordinal of the high value.
+                              type: string
+                            low:
+                              description: The lowest value that y could be.
+                              type: integer
+                            lowordinal:
+                              description: Ordinal of the lowest value.
+                              type: string
+                            prefix:
+                              description: 'Indicator of less than or greater. Possible
+                                values: (>,<)'
+                              type: string
+                          type: object
+                        readingid:
+                          description: Numeric key used to tie related and distinguish
+                            separate readings. So the diastolic and systolic blood
+                            pressure should have the same readingid.
+                          type: integer
+                        readingtaken:
+                          description: Date that the reading was taken.
+                          type: string
+                        source:
+                          description: The source of this reading.
+                          type: string
+                        sourceid:
+                          description: External key to source.
+                          type: integer
+                        unit:
+                          description: Unit that describes this vital's value.
+                          type: string
+                        value:
+                          description: 'The value of this reading. NOTE: for numeric
+                            values, the units are always in the ''native'' units per
+                            the configuration.'
+                          type: string
+                        vitalid:
+                          description: Unique ID for this vital attribute reading.
+                            Used to update/delete this reading.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidVitals
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Vitals
+  /v1/{practiceid}/chart/{patientid}/vitals/{vitalid}:
+    put:
+      summary: Update vitals reading
+      description: Modifies the specific vital information of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: vitalid
+        schema:
+          type: integer
+        required: true
+        description: vitalid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidVitalsVitalid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - value
+              properties:
+                value:
+                  type: string
+                  description: The reading value. See the configuration for the proper
+                    units.
+                departmentid:
+                  type: integer
+                  description: The department ID.
+        required: true
+      tags:
+      - Chart
+      - Patient Vitals
+  /v1/{practiceid}/chart/configuration/vitals:
+    get:
+      summary: Get list of practice-configured vitals fields
+      description: The Vitals Reference feature allows the user to retrieve the list
+        of vitals configured for a practice.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showunconfigured
+        schema:
+          type: boolean
+        required: false
+        description: Show all global vitals, even if they are not configured at this
+          practice.
+      - in: query
+        name: specialtyid
+        schema:
+          type: string
+        required: false
+        description: Show only the vitals configured for this specialty
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 1000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  abbreviation:
+                    description: Short human-readable string for this vital group.
+                      E.g., Ht.
+                    type: string
+                  attributes:
+                    description: List of vital attributes in this vital group. Contains
+                      all possible attributes even if there are no readings.
+                    items:
+                      properties:
+                        abbreviation:
+                          description: Short human readable name for this attribute
+                          type: string
+                        clinicalelementid:
+                          description: Key used to identify this particular vital
+                            attribute
+                          type: string
+                        dataset:
+                          description: For SET attributes, the list of valid values.
+                          type: string
+                        datatype:
+                          description: Data type for this attribute. Can be CHECKBOX,
+                            FREETEXT, NUMERIC, or SET.
+                          type: string
+                        name:
+                          description: Human readable name for this attribute
+                          type: string
+                        unit:
+                          description: For NUMERIC attributes, the units the value
+                            is in.
+                          type: string
+                      type: object
+                    type: array
+                  istiedtomeasurement:
+                    description: If true, this vital is tied to some measurement.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  key:
+                    description: Key for this vital group. E.g., HEIGHT.
+                    type: string
+                  ordering:
+                    description: Configured order for this vital group
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationVitals
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Vitals
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

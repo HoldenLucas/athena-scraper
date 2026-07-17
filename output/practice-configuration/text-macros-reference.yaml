@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/textmacros:
+    get:
+      summary: Get list of text-macros
+      description: Retrieves a list of text macros
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: username
+        schema:
+          type: string
+        required: false
+        description: The username of the person for which to get the accessible macros.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  expansion:
+                    description: The full string of text that replaces the macro shortcut.
+                    type: string
+                  providers:
+                    description: A single string of usernames of users that have access
+                      to the macro. The usernames are delimited by tabs. If there
+                      are no usernames associated with the macro, all users have access
+                      to the macro.
+                    type: string
+                  section:
+                    description: A string representing the clinical section that the
+                      macro is associated with. If there is no section specified,
+                      a macro can be invoked from all clinical sections that support
+                      macros.
+                    type: string
+                  shortcut:
+                    description: The string used to invoke the text macro. Must be
+                      between 2 and 50 characters and should not contain spaces.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidTextmacros
+      x-scopes: []
+      tags:
+      - Administrative
+      - Text Macros
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

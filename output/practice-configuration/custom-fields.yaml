@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/customfields:
+    get:
+      summary: Get practice's list of custom-fields
+      description: Retrieves a list of custom fields for the practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  casesensitiveyn:
+                    description: Is this field case sensitive?
+                    type: string
+                  customfieldid:
+                    description: The custom field ID.
+                    type: string
+                  disallowupdateyn:
+                    description: Can this field be updated?
+                    type: string
+                  length:
+                    description: Maximum length of this field.
+                    type: string
+                  name:
+                    description: The name of this custom field.
+                    type: string
+                  ordering:
+                    description: The ordering in which this field is displayed.
+                    type: string
+                  searchableyn:
+                    description: Is this field searchable (e.g. /patients/customfields/{customfieldid}...)
+                    type: string
+                  selectlist:
+                    description: An array of options, each one containing selectid
+                      and a selectvalue.
+                    items:
+                      properties:
+                        optionid:
+                          description: The ID that is used to identify this option.
+                          type: string
+                        optionvalue:
+                          description: The value to be displayed.
+                          type: string
+                      type: object
+                    type: array
+                  selectyn:
+                    description: Is this field a select list (and thus should have
+                      a "selectlist" as well).
+                    type: string
+                  type:
+                    description: One of "TEXT", "DATE", "NUMBER", or "REFERRINGPROVIDER".
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidCustomfields
+      x-scopes: []
+      tags:
+      - Administrative
+      - Custom Fields List
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,436 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/employers:
+    get:
+      summary: Get practice's list of employees
+      description: Retrieves a list of available patient employers
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: state
+        schema:
+          type: string
+        required: false
+        description: The state of the employer (exact match).
+      - in: query
+        name: address
+        schema:
+          type: string
+        required: false
+        description: The address of the employer (partial match).
+      - in: query
+        name: exactname
+        schema:
+          type: string
+        required: false
+        description: The name of the employer (exact match).
+      - in: query
+        name: city
+        schema:
+          type: string
+        required: false
+        description: The city of the employer (exact match).
+      - in: query
+        name: name
+        schema:
+          type: string
+        required: false
+        description: The name of the employer (partial match).
+      - in: query
+        name: zip
+        schema:
+          type: string
+        required: false
+        description: The zip of the employer (exact match).
+      - in: query
+        name: phone
+        schema:
+          type: string
+        required: false
+        description: The phone of the employer (exact match).
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address of the employer.
+                    type: string
+                  city:
+                    description: The city of the employer.
+                    type: string
+                  fax:
+                    description: The fax number of the employer.
+                    type: string
+                  id:
+                    description: The practice specific ID for this employer.
+                    type: string
+                  name:
+                    description: The name of the employer.
+                    type: string
+                  notes:
+                    description: Notes about the employer; likely not patient-facing.
+                    type: string
+                  ordering:
+                    description: If present, an ordering for this employer for search
+                      results.
+                    type: string
+                  phone:
+                    description: The phone number of the employer.
+                    type: string
+                  state:
+                    description: The state of the employer.
+                    type: string
+                  zip:
+                    description: The zip code of the employer.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidEmployers
+      x-scopes: []
+      tags:
+      - Administrative
+      - Employers
+    post:
+      summary: Create new employee record
+      description: Creates a record for an employer
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  employerid:
+                    description: The ID of the employer created.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidEmployers
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                fax:
+                  type: string
+                  description: The fax number of the employer.
+                zip:
+                  type: string
+                  description: The zip code of the employer.
+                city:
+                  type: string
+                  description: The city of the employer.
+                name:
+                  type: string
+                  description: The name of the employer.
+                phone:
+                  type: string
+                  description: The phone number of the employer.
+                state:
+                  type: string
+                  description: The state of the employer.
+                address:
+                  type: string
+                  description: The address of the employer.
+                countryid:
+                  type: integer
+                  description: The country ID of the employer.
+        required: true
+      tags:
+      - Administrative
+      - Employers
+  /v1/{practiceid}/employers/{employerid}:
+    delete:
+      summary: Delete an employee record
+      description: Deletes the record of a specified employer
+      parameters:
+      - in: path
+        name: employerid
+        schema:
+          type: integer
+        required: true
+        description: employerid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidEmployersEmployerid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Employers
+    get:
+      summary: Get specific employee record
+      description: Retrieves information of a single employer detail
+      parameters:
+      - in: path
+        name: employerid
+        schema:
+          type: integer
+        required: true
+        description: employerid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address of the employer.
+                    type: string
+                  city:
+                    description: The city of the employer.
+                    type: string
+                  fax:
+                    description: The fax number of the employer.
+                    type: string
+                  id:
+                    description: The practice specific ID for this employer.
+                    type: string
+                  name:
+                    description: The name of the employer.
+                    type: string
+                  notes:
+                    description: Notes about the employer; likely not patient-facing.
+                    type: string
+                  ordering:
+                    description: If present, an ordering for this employer for search
+                      results.
+                    type: string
+                  phone:
+                    description: The phone number of the employer.
+                    type: string
+                  state:
+                    description: The state of the employer.
+                    type: string
+                  zip:
+                    description: The zip code of the employer.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidEmployersEmployerid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Employers
+    put:
+      summary: Update specific employee record
+      description: Modifies information of a specific employer
+      parameters:
+      - in: path
+        name: employerid
+        schema:
+          type: integer
+        required: true
+        description: employerid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidEmployersEmployerid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                fax:
+                  type: string
+                  description: The fax number of the employer.
+                zip:
+                  type: string
+                  description: The zip code of the employer.
+                city:
+                  type: string
+                  description: The city of the employer.
+                name:
+                  type: string
+                  description: The name of the employer.
+                phone:
+                  type: string
+                  description: The phone number of the employer.
+                state:
+                  type: string
+                  description: The state of the employer.
+                address:
+                  type: string
+                  description: The address of the employer.
+                countryid:
+                  type: integer
+                  description: The country ID of the employer.
+        required: true
+      tags:
+      - Administrative
+      - Employers
+  /v1/{practiceid}/employers/{employerid}/undelete:
+    put:
+      summary: Undelete specific employee record
+      description: Re-active a deleted the record of a specified employer
+      parameters:
+      - in: path
+        name: employerid
+        schema:
+          type: integer
+        required: true
+        description: employerid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidEmployersEmployeridUndelete
+      x-scopes: []
+      tags:
+      - Administrative
+      - Employers
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

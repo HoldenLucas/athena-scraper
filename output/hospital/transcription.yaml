@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/transcription/notes:
+    get:
+      summary: Get transcription notes for a patient stay
+      description: Retrieves all the transcription notes for a specific patient's
+        stay in the hospital.
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID tied to the note.
+      - in: query
+        name: notetype
+        schema:
+          enum:
+          - INPTDOCTORADMIT
+          - INPTDOCTORCONSULT
+          - INPTEDDOCTORASSESS
+          - INPTEDPHYSICIAN
+          - INPTENHANCEDPROGRESS
+          - INPTHOSPITALCOURSE
+          - INPTPROCEDURE
+          - INPTSURGEONOP
+          - INPTSURGHP
+          type: string
+          x-enumDescriptions:
+          - Provider admission note
+          - Consult note
+          - ED provider assessment note
+          - ED physician note
+          - Progress note
+          - Hospital course
+          - Procedure note
+          - Operative note
+          - Surgical H&P
+        required: false
+        description: Type of transcription note.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  caseid:
+                    description: The surgical case ID.
+                    type: integer
+                  createdby:
+                    description: The name of the user who created the transcription.
+                    type: string
+                  createddatetime:
+                    description: The date and time the transcription note was created
+                      in athenaNet. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  departmentid:
+                    description: The department ID tied to the note.
+                    type: integer
+                  noteid:
+                    description: The ID of the transcription note.
+                    type: integer
+                  notetype:
+                    description: Transcription note type.
+                    type: string
+                  patientid:
+                    description: Please remember to never disclose this ID to patients
+                      since it may result in inadvertent disclosure that a patient
+                      exists in a practice already.
+                    type: integer
+                  providerid:
+                    description: The provider ID.
+                    type: integer
+                  signedby:
+                    description: The name of the provider who signed the transcription
+                      note.
+                    type: string
+                  signeddatetime:
+                    description: The date and time the transcription note was signed
+                      by the provider. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  stayid:
+                    description: The stay ID associated with the note.
+                    type: integer
+                  transcriptionistname:
+                    description: The legal name of the Transcriptionist who transcribed
+                      the note.
+                    type: string
+                  transcriptionrecordeddatetime:
+                    description: The date and time of dictation by the provider. Returned
+                      in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  transcriptiontext:
+                    description: Transcription text.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidTranscriptionNotes
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Transcription
+    post:
+      summary: Create a new transcription note for patient stay
+      description: Create a record of a transcription note for a specific patient
+        stay in the hospital
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  noteid:
+                    description: The ID of the posted transcription note.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidStaysStayidTranscriptionNotes
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - providerid
+              - transcriptiontext
+              - transcriptionistname
+              - transcriptionrecordeddatetime
+              - notetype
+              properties:
+                caseid:
+                  type: integer
+                  description: Surgical case ID.
+                notetype:
+                  enum:
+                  - INPTDOCTORADMIT
+                  - INPTDOCTORCONSULT
+                  - INPTEDDOCTORASSESS
+                  - INPTEDPHYSICIAN
+                  - INPTENHANCEDPROGRESS
+                  - INPTHOSPITALCOURSE
+                  - INPTPROCEDURE
+                  - INPTSURGEONOP
+                  - INPTSURGHP
+                  type: string
+                  description: Type of transcription note.
+                providerid:
+                  type: integer
+                  description: The provider ID.
+                departmentid:
+                  type: integer
+                  description: The department ID tied to the note.
+                transcriptiontext:
+                  type: string
+                  description: Transcription text.
+                transcriptionistname:
+                  type: string
+                  description: The legal name of the Transcriptionist who transcribed
+                    the note being posted.
+                transcriptionrecordeddatetime:
+                  type: string
+                  description: The date and time of dictation by the provider. Please
+                    convert this value to Eastern time and use the format MM/DD/YYYY
+                    HH24:MI:SS.
+        required: true
+      tags:
+      - Inpatient
+      - Transcription
+  /v1/{practiceid}/stays/configuration/transcribablenotetypes:
+    get:
+      summary: List of transcribable note types
+      description: 'BETA: Retrieves the list of transcribale note types configured
+        in the system.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The description for the note type.
+                    type: string
+                  notetype:
+                    description: The name of the note type.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysConfigurationTranscribablenotetypes
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Transcription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

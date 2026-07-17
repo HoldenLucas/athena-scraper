@@ -1,0 +1,103 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/patientgoals/patientinstructions:
+    put:
+      summary: Update instructions against patient goals
+      description: Modifies the patient goal instructions in a specific encounter
+        in the Assessment and Plan section
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientinstructions:
+                    description: The state of the patient instructions text after
+                      the successful PUT.
+                    type: string
+                  versiontoken:
+                    description: A token specifying a unique version of data in the
+                      database.
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridPatientgoalsPatientinstructions
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                versiontoken:
+                  type: string
+                  description: A token specifying a unique version of data in the
+                    database. If it's specified and does not match the version token
+                    on the server, the update will fail.
+                patientinstructions:
+                  type: string
+                  description: A free text field used for patient instructions.
+                replaceinstructions:
+                  type: boolean
+                  description: If true, will replace the existing section note with
+                    the new one. If false, will append to the existing note.
+        required: true
+      tags:
+      - Encounter
+      - Patient Instructions
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,357 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/labresults:
+    get:
+      summary: Get lab results for a patient's visit in the hospital.
+      description: 'BETA: Retrieves lab result details for a hospital stay'
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: datefilter
+        schema:
+          type: string
+        required: false
+        description: 'Filter lab orders not individual results within a specific time
+          period. Prefix: eq - specific, le - inclusive less, lt - exclusive less,
+          ge - inclusive greater, gt - exclusive greater, separate start and end date
+          with space. Example: ge2015-06-1 le2015-06-22'
+      - in: query
+        name: showabnormaldetails
+        schema:
+          type: boolean
+        required: false
+        description: Include the translation of the abnormalflag into HL7 code standards.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  labresultid:
+                    description: Athena ID for this lab result.
+                    type: integer
+                  labtests:
+                    description: Individual lab test or panel.
+                    properties:
+                      analytes:
+                        description: Individual lab result observations/analytes.
+                        properties:
+                          abnormalflag:
+                            description: Status measurement relative to normal (low,
+                              high, normal, abnormal).
+                            type: string
+                          abnormalhl7code:
+                            type: string
+                          abnormalhl7name:
+                            description: The HL7 description related to the abnormal
+                              flag.
+                            type: string
+                          analytedate:
+                            description: Date when this observation was recorded
+                            type: string
+                          analyteid:
+                            description: Athena ID for the given lab result observation/analyte.
+                            type: integer
+                          analytename:
+                            description: Name/description specific to this analyte.
+                            type: string
+                          code:
+                            description: Logical Observation Identifiers or a custom
+                              LIS code ID for the analyte if available.
+                            type: string
+                          codeset:
+                            description: Logical Observation Identifiers Names or
+                              a custom LIS code set.
+                            type: string
+                          note:
+                            description: Additional note for this analyte, if applicable.
+                            type: string
+                          referencerange:
+                            description: Reference range of values accepted as normal
+                              for this observation.
+                            type: string
+                          resultcategory:
+                            description: E.g., Abnormal, Normal, Unknown, Other, or
+                              Critical.
+                            type: string
+                          status:
+                            description: The status associated with the Analyte
+                            type: string
+                          units:
+                            description: Units for the analyte entry, if provided
+                              by the lab.
+                            type: string
+                          value:
+                            description: Value recorded for this observation.
+                            type: string
+                        type: object
+                      clinicalproviderid:
+                        description: Clinical Provider ID for a given lab result
+                        type: string
+                      codeset:
+                        description: Logical Observation Identifiers Names or a custom
+                          LIS code set.
+                        type: string
+                      labresultcategory:
+                        description: E.g., Abnormal, Normal, Unknown, Other, or Critical.
+                        type: string
+                      labresultdate:
+                        description: Observation date associated with this lab result.
+                          Returned in mm/dd/yyyy hh24:mi:ss format.
+                        type: string
+                      labresultnote:
+                        description: Additional note associated with this lab result,
+                          if any.
+                        type: string
+                      labresultstatus:
+                        description: The status of the result (e.g., "final", "preliminary",
+                          corrected", "cancelled", "complete", "incomplete", etc.).
+                        type: string
+                      loinccode:
+                        description: The LOINC code for the result document or associated
+                          order.
+                        type: string
+                      loincdescription:
+                        description: The LOINC description for the result document
+                          or associated order.
+                        type: string
+                      name:
+                        description: The athena description for the result document
+                          or associated order.
+                        type: string
+                      ordereddate:
+                        description: The date for associated order.
+                        type: string
+                      ordereduser:
+                        description: The user for associated order.
+                        type: string
+                    type: object
+                  orderid:
+                    description: The unique athena ID of this instance of the order.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidLabresults
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient LabResults
+  /v1/{practiceid}/stays/{stayid}/results:
+    get:
+      summary: Return the lab and imaging results for a given patient stay in the
+        hospital
+      description: The lab and imaging results for a given patient stay in the hospital.
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  category:
+                    description: The characterization of the result. One of Abnormal,
+                      Critical, Normal, Other or Unknown.
+                    type: string
+                  clinicalproviderid:
+                    description: Clinical Provider ID for a given imaging result
+                    type: integer
+                  code:
+                    description: The code value identifying the performed procedure,
+                      in whatever codeset is specified in the CODESET attribute.
+                    type: string
+                  codedescription:
+                    description: The description of the code for the result.
+                    type: string
+                  codeset:
+                    description: The codeset identifying the result
+                    type: string
+                  name:
+                    description: The athena description of the test that was performed.
+                    type: string
+                  note:
+                    description: The note associated with the result, if any.
+                    type: string
+                  observations:
+                    description: The set of individual observations for the performed
+                      tests.
+                    items:
+                      properties:
+                        abnormalflag:
+                          description: The status measurement relative to a normal
+                            result (eg. LOW, HIGH, ABNORMAL etc.).
+                          type: string
+                        category:
+                          description: The characterization of the observation. One
+                            of Abnormal, Critical, Normal, Other or Unknown.
+                          type: string
+                        code:
+                          description: The code value identifying the observation,
+                            in whatever codeset is specified in the CODESET attribute.
+                          type: string
+                        codedescription:
+                          description: The description of the code for the individual
+                            observation.
+                          type: string
+                        codeset:
+                          description: The codeset identifying the observation.
+                          type: string
+                        interpretation:
+                          description: For Imaging results, the interpretation of
+                            the image.
+                          type: string
+                        note:
+                          description: The additional note, if any, for this observation.
+                          type: string
+                        observationdate:
+                          description: The datetime that the observation was made,
+                            returned in ISO format (yyyy-mm-ddThh:mm:ss+|-hh:mm).
+                          type: string
+                        observationid:
+                          description: The identifier for the individual observation.
+                          type: integer
+                        referencerange:
+                          description: '[Lab Only] The range of normal values for
+                            an observation.'
+                          type: string
+                        status:
+                          description: ' The status associated with the analyte value,
+                            as provided by the lab.'
+                          type: string
+                        units:
+                          description: '[Lab Only]. The units associated with the
+                            analyte value, as provided by the lab.'
+                          type: string
+                        value:
+                          description: '[Lab Only]. The measured value for the analyte
+                            being tested.'
+                          type: string
+                      type: object
+                    type: array
+                  ordereddate:
+                    description: The timestamp when the result's associated test was
+                      ordered in ISO format (yyyy-mm-ddThh:mm:ss+|-hh:mm).
+                    type: string
+                  ordereduser:
+                    description: The user responsible for result order.
+                    type: string
+                  orderid:
+                    description: The ID of the order with which the result is associated.
+                    type: integer
+                  ordertypegroupname:
+                    description: The class of the result (LAB or IMAGING)
+                    type: string
+                  resultdate:
+                    description: The timestamp when the result was released returned
+                      in ISO format (yyyy-mm-ddThh:mm:ss+|-hh:mm).
+                    type: string
+                  resultid:
+                    description: The athena identifier for the returned result.
+                    type: integer
+                  status:
+                    description: The status of the result (eg. Complete or Preliminary).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidResults
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Results
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

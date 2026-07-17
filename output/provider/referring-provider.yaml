@@ -1,0 +1,732 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/referringproviders:
+    get:
+      summary: Get list of referring providers
+      description: Retrieves a list of referring providers
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address (1st line) of the referring provider.
+                    type: string
+                  address2:
+                    description: The address (2nd line) of the referring provider.
+                    type: string
+                  ansinamecode:
+                    description: This is the ANSI name and code for this referring
+                      provider's specialty.
+                    type: string
+                  ansispecialtycode:
+                    description: The ANSI speciality code for this referring provider.
+                    type: string
+                  city:
+                    description: The city of the referring provider.
+                    type: string
+                  email:
+                    description: The email of the referring provider.
+                    type: string
+                  entitytype:
+                    description: Either "Person" or "Non-Person" (e.g. X-Ray machines)
+                    type: string
+                  fax:
+                    description: The fax of the referring provider.
+                    type: string
+                  firstname:
+                    description: The first name of the referring provider.
+                    type: string
+                  lastname:
+                    description: The last name of the referring provider.
+                    type: string
+                  middleinitial:
+                    description: The middle initial of the referring provider.
+                    type: string
+                  name:
+                    description: The full name of the referring provider.
+                    type: string
+                  namesuffix:
+                    description: The name suffix of the referring provider.
+                    type: string
+                  note:
+                    description: The note associated with the referring provider.
+                    type: string
+                  npinumber:
+                    description: The NPI number associated with the referring provider.
+                    type: integer
+                  phone:
+                    description: The phone of the referring provider.
+                    type: string
+                  providertype:
+                    description: The provider type of the referring provider.
+                    type: string
+                  referringproviderid:
+                    description: 'The ID of the referring provider.  Note: this is
+                      unrelated to /providers.'
+                    type: string
+                  specialty:
+                    description: A friendly name for this provider's specialty.
+                    type: string
+                  state:
+                    description: The state of the referring provider.
+                    type: string
+                  zip:
+                    description: The zip of the referring provider.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferringproviders
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+    post:
+      summary: Add new referring provider
+      description: Creates a new referring provider record
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: Error message, if applicable.
+                    type: string
+                  referringproviderid:
+                    description: The referring provider ID. This is not the same ID
+                      from the /providers API
+                    type: integer
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidReferringproviders
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - lastname
+              - entitytype
+              properties:
+                fax:
+                  type: string
+                  description: The fax of the referring provider.
+                zip:
+                  type: string
+                  description: The zip of the referring provider.
+                city:
+                  type: string
+                  description: The city of the referring provider.
+                note:
+                  type: string
+                  description: The notes associated with the referring provider.
+                email:
+                  type: string
+                  description: The email of the referring provider.
+                phone:
+                  type: string
+                  description: The phone of the referring provider.
+                state:
+                  type: string
+                  description: The state of the referring provider.
+                address:
+                  type: string
+                  description: The address of the referring provider.
+                address2:
+                  type: string
+                  description: The address (line 2) of the referring provider.
+                lastname:
+                  type: string
+                  description: The last name/organization name of the referring provider.
+                firstname:
+                  type: string
+                  description: The first name of the referring provider.
+                npinumber:
+                  type: integer
+                  description: The NPI number associated with the referring provider.
+                    If this parameter exists in the body without a value, it will
+                    null out this field.
+                entitytype:
+                  enum:
+                  - PERSON
+                  - NONPERSON
+                  type: string
+                  description: 'The entity type of the referring provider: PERSON
+                    or NONPERSON'
+                namesuffix:
+                  type: string
+                  description: The name suffix of the referring provider.
+                middleinitial:
+                  type: string
+                  description: The middle initial of the referring provider.
+        required: true
+      tags:
+      - Administrative
+      - Referring Providers
+  /v1/{practiceid}/referringproviders/{referringproviderid}:
+    get:
+      summary: Get information of given referring provider
+      description: Retrieves information for a specific referring provider
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: referringproviderid
+        schema:
+          type: integer
+        required: true
+        description: referringproviderid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address (1st line) of the referring provider.
+                    type: string
+                  address2:
+                    description: The address (2nd line) of the referring provider.
+                    type: string
+                  ansinamecode:
+                    description: This is the ANSI name and code for this referring
+                      provider's specialty.
+                    type: string
+                  ansispecialtycode:
+                    description: The ANSI speciality code for this referring provider.
+                    type: string
+                  city:
+                    description: The city of the referring provider.
+                    type: string
+                  email:
+                    description: The email of the referring provider.
+                    type: string
+                  entitytype:
+                    description: Either "Person" or "Non-Person" (e.g. X-Ray machines)
+                    type: string
+                  fax:
+                    description: The fax of the referring provider.
+                    type: string
+                  firstname:
+                    description: The first name of the referring provider.
+                    type: string
+                  lastname:
+                    description: The last name of the referring provider.
+                    type: string
+                  middleinitial:
+                    description: The middle initial of the referring provider.
+                    type: string
+                  name:
+                    description: The full name of the referring provider.
+                    type: string
+                  namesuffix:
+                    description: The name suffix of the referring provider.
+                    type: string
+                  note:
+                    description: The note associated with the referring provider.
+                    type: string
+                  npinumber:
+                    description: The NPI number associated with the referring provider.
+                    type: integer
+                  phone:
+                    description: The phone of the referring provider.
+                    type: string
+                  providertype:
+                    description: The provider type of the referring provider.
+                    type: string
+                  referringproviderid:
+                    description: 'The ID of the referring provider.  Note: this is
+                      unrelated to /providers.'
+                    type: string
+                  specialty:
+                    description: A friendly name for this provider's specialty.
+                    type: string
+                  state:
+                    description: The state of the referring provider.
+                    type: string
+                  zip:
+                    description: The zip of the referring provider.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferringprovidersReferringproviderid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+    put:
+      summary: Update information of given referring provider
+      description: Modifies the information for a specific referring provider
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: referringproviderid
+        schema:
+          type: integer
+        required: true
+        description: referringproviderid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidReferringprovidersReferringproviderid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                fax:
+                  type: string
+                  description: The fax of the referring provider.
+                zip:
+                  type: string
+                  description: The zip of the referring provider.
+                city:
+                  type: string
+                  description: The city of the referring provider.
+                note:
+                  type: string
+                  description: The notes associated with the referring provider.
+                email:
+                  type: string
+                  description: The email of the referring provider.
+                phone:
+                  type: string
+                  description: The phone of the referring provider.
+                state:
+                  type: string
+                  description: The state of the referring provider.
+                address:
+                  type: string
+                  description: The address of the referring provider.
+                address2:
+                  type: string
+                  description: The address (line 2)  of the referring provider.
+                lastname:
+                  type: string
+                  description: The last name of the referring provider.
+                firstname:
+                  type: string
+                  description: The first name of the referring provider.
+                npinumber:
+                  type: integer
+                  description: The NPI number associated with the referring provider.
+                    If this parameter exists in the body without a value, it will
+                    null out this field.
+                namesuffix:
+                  type: string
+                  description: The name suffix of the referring provider.
+                middleinitial:
+                  type: string
+                  description: The middle initial of the referring provider.
+        required: true
+      tags:
+      - Administrative
+      - Referring Providers
+  /v1/{practiceid}/referringproviders/changed/subscription/events:
+    get:
+      summary: Get list of change events for referring-providers
+      description: Retrieves a list of all events that can be input for this subscription
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidReferringprovidersChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+  /v1/{practiceid}/referringproviders/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for referring-providers
+      description: Subscribes for changed referring providers results events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      referringprovider was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidReferringprovidersChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+        required: true
+      tags:
+      - Administrative
+      - Referring Providers
+    get:
+      summary: Get list of subscribed events for changes in referring-providers
+      description: Retrieves list of events applicable for the changed referring providers
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidReferringprovidersChangedSubscription
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+    delete:
+      summary: Unsubscribe to all/specific events for changes in referring-providers
+      description: Deletes a specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      referringprovider was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidReferringprovidersChangedSubscription
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+  /v1/{practiceid}/referringproviders/changed:
+    get:
+      summary: Get list of changes in referring-providers
+      description: Retrieves a list of referring providers whose details has been
+        modified
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 10000)Please note
+          that this endpoint has a different max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address (1st line) of the referring provider.
+                    type: string
+                  address2:
+                    description: The address (2nd line) of the referring provider.
+                    type: string
+                  ansinamecode:
+                    description: This is the ANSI name and code for this referring
+                      provider's specialty.
+                    type: string
+                  ansispecialtycode:
+                    description: The ANSI speciality code for this referring provider.
+                    type: string
+                  city:
+                    description: The city of the referring provider.
+                    type: string
+                  email:
+                    description: The email of the referring provider.
+                    type: string
+                  entitytype:
+                    description: Either "Person" or "Non-Person" (e.g. X-Ray machines)
+                    type: string
+                  fax:
+                    description: The fax of the referring provider.
+                    type: string
+                  firstname:
+                    description: The first name of the referring provider.
+                    type: string
+                  lastname:
+                    description: The last name of the referring provider.
+                    type: string
+                  middleinitial:
+                    description: The middle initial of the referring provider.
+                    type: string
+                  name:
+                    description: The full name of the referring provider.
+                    type: string
+                  namesuffix:
+                    description: The name suffix of the referring provider.
+                    type: string
+                  note:
+                    description: The note associated with the referring provider.
+                    type: string
+                  npinumber:
+                    description: The NPI number associated with the referring provider.
+                    type: integer
+                  phone:
+                    description: The phone of the referring provider.
+                    type: string
+                  providertype:
+                    description: The provider type of the referring provider.
+                    type: string
+                  referringproviderid:
+                    description: 'The ID of the referring provider.  Note: this is
+                      unrelated to /providers.'
+                    type: string
+                  specialty:
+                    description: A friendly name for this provider's specialty.
+                    type: string
+                  state:
+                    description: The state of the referring provider.
+                    type: string
+                  zip:
+                    description: The zip of the referring provider.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferringprovidersChanged
+      x-scopes: []
+      tags:
+      - Administrative
+      - Referring Providers
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

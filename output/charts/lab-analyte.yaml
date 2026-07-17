@@ -1,0 +1,334 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/analytes:
+    get:
+      summary: Get list of patient's lab analytes
+      description: Retrieves the list of patient lab analytes
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: labresultstatus
+        schema:
+          enum:
+          - final
+          - preliminary
+          - incomplete
+          - cancelled
+          - corrected
+          - pending
+          - signed
+          - partial
+          - complete
+          - abnormal
+          - signedoff
+          - intermediate
+          - duplicate
+          type: string
+          x-enumDescriptions:
+          - Final
+          - Preliminary
+          - Incomplete
+          - Cancelled
+          - Corrected
+          - Pending
+          - Signed
+          - Partial
+          - Complete
+          - Abnormal
+          - Signed Off
+          - Intermediate
+          - Duplicate
+        required: false
+        description: Filter the results based on the lab result's result status. Since
+          the result status is a free text field, this list is not exhaustive, but
+          does represent a majority of the used statuses.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: showtemplate
+        schema:
+          type: boolean
+        required: false
+        description: If true, interpretation template added to the document is also
+          returned.
+      - in: query
+        name: exactduplicatedocumentid
+        schema:
+          type: integer
+        required: false
+        description: ID used when the lab results sends the exact same result multiple
+          times.
+      - in: query
+        name: showportalpublisheddatetime
+        schema:
+          type: boolean
+        required: false
+        description: If true, portal publish date time is displayed for a given result
+          document.
+      - in: query
+        name: hideduplicate
+        schema:
+          type: boolean
+        required: false
+        description: If true, filters out results that have been marked as an as exact
+          duplicate of another.
+      - in: query
+        name: analyteresultstatus
+        schema:
+          enum:
+          - final
+          - preliminary
+          - incomplete
+          - cancelled
+          - corrected
+          - authorized
+          - complete
+          - verified
+          - unverified
+          - partial
+          - intermediate
+          - deleted
+          - notreported
+          - pending
+          type: string
+          x-enumDescriptions:
+          - Final
+          - Preliminary
+          - Incomplete
+          - Cancelled
+          - Corrected
+          - Authorized
+          - Complete
+          - Verified
+          - Unverified
+          - Partial
+          - Intermediate
+          - Deleted
+          - Not Reported
+          - Pending
+        required: false
+        description: Filter the results based on the analyte's result status. Since
+          the result status is a free text field, this list is not exhaustive, but
+          does represent a majority of the used statuses.
+      - in: query
+        name: showhidden
+        schema:
+          type: boolean
+        required: false
+        description: Includes the lab results and analytes marked as hidden. Hidden
+          lab results and analytes are created when they are manually entered, for
+          example on the qm tab or in flowsheets.
+      - in: query
+        name: showabnormaldetails
+        schema:
+          type: boolean
+        required: false
+        description: Include the translation of the abnormalflag into HL7 code standards.
+      - in: query
+        name: supersededdocumentid
+        schema:
+          type: integer
+        required: false
+        description: ID used when the lab sends a result and later sends a more complete
+          version of the result with additional information.
+      - in: query
+        name: showresultcodifieddata
+        schema:
+          type: boolean
+        required: false
+        description: If true, result codified data is returned.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: 'Filter lab orders not individual results that are on or before
+          this date. Example: enddate=1/21/2018. If no enddate is specified, all lab
+          orders found since startdate will be included if specified.'
+      - in: query
+        name: showportalonly
+        schema:
+          type: boolean
+        required: false
+        description: If true, only documents published to the portal at the time of
+          this call are returned.
+      - in: query
+        name: allresultsbyencounterid
+        schema:
+          type: integer
+        required: false
+        description: ID used to return lab results for a specific encounter.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: 'Filter lab orders not individual results that are on or after
+          this date. Example: startdate=6/21/2015. If no startdate is specified, all
+          prior lab orders will be included until enddate if specified.'
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  abnormalflag:
+                    description: Status indicator of the measurement relative to normal
+                      (low, high, normal, abnormal)
+                    type: string
+                  abnormalhl7code:
+                    description: The HL7 code related to the abnormal flag.
+                    type: string
+                  abnormalhl7name:
+                    description: The HL7 description related to the abnormal flag.
+                    type: string
+                  analytecodifieddata:
+                    description: The labresult observation codified data.
+                    items:
+                      properties:
+                        observationidentifier:
+                          description: The labresult observation identifier data.
+                          type: object
+                        observationvalueidentifier:
+                          description: The labresult observation value identifier
+                            data.
+                          type: object
+                      type: object
+                    type: array
+                  analytecreateduser:
+                    description: Athena creator for the given lab result to this analyte
+                    type: string
+                  analytedate:
+                    description: Date when this observation was recorded
+                    type: string
+                  analyteid:
+                    description: Athena ID for the given lab result observation/analyte
+                    type: number
+                  analytename:
+                    description: Name / description specific to this analyte
+                    type: string
+                  dataabsentreason:
+                    description: The labresult observation dataabsentreason data.
+                    type: string
+                  description:
+                    description: General description of the lab result test
+                    type: string
+                  labresultstatus:
+                    description: The status of the underlying lab result
+                    type: string
+                  loinc:
+                    description: Logical Observation Identifiers Names and Codes ID,
+                      if available
+                    type: string
+                  note:
+                    description: Additional note for this analyte, if applicable
+                    type: string
+                  observationidentifier:
+                    description: Local lab ID for the given lab result observation/analyte
+                    type: string
+                  portalpublisheddatetime:
+                    description: The portal published date and time associated with
+                      this lab result. Returned in mm/dd/yyyy hh24:mi:ss format with
+                      offset.
+                    type: string
+                  referencerange:
+                    description: Reference range of values accepted as normal for
+                      this observation
+                    type: string
+                  resultstatus:
+                    description: The status of the result (e.g., "final", "preliminary",
+                      "corrected", etc.)
+                    type: string
+                  units:
+                    description: Units for this analyte entry, if provided by the
+                      lab
+                    type: string
+                  value:
+                    description: Value recorded for this observation
+                    type: string
+                  valuecodeableconcept:
+                    description: The labresult observation valuecodeableconcept data.
+                    type: object
+                  valuequantity:
+                    description: The labresult observation valuequantity data.
+                    type: object
+                  valuestatus:
+                    description: DEPRECATED -- use "abnormalflag" instead. Status
+                      indicator of the measurement relative to normal (low, high,
+                      normal, abnormal)
+                    type: string
+                  valuestring:
+                    description: The labresult observation valuestring.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidAnalytes
+      x-scopes: []
+      tags:
+      - Chart
+      - Lab Results and Analytes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

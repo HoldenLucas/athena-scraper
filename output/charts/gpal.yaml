@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/gpal:
+    get:
+      summary: Get patient's GPAL history
+      description: 'BETA: Retrieves the GAPL score and values for a patient'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  createdby:
+                    description: Username of the user who first created the information
+                      in the OB Episode.
+                    type: string
+                  createddatetime:
+                    description: Date and time of when the OB Episode of the patient
+                      was first created by the user.
+                    type: string
+                  ectopics:
+                    description: The number of ectopic pregnancies.
+                    type: string
+                  fullterm:
+                    description: The number of pregnacies brought to term.
+                    type: string
+                  gpalscore:
+                    description: The gravida, para, abortus, living counts for this
+                      patient.
+                    type: string
+                  inducedabortion:
+                    description: The number of induced abortions.
+                    type: string
+                  lastmodifieddatetime:
+                    description: Date and time of when the OB Episode of the patient
+                      was created or last modified by the user.
+                    type: string
+                  lastmodifieduser:
+                    description: Username of the user who created or last modified
+                      the information in the OB Episode.
+                    type: string
+                  living:
+                    description: The number of live births.
+                    type: string
+                  multiplebirths:
+                    description: The number of multiple births.
+                    type: string
+                  note:
+                    description: Section notes for OB History.
+                    type: string
+                  notelastmodifieddate:
+                    description: Date and time of when was the OB Episode section
+                      note was last modified or created by the user.
+                    type: string
+                  notelastmodifieduser:
+                    description: Username of the user who last modified or created
+                      the OB Episode section note.
+                    type: string
+                  premature:
+                    description: The number of premature births.
+                    type: string
+                  spontaneousabortion:
+                    description: The number of spontaneous abortions.
+                    type: string
+                  total:
+                    description: The total number of pregnancies.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidGpal
+      x-scopes: []
+      tags:
+      - Chart
+      - GPAL History
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,165 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/geneticscreeningandinfectionhistory:
+    put:
+      summary: Update genetic screening and infection history
+      description: 'BETA: Modifies the genetics screening and infection history information
+        for a specific OB episodes.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true if the call was a success.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidGeneticscreeningandinfectionhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - answers
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      answer:
+                        type: boolean
+                        description: Boolean answer to this question.
+                      questionid:
+                        type: integer
+                        description: ID of the question to update.
+                      answernotes:
+                        type: string
+                        description: Any additional notes.
+                  required:
+                  - answer
+                  - questionid
+                  description: This is a JSON array of objects that is used to update
+                    the question specific information.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/configuration/obepisodes/geneticscreeningandinfectionhistory/questions:
+    get:
+      summary: Get reference questionnaire for genetic screening and infection history
+      description: 'BETA: Retrieves a list of questions that can be used to update
+        the Genetic Screening and Infection History part of an OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The text description of this question.
+                    type: string
+                  ordering:
+                    description: Sometimes a practice sets up these questions to be
+                      listed in a specific order.  This is the ordering that they
+                      have specified they wish to use.
+                    type: integer
+                  questionid:
+                    description: The ID of this question.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationObepisodesGeneticscreeningandinfectionhistoryQuestions
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,825 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/medications:
+    get:
+      summary: Get list of all medication details for a hospital stay
+      description: 'BETA: Retrieves all administered, pre-admission and post-discharge
+        medication details for a stay.
+
+        Note: This API returns inpatient medication types depending on input filtering
+        options, does NOT filter on dates.'
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showpostdischargelist
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, post-discharge medications will be returned.
+          By default false.
+      - in: query
+        name: showpreadmissionlist
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, pre-admission medications will be returned. By
+          default false.
+      - in: query
+        name: showadministeredlist
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, administered medications will be returned. By
+          default true.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  administeredname:
+                    description: Name of the care team member who administered the
+                      medication when available.
+                    type: string
+                  administerstartdate:
+                    description: The date the medication was administered to the patient.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  administerstopdate:
+                    description: The date the medication stopped being administered.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  code:
+                    description: The code in the external vocabulary.
+                    type: string
+                  codeset:
+                    description: Determines how to interpret the code in the external
+                      vocabulary. Currently uses RxNorm identifiers for medications.
+                      For branded medications, prefers a branded RxNorm and if not
+                      available then generic. Generic medications use generic RxNorms
+                      if available.
+                    type: string
+                  departmentid:
+                    description: The ID of the department where the patient was in
+                      when they were administered the medication.
+                    type: integer
+                  dosageadditionalinstructions:
+                    description: 'Additional instructions for how/when the medication
+                      is taken. Example: in the evening.'
+                    type: string
+                  dosagedurationunit:
+                    description: The unit of the duration.
+                    type: string
+                  dosagedurationvalue:
+                    description: How many duration time units this medication should
+                      be taken for.
+                    type: string
+                  dosagefrequencydescription:
+                    description: 'A standardized patient-friendly frequency. Example:
+                      every day.'
+                    type: string
+                  dosagefrequencyunit:
+                    description: 'The unit of the frequency. Example: days.'
+                    type: string
+                  dosagefrequencyvalue:
+                    description: How many times (in the given time unit) this should
+                      be taken.
+                    type: string
+                  dosagequantityunit:
+                    description: 'The unit of the quantity. Example: tablets, sprays,
+                      etc.'
+                    type: string
+                  dosagequantityvalue:
+                    description: How many of this medication was taken.
+                    type: integer
+                  dosageroute:
+                    description: 'How this medication is taken. Example: PO, Irrigation,
+                      etc.'
+                    type: string
+                  enddatetime:
+                    description: The date the medication was ended. Returned in iso8601
+                      format.
+                    type: string
+                  genericmedicationname:
+                    description: The name of the medication in FDB.
+                    type: string
+                  genericrxnorm:
+                    description: The name of the generic RxNorm.
+                    type: string
+                  genericrxnormid:
+                    description: The generic RxNorm id.
+                    type: string
+                  isprn:
+                    default: false
+                    description: Whether or not the order was ordered as "pro re nata",
+                      or "as needed".
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  medicationid:
+                    description: Athena Medication Id for context.
+                    type: string
+                  medicationlisttype:
+                    description: One of the three medication list type namely Pre-Admission/Administered/Post-Discharge.
+                    type: string
+                  medicationname:
+                    description: The name of the medication.
+                    type: string
+                  ndc:
+                    description: The NDC number that corresponds to the medication
+                      when available.
+                    type: string
+                  ordereddate:
+                    description: The date that the provider ordered the medication
+                      when available. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  orderid:
+                    description: The unique athena ID of this instance of the order.
+                    type: integer
+                  patientid:
+                    description: The ID of the patient's data that is being returned.
+                    type: integer
+                  prnnote:
+                    description: 'If the order was ordered as PRN, the note will describe
+                      what symptoms the medication should be given for. Example: as
+                      needed for pain.'
+                    type: string
+                  providerid:
+                    description: The ID of the provider who ordered the medication.
+                    type: integer
+                  signingproviderid:
+                    description: The ID of the provider who signed the medication.
+                    type: integer
+                  startdatetime:
+                    description: The date the medication was started. Returned in
+                      iso8601 format.
+                    type: string
+                  status:
+                    description: The date the medication was administered to the patient.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  stayid:
+                    description: The stay ID.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidMedications
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Medications
+  /v1/{practiceid}/stays/{stayid}/dischargemedications:
+    get:
+      summary: Get list of pre-admission and post-discharge medication details for
+        a stay
+      description: 'BETA: Retrieves pre-admission and post-discharge (as what has
+        changed) medication details for a stay.
+
+        Note: This API retrieves home medications and changes to home medications
+        as relates to an inpatient stay. They are divided into the groups PREADMISSION,
+        STOP, START, and CONTINUE.'
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  continue:
+                    description: The list of medications to continue upon discharge
+                    items:
+                      properties:
+                        administeredname:
+                          description: Name of the care team member who administered
+                            the medication when available.
+                          type: string
+                        code:
+                          description: The code in the external vocabulary.
+                          type: string
+                        codeset:
+                          description: Determines how to interpret the code in the
+                            external vocabulary. Currently use RxNorm identifiers
+                            for medications preferably branded if not available then
+                            generic.
+                          type: string
+                        createdby:
+                          description: User who created this order.
+                          type: string
+                        createddate:
+                          description: The date on which the prescription was created.
+                          type: integer
+                        departmentid:
+                          description: The ID of the department where the patient
+                            was in when they were administered the medication.
+                          type: integer
+                        dosageadditionalinstructions:
+                          description: 'Additional instructions for how/when the medication
+                            is taken. Example: in the evening.'
+                          type: string
+                        dosagedurationunit:
+                          description: The unit of the duration.
+                          type: string
+                        dosagedurationvalue:
+                          description: How many duration time units this medication
+                            should be taken for.
+                          type: string
+                        dosagefrequencydescription:
+                          description: 'A standardized patient-friendly frequency.
+                            Example: every day.'
+                          type: string
+                        dosagefrequencyunit:
+                          description: 'The unit of the frequency. Example: days.'
+                          type: string
+                        dosagefrequencyvalue:
+                          description: How many times (in the given time unit) this
+                            should be taken.
+                          type: string
+                        dosagequantityunit:
+                          description: 'The unit of the quantity. Example: tablets,
+                            sprays, etc.'
+                          type: string
+                        dosagequantityvalue:
+                          description: How many of this medication was taken.
+                          type: integer
+                        dosageroute:
+                          description: 'How this medication is taken. Example: PO,
+                            Irrigation, etc.'
+                          type: string
+                        enddatetime:
+                          description: The date the medication was ended. Returned
+                            in iso8601 format.
+                          type: string
+                        genericrxnorm:
+                          description: The name of the generic RxNorm.
+                          type: string
+                        genericrxnormid:
+                          description: The generic RxNorm id.
+                          type: string
+                        isprn:
+                          default: false
+                          description: Whether or not the order was ordered as "pro
+                            re nata", or "as needed".
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: User who recently modified this order.
+                          type: string
+                        lastmodifieddate:
+                          description: The date the prescription was modified recently.
+                          type: integer
+                        medicationid:
+                          description: Athena Medication Id for context.
+                          type: string
+                        medicationlisttype:
+                          description: One of the three medication list type namely
+                            Pre-Admission/Administered/Post-Discharge.
+                          type: string
+                        medicationname:
+                          description: The name of the medication.
+                          type: string
+                        ndc:
+                          description: The NDC number that corresponds to the medication
+                            when available.
+                          type: string
+                        patientid:
+                          description: The ID of the patient's data that is being
+                            returned.
+                          type: integer
+                        prnnote:
+                          description: 'If the order was ordered as PRN, the note
+                            will describe what symptoms the medication should be given
+                            for. Example: as needed for pain.'
+                          type: string
+                        providerid:
+                          description: The ID of the provider who ordered the medication.
+                          type: integer
+                        sig:
+                          description: The text representation of the Sig for this
+                            medication.
+                          type: string
+                        signingproviderid:
+                          description: The ID of the provider who signed the medication.
+                          type: integer
+                        startdatetime:
+                          description: The date the medication was started. Returned
+                            in iso8601 format.
+                          type: string
+                        status:
+                          description: The date the medication was administered to
+                            the patient. Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        stayid:
+                          description: The stay ID.
+                          type: integer
+                      type: object
+                    type: array
+                  outstandingreconciliation:
+                    description: True if there are medications that still need reconciliation.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  preadmission:
+                    description: The list of medications present before admission
+                    items:
+                      properties:
+                        administeredname:
+                          description: Name of the care team member who administered
+                            the medication when available.
+                          type: string
+                        code:
+                          description: The code in the external vocabulary.
+                          type: string
+                        codeset:
+                          description: Determines how to interpret the code in the
+                            external vocabulary. Currently use RxNorm identifiers
+                            for medications preferably branded if not available then
+                            generic.
+                          type: string
+                        createdby:
+                          description: User who created this order.
+                          type: string
+                        createddate:
+                          description: The date on which the prescription was created.
+                          type: integer
+                        departmentid:
+                          description: The ID of the department where the patient
+                            was in when they were administered the medication.
+                          type: integer
+                        dosageadditionalinstructions:
+                          description: 'Additional instructions for how/when the medication
+                            is taken. Example: in the evening.'
+                          type: string
+                        dosagedurationunit:
+                          description: The unit of the duration.
+                          type: string
+                        dosagedurationvalue:
+                          description: How many duration time units this medication
+                            should be taken for.
+                          type: string
+                        dosagefrequencydescription:
+                          description: 'A standardized patient-friendly frequency.
+                            Example: every day.'
+                          type: string
+                        dosagefrequencyunit:
+                          description: 'The unit of the frequency. Example: days.'
+                          type: string
+                        dosagefrequencyvalue:
+                          description: How many times (in the given time unit) this
+                            should be taken.
+                          type: string
+                        dosagequantityunit:
+                          description: 'The unit of the quantity. Example: tablets,
+                            sprays, etc.'
+                          type: string
+                        dosagequantityvalue:
+                          description: How many of this medication was taken.
+                          type: integer
+                        dosageroute:
+                          description: 'How this medication is taken. Example: PO,
+                            Irrigation, etc.'
+                          type: string
+                        enddatetime:
+                          description: The date the medication was ended. Returned
+                            in iso8601 format.
+                          type: string
+                        genericrxnorm:
+                          description: The name of the generic RxNorm.
+                          type: string
+                        genericrxnormid:
+                          description: The generic RxNorm id.
+                          type: string
+                        isprn:
+                          default: false
+                          description: Whether or not the order was ordered as "pro
+                            re nata", or "as needed".
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: User who recently modified this order.
+                          type: string
+                        lastmodifieddate:
+                          description: The date the prescription was modified recently.
+                          type: integer
+                        medicationid:
+                          description: Athena Medication Id for context.
+                          type: string
+                        medicationlisttype:
+                          description: One of the three medication list type namely
+                            Pre-Admission/Administered/Post-Discharge.
+                          type: string
+                        medicationname:
+                          description: The name of the medication.
+                          type: string
+                        ndc:
+                          description: The NDC number that corresponds to the medication
+                            when available.
+                          type: string
+                        patientid:
+                          description: The ID of the patient's data that is being
+                            returned.
+                          type: integer
+                        prnnote:
+                          description: 'If the order was ordered as PRN, the note
+                            will describe what symptoms the medication should be given
+                            for. Example: as needed for pain.'
+                          type: string
+                        providerid:
+                          description: The ID of the provider who ordered the medication.
+                          type: integer
+                        sig:
+                          description: The text representation of the Sig for this
+                            medication.
+                          type: string
+                        signingproviderid:
+                          description: The ID of the provider who signed the medication.
+                          type: integer
+                        startdatetime:
+                          description: The date the medication was started. Returned
+                            in iso8601 format.
+                          type: string
+                        status:
+                          description: The date the medication was administered to
+                            the patient. Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        stayid:
+                          description: The stay ID.
+                          type: integer
+                      type: object
+                    type: array
+                  start:
+                    description: The list of medications to start upon discharge
+                    items:
+                      properties:
+                        administeredname:
+                          description: Name of the care team member who administered
+                            the medication when available.
+                          type: string
+                        code:
+                          description: The code in the external vocabulary.
+                          type: string
+                        codeset:
+                          description: Determines how to interpret the code in the
+                            external vocabulary. Currently use RxNorm identifiers
+                            for medications preferably branded if not available then
+                            generic.
+                          type: string
+                        createdby:
+                          description: User who created this order.
+                          type: string
+                        createddate:
+                          description: The date on which the prescription was created.
+                          type: integer
+                        departmentid:
+                          description: The ID of the department where the patient
+                            was in when they were administered the medication.
+                          type: integer
+                        dosageadditionalinstructions:
+                          description: 'Additional instructions for how/when the medication
+                            is taken. Example: in the evening.'
+                          type: string
+                        dosagedurationunit:
+                          description: The unit of the duration.
+                          type: string
+                        dosagedurationvalue:
+                          description: How many duration time units this medication
+                            should be taken for.
+                          type: string
+                        dosagefrequencydescription:
+                          description: 'A standardized patient-friendly frequency.
+                            Example: every day.'
+                          type: string
+                        dosagefrequencyunit:
+                          description: 'The unit of the frequency. Example: days.'
+                          type: string
+                        dosagefrequencyvalue:
+                          description: How many times (in the given time unit) this
+                            should be taken.
+                          type: string
+                        dosagequantityunit:
+                          description: 'The unit of the quantity. Example: tablets,
+                            sprays, etc.'
+                          type: string
+                        dosagequantityvalue:
+                          description: How many of this medication was taken.
+                          type: integer
+                        dosageroute:
+                          description: 'How this medication is taken. Example: PO,
+                            Irrigation, etc.'
+                          type: string
+                        enddatetime:
+                          description: The date the medication was ended. Returned
+                            in iso8601 format.
+                          type: string
+                        genericrxnorm:
+                          description: The name of the generic RxNorm.
+                          type: string
+                        genericrxnormid:
+                          description: The generic RxNorm id.
+                          type: string
+                        isprn:
+                          default: false
+                          description: Whether or not the order was ordered as "pro
+                            re nata", or "as needed".
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: User who recently modified this order.
+                          type: string
+                        lastmodifieddate:
+                          description: The date the prescription was modified recently.
+                          type: integer
+                        medicationid:
+                          description: Athena Medication Id for context.
+                          type: string
+                        medicationlisttype:
+                          description: One of the three medication list type namely
+                            Pre-Admission/Administered/Post-Discharge.
+                          type: string
+                        medicationname:
+                          description: The name of the medication.
+                          type: string
+                        ndc:
+                          description: The NDC number that corresponds to the medication
+                            when available.
+                          type: string
+                        patientid:
+                          description: The ID of the patient's data that is being
+                            returned.
+                          type: integer
+                        prnnote:
+                          description: 'If the order was ordered as PRN, the note
+                            will describe what symptoms the medication should be given
+                            for. Example: as needed for pain.'
+                          type: string
+                        providerid:
+                          description: The ID of the provider who ordered the medication.
+                          type: integer
+                        sig:
+                          description: The text representation of the Sig for this
+                            medication.
+                          type: string
+                        signingproviderid:
+                          description: The ID of the provider who signed the medication.
+                          type: integer
+                        startdatetime:
+                          description: The date the medication was started. Returned
+                            in iso8601 format.
+                          type: string
+                        status:
+                          description: The date the medication was administered to
+                            the patient. Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        stayid:
+                          description: The stay ID.
+                          type: integer
+                      type: object
+                    type: array
+                  stop:
+                    description: The list of medications to stop upon discharge
+                    items:
+                      properties:
+                        administeredname:
+                          description: Name of the care team member who administered
+                            the medication when available.
+                          type: string
+                        code:
+                          description: The code in the external vocabulary.
+                          type: string
+                        codeset:
+                          description: Determines how to interpret the code in the
+                            external vocabulary. Currently use RxNorm identifiers
+                            for medications preferably branded if not available then
+                            generic.
+                          type: string
+                        createdby:
+                          description: User who created this order.
+                          type: string
+                        createddate:
+                          description: The date on which the prescription was created.
+                          type: integer
+                        departmentid:
+                          description: The ID of the department where the patient
+                            was in when they were administered the medication.
+                          type: integer
+                        dosageadditionalinstructions:
+                          description: 'Additional instructions for how/when the medication
+                            is taken. Example: in the evening.'
+                          type: string
+                        dosagedurationunit:
+                          description: The unit of the duration.
+                          type: string
+                        dosagedurationvalue:
+                          description: How many duration time units this medication
+                            should be taken for.
+                          type: string
+                        dosagefrequencydescription:
+                          description: 'A standardized patient-friendly frequency.
+                            Example: every day.'
+                          type: string
+                        dosagefrequencyunit:
+                          description: 'The unit of the frequency. Example: days.'
+                          type: string
+                        dosagefrequencyvalue:
+                          description: How many times (in the given time unit) this
+                            should be taken.
+                          type: string
+                        dosagequantityunit:
+                          description: 'The unit of the quantity. Example: tablets,
+                            sprays, etc.'
+                          type: string
+                        dosagequantityvalue:
+                          description: How many of this medication was taken.
+                          type: integer
+                        dosageroute:
+                          description: 'How this medication is taken. Example: PO,
+                            Irrigation, etc.'
+                          type: string
+                        enddatetime:
+                          description: The date the medication was ended. Returned
+                            in iso8601 format.
+                          type: string
+                        genericrxnorm:
+                          description: The name of the generic RxNorm.
+                          type: string
+                        genericrxnormid:
+                          description: The generic RxNorm id.
+                          type: string
+                        isprn:
+                          default: false
+                          description: Whether or not the order was ordered as "pro
+                            re nata", or "as needed".
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: User who recently modified this order.
+                          type: string
+                        lastmodifieddate:
+                          description: The date the prescription was modified recently.
+                          type: integer
+                        medicationid:
+                          description: Athena Medication Id for context.
+                          type: string
+                        medicationlisttype:
+                          description: One of the three medication list type namely
+                            Pre-Admission/Administered/Post-Discharge.
+                          type: string
+                        medicationname:
+                          description: The name of the medication.
+                          type: string
+                        ndc:
+                          description: The NDC number that corresponds to the medication
+                            when available.
+                          type: string
+                        patientid:
+                          description: The ID of the patient's data that is being
+                            returned.
+                          type: integer
+                        prnnote:
+                          description: 'If the order was ordered as PRN, the note
+                            will describe what symptoms the medication should be given
+                            for. Example: as needed for pain.'
+                          type: string
+                        providerid:
+                          description: The ID of the provider who ordered the medication.
+                          type: integer
+                        sig:
+                          description: The text representation of the Sig for this
+                            medication.
+                          type: string
+                        signingproviderid:
+                          description: The ID of the provider who signed the medication.
+                          type: integer
+                        startdatetime:
+                          description: The date the medication was started. Returned
+                            in iso8601 format.
+                          type: string
+                        status:
+                          description: The date the medication was administered to
+                            the patient. Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        stayid:
+                          description: The stay ID.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidDischargemedications
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Medications
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

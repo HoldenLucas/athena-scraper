@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/problemslist:
+    put:
+      summary: Update problems list of OB episode
+      description: 'BETA: Modifies the problem list of OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: True if the put was successful, otherwise false.
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidProblemslist
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                note:
+                  description: Free text notes for the entire problems list.
+                  type: string
+                problems:
+                  description: A list of problems that should be updated.
+                  items:
+                    properties:
+                      enddate:
+                        description: The end date of the problem.
+                        type: string
+                      note:
+                        description: A free text field for notes about the problem.
+                        type: string
+                      snomedcode:
+                        description: The <a href="http://www.nlm.nih.gov/research/umls/Snomed/snomed_browsers.html">
+                          SNOMED code</a> of the problem you are updating.
+                        type: integer
+                      startdate:
+                        description: The onset date for the problem.
+                        type: string
+                    type: object
+                  required:
+                  - snomedcode
+                  type: array
+              type: object
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

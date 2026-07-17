@@ -1,0 +1,238 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/chartalert:
+    post:
+      summary: Create new department specific patient's chart-alert
+      description: Create a chart alert record for a patient in a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidChartalert
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - notetext
+              properties:
+                notetext:
+                  type: string
+                  description: The note text.  Use PUT to add to any existing text
+                    and POST if you want to add new or replace the full note
+                departmentid:
+                  type: integer
+                  description: The department ID; needed because charts, and thus
+                    chart notes, may be department-specific
+        required: true
+      tags:
+      - Patients
+      - Chart Alerts
+    get:
+      summary: Get last modified information of patient's chart specific to a department
+      description: Retrieves the chart alert record for a patient in a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID; needed because charts, and thus chart notes,
+          may be department-specific
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  lastmodified:
+                    description: The time this note was updated (mm/dd/yyyy hh24:mi:ss;
+                      Eastern time), if the note has been updated.
+                    type: string
+                  lastmodifiedby:
+                    description: If the note has been modified, the username who last
+                      modified this note.
+                    type: string
+                  notetext:
+                    description: The text of the note.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidChartalert
+      x-scopes: []
+      tags:
+      - Patients
+      - Chart Alerts
+    put:
+      summary: Update department specific patient's chart-alert
+      description: Modifies the chart alert record for a patient in a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidChartalert
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - notetext
+              properties:
+                notetext:
+                  type: string
+                  description: The note text.  Use PUT to add to any existing text
+                    and POST if you want to add new or replace the full note
+                departmentid:
+                  type: integer
+                  description: The department ID; needed because charts, and thus
+                    chart notes, may be department-specific
+        required: true
+      tags:
+      - Patients
+      - Chart Alerts
+    delete:
+      summary: Delete department specific alerts for patient's chart changes
+      description: Delete the chart alert record for a patient in a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID; needed because charts, and thus chart notes,
+          may be department-specific
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidPatientsPatientidChartalert
+      x-scopes: []
+      tags:
+      - Patients
+      - Chart Alerts
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

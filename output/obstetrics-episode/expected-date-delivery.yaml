@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/18to20weekeddupdate:
+    put:
+      summary: Update expected date of delivery information using 18-20 week inputs
+      description: 'BETA: Modifies the expected date of delivery calculations based
+        on the OB episode information during the 18 to 20 week window'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if the put was successful, otherwise false.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeid18to20weekeddupdate
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                finaledd:
+                  type: string
+                  description: The final expected date of delivery, as calculated
+                    using the LMP, the initial exam date, and the late ultrasound
+                    date. The OB episode will use this date if available.
+                quickening:
+                  type: string
+                  description: The date at which the patient begins to feel fetal
+                    movements.
+                fundalheightdate:
+                  type: string
+                  description: The date at which fundal height reaches umbilicus,
+                    usually estimated to indicate approximately 20 weeks GA.
+                finaleddconfirmed:
+                  type: boolean
+                  description: Whether the final EDD has been reviewed and approved
+                    by the provider.
+                lateultrasounddate:
+                  type: string
+                  description: The date of ultrasound for the 18-20 week EDD update.
+                ultrasoundlatestdaysgestation:
+                  type: integer
+                  description: Gestation period in days.
+                ultrasoundlatestweeksgestation:
+                  type: integer
+                  description: Gestation period in weeks.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/eddcalculation:
+    put:
+      summary: Update expected date of delivery information for OB Episode
+      description: 'BETA: Modifies the expected date of delivery information for an
+        specific OB episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if the put was successful, otherwise false.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidEddcalculation
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                finaledd:
+                  type: string
+                  description: The final expected date of delivery, as calculated
+                    using the LMP, the initial exam date, and the late ultrasound
+                    date. The OB episode will use this date if available.
+                initialedd:
+                  type: string
+                  description: The expected date of delivery, as calculated using
+                    the LMP, initial exam date, and initial ultrasound date. The OB
+                    episode will only use this date if the final EDD field is not
+                    populated.
+                quickening:
+                  type: string
+                  description: The date at which the patient begins to feel fetal
+                    movements.
+                definitelmpdate:
+                  type: boolean
+                  description: Whether the last menstrual period date is definite.
+                initialexamdate:
+                  type: string
+                  description: The date of the initial exam.
+                fundalheightdate:
+                  type: string
+                  description: The date at which fundal height reaches umbilicus,
+                    usually estimated to indicate approximately 20 weeks GA.
+                finaleddconfirmed:
+                  type: boolean
+                  description: Whether the final EDD has been reviewed and approved
+                    by the provider.
+                lateultrasounddate:
+                  type: string
+                  description: The date of ultrasound for the 18-20 week EDD update.
+                initialeddconfirmed:
+                  type: boolean
+                  description: Whether the initial EDD has been reviewed and approved
+                    by the provider.
+                lastmenstrualperiod:
+                  type: string
+                  description: The date of first day of the last menstrual period.
+                initialdaysgestation:
+                  type: integer
+                  description: Fetus age in days.
+                acceptemptydatefields:
+                  type: boolean
+                  description: Whether to accept null values for the date fields in
+                    the OB episode. If true, empty date fields will be stored as null
+                    values in the episode.
+                initialexamproviderid:
+                  type: integer
+                  description: The ID of the provider who performed the initial exam.
+                initialultrasounddate:
+                  type: string
+                  description: The date of the first ultrasound.
+                initialweeksgestation:
+                  type: integer
+                  description: Fetus age in weeks.
+                ultrasounddaysgestation:
+                  type: integer
+                  description: Fetus age in days.
+                ultrasoundweeksgestation:
+                  type: integer
+                  description: Fetus age in weeks.
+                ultrasoundlatestdaysgestation:
+                  type: integer
+                  description: Gestation period in days.
+                ultrasoundlatestweeksgestation:
+                  type: integer
+                  description: Gestation period in weeks.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

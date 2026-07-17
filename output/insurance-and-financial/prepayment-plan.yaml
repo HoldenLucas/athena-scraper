@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/prepaymentplans:
+    get:
+      summary: Retrieve prepayment plans
+      description: This API returns the non-deleted, non-draft prepayment plans for
+        the given patient, along with a list of linked claims for each.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: prepaymentplanids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: array of plan IDs to retrieve
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientid:
+                    description: the patient ID
+                    type: integer
+                  prepaymentplans:
+                    description: list of prepayment plan details
+                    items:
+                      properties:
+                        balancedueby:
+                          description: balance due by date (MM/DD/YYYY)
+                          type: string
+                        claims:
+                          description: list of claims linked to the plan
+                          items:
+                            properties:
+                              claimid:
+                                description: The ID of a claim linked to the plan.  Use
+                                  the GET /v1/{practiceid}/claims/{claimid} API to
+                                  retrieve further claim details.
+                                type: integer
+                            type: object
+                          type: array
+                        created:
+                          description: creation date of the plan (MM/DD/YYYY)
+                          type: string
+                        dateofservice:
+                          description: expected date of service (MM/DD/YYYY)
+                          type: string
+                        deactivateyn:
+                          description: whether or not the plan should be automatically
+                            deactivated (Y/N)
+                          type: string
+                        expecteddepartmentid:
+                          description: ID of the "Expected department" associated
+                            with the plan
+                          type: integer
+                        lastmodified:
+                          description: last modification date of the plan (MM/DD/YYYY),
+                            which can be the same as CREATED if the plan has not been
+                            subsequently modified
+                          type: string
+                        lastmodifiedby:
+                          description: the username who last modified the plan, or
+                            who created the plan if it has not been subsequently modified
+                          type: string
+                        paidinfull:
+                          description: Y/N
+                          type: string
+                        paymentamount:
+                          description: amount of each payment
+                          type: string
+                        paymentperiod:
+                          description: MONTHLY, WEEKLY, or nothing
+                          type: string
+                        planname:
+                          description: name of the plan
+                          type: string
+                        prepaymentplanid:
+                          description: ID of the plan
+                          type: integer
+                        prepaymenttype:
+                          description: category of prepayment plan
+                          type: string
+                        procedurecode:
+                          description: expected procedure code - deprecating in fall
+                            2024 - removing in spring 2025
+                          type: string
+                        procedurecodes:
+                          description: expected procedure codes - adding in fall 2024
+                          items:
+                            type: string
+                          type: array
+                        providername:
+                          description: expected provider
+                          type: string
+                        totalamount:
+                          description: total amount to be collected ($)
+                          type: string
+                      type: object
+                    type: array
+                  status:
+                    description: success or failure
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPrepaymentplans
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Prepayment Plans
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,119 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/misc/commoninsurancepackages:
+    get:
+      summary: Get reference list of common insurance packages
+      description: Retrieves a list of insurance packages used by the practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showonlycasepolicies
+        schema:
+          type: boolean
+        required: false
+        description: If true only show the case policies.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The ID of the department to check for common insurances. This
+          is used to determine which provider group that we are working with.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The first address line associated with this insurance
+                      package, often on the insurance card itself as a place to send
+                      claims.
+                    type: string
+                  address2:
+                    description: The second address line associated with this insurance
+                      package.
+                    type: string
+                  city:
+                    description: The city associated with this insurance package.
+                    type: string
+                  insurancepackageid:
+                    description: The athenaNet-wide insurance package (also know in
+                      the industry as an "insurance product") id.
+                    type: integer
+                  insuranceproducttypename:
+                    description: The type of product (e.g. PPO, HMO, etc.)
+                    type: string
+                  name:
+                    description: The name of the insurance package.
+                    type: string
+                  phone:
+                    description: The phone number associated with this insurance package.
+                    type: string
+                  state:
+                    description: The state associated with this insurance package.
+                    type: string
+                  zip:
+                    description: The zip code associated with this insurance package.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMiscCommoninsurancepackages
+      x-scopes: []
+      tags:
+      - Administrative
+      - Common insurance packages
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,239 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/patientgoals:
+    get:
+      summary: Get list of patient goals
+      description: Retrieves the list of patient goals for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  auditinformation:
+                    description: Lastmodified timestamps and usernames of data in
+                      the database
+                    properties:
+                      discussionnotes:
+                        description: Lastmodified timestamps and usernames of the
+                          discussion notes
+                        properties:
+                          lastmodifiedby:
+                            description: The username of the user who last updated
+                              the discussion notes.
+                            type: string
+                          lastmodifieddatetime:
+                            description: The date and time the discussion notes were
+                              last modified.
+                            type: string
+                        type: object
+                      freetextgoal:
+                        description: Lastmodified timestamps and usernames of the
+                          freetext goal
+                        properties:
+                          lastmodifiedby:
+                            description: The username of the user who last updated
+                              the freetext goal.
+                            type: string
+                          lastmodifieddatetime:
+                            description: The date and time this freetext goal was
+                              last modified.
+                            type: string
+                        type: object
+                      patientinstructions:
+                        description: Lastmodified timestamps and usernames of the
+                          patient instructions
+                        properties:
+                          lastmodifiedby:
+                            description: The username of the user who last updated
+                              the patient instructions.
+                            type: string
+                          lastmodifieddatetime:
+                            description: The date and time the patient instructions
+                              were last modified.
+                            type: string
+                        type: object
+                    type: object
+                  discussionnotes:
+                    description: Further discussion notes about these patient goals.
+                    type: string
+                  encounterid:
+                    description: Encounter ID.
+                    type: integer
+                  freetextgoal:
+                    description: Unstructured goal. More of a note field.
+                    type: string
+                  goals:
+                    description: List of goals for the patient resulting from this
+                      encounter.
+                    items:
+                      properties:
+                        compoundvalues:
+                          description: Some goals have target values that include
+                            multiple parts. This output provides additional data that
+                            adds to or replaces the target value.
+                          items:
+                            properties:
+                              compoundkey:
+                                description: A key indentifying what information this
+                                  compound value stores.
+                                type: string
+                              compoundvalue:
+                                description: The target value for the compound value.
+                                type: string
+                            type: object
+                          type: array
+                        duration:
+                          description: Expected time frame for reaching goal. This
+                            will not be returned if the goal has been met.
+                          type: string
+                        goaltype:
+                          description: Clinical goal type. Usually a VITALS or a LABANALYTE.
+                          type: string
+                        isprimarygoal:
+                          description: Indicates primary goal. Value would be true
+                            if the goal is primary else false.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        name:
+                          description: Display name of goal.
+                          type: string
+                        status:
+                          description: Status of goal. Null means not yet met. If
+                            met will have a value of MET.
+                          type: string
+                        targettextvalue:
+                          description: Goal full text target value.
+                          type: string
+                        targetvalue:
+                          description: Goal target value.
+                          type: string
+                      type: object
+                    type: array
+                  patientinstructions:
+                    description: Instructions to the patient about achieving these
+                      goals.
+                    type: string
+                  topicsofdiscussion:
+                    description: Topics of Discussion.
+                    items:
+                      properties:
+                        clinicalencounternotetopicid:
+                          description: Clinical Encounter Note Topic ID.
+                          type: integer
+                        declined:
+                          description: True / False for if the topic is declined.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        declinedreason:
+                          description: Reason the topic is declined.
+                          type: string
+                        declinedreasonid:
+                          description: ID for the reason the topic is declined.
+                          type: integer
+                        encounterid:
+                          description: Encounter ID.
+                          type: integer
+                        lastmodifiedby:
+                          description: The username of the user who last updated the
+                            topic.
+                          type: string
+                        lastmodifieddatetime:
+                          description: The date and time the topic was last modified.
+                          type: string
+                        sectionid:
+                          description: ID for the encounter section to which the topic
+                            is linked.
+                          type: integer
+                        sectionname:
+                          description: Name for the encounter section to which the
+                            topic is linked.
+                          type: string
+                        topicid:
+                          description: Topic ID.
+                          type: integer
+                        topicname:
+                          description: Human readable description of topic.
+                          type: string
+                        versiontoken:
+                          description: The version token for the topic.
+                          type: string
+                      type: object
+                    type: array
+                  versiontokens:
+                    description: Tokens specifying a unique version of data in the
+                      database.
+                    properties:
+                      discussionnotes:
+                        description: The version token for discussion notes.
+                        type: string
+                      freetextgoal:
+                        description: The version token for free text goals.
+                        type: string
+                      patientinstructions:
+                        description: The version token for patient instructions.
+                        type: string
+                    type: object
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridPatientgoals
+      x-scopes: []
+      tags:
+      - Encounter
+      - Patient Goals
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

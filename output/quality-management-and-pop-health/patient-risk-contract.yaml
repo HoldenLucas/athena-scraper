@@ -1,0 +1,422 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/riskcontract:
+    get:
+      summary: Get patient risk contract information
+      description: Retrieves the patient risk contract information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: Department ID
+      - in: query
+        name: allcharts
+        schema:
+          type: boolean
+        required: false
+        description: If true, retrieve the record which indicates a risk contract
+          is applied to all charts associated with the given patient.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  riskcontractid:
+                    description: Risk contract ID.
+                    type: integer
+                  success:
+                    description: Whether the operation was successful
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidRiskcontract
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Risk Contract
+    put:
+      summary: Update patient risk contract information
+      description: Modifies the risk contract status for specific a patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    items:
+                      properties:
+                        departmentid:
+                          description: Department ID
+                          type: integer
+                        errormessage:
+                          description: Error message
+                          type: string
+                        patientid:
+                          description: Patient ID
+                          type: integer
+                        riskcontractid:
+                          description: Risk Contract ID
+                          type: integer
+                      type: object
+                    required:
+                    - riskcontractid
+                    - errormessage
+                    - patientid
+                    type: array
+                  success:
+                    description: Whether the operation was successful.
+                    type: integer
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidRiskcontract
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - riskcontractid
+              properties:
+                allcharts:
+                  type: boolean
+                  description: If true, apply this update to all charts associated
+                    with the given patient.
+                departmentid:
+                  type: integer
+                  description: Department ID
+                riskcontractid:
+                  type: integer
+                  description: Risk Contract ID
+        required: true
+      tags:
+      - Chart
+      - Patient Risk Contract
+    delete:
+      summary: Delete patient risk contract information
+      description: Deletes the record of patient risk contract information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: Department ID
+      - in: query
+        name: allcharts
+        schema:
+          type: boolean
+        required: false
+        description: If true, apply this delete to all charts associated with the
+          given patient.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidRiskcontract
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Risk Contract
+  /v1/{practiceid}/chart/riskcontracts:
+    get:
+      summary: Get One/All patient risk contract(s) information
+      description: Retrieves the patient risk contracts for specific patients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: Department ID
+      - in: query
+        name: riskcontractid
+        schema:
+          type: integer
+        required: false
+        description: Risk Contract ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientriskcontracts:
+                    description: list of patient risk contracts.
+                    items:
+                      properties:
+                        allcharts:
+                          description: True if this risk contract applies to the given
+                            patient across all departments
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        departmentcount:
+                          description: The number of departments to which this risk
+                            contract has been applied for the given patient. Only
+                            present if the DEPARTMENTID argument was omitted.
+                          type: integer
+                        patientid:
+                          description: Patient ID
+                          type: integer
+                        riskcontractid:
+                          description: Risk Contract ID
+                          type: integer
+                      type: object
+                    required:
+                    - riskcontractid
+                    - patientid
+                    type: array
+                  success:
+                    description: Whether the operation was successful
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartRiskcontracts
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Risk Contract
+    put:
+      summary: Bulk Update one/all patient risk contract(s) information
+      description: Modifies the risk contract status for specific patients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    items:
+                      properties:
+                        departmentid:
+                          description: Department ID
+                          type: integer
+                        errormessage:
+                          description: Error message
+                          type: string
+                        patientid:
+                          description: Patient ID
+                          type: integer
+                        riskcontractid:
+                          description: Risk Contract ID
+                          type: integer
+                      type: object
+                    required:
+                    - riskcontractid
+                    - errormessage
+                    - patientid
+                    type: array
+                  success:
+                    description: Whether the operation was successful.
+                    type: integer
+                type: object
+          description: Success
+      operationId: putPracticeidChartRiskcontracts
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                patientriskcontracts:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      allcharts:
+                        type: boolean
+                        description: If true, apply this update to all charts associated
+                          with the given patient.
+                      patientid:
+                        type: integer
+                        description: Patient ID
+                      departmentid:
+                        type: integer
+                        description: Department ID
+                      riskcontractid:
+                        type: integer
+                        description: Risk Contract ID
+                  required:
+                  - riskcontractid
+                  - patientid
+                  description: List of patient risk contracts to update.
+        required: true
+      tags:
+      - Chart
+      - Patient Risk Contract
+    delete:
+      summary: Delete One/All patient risk contract(s) information
+      description: Deletes the record of patient risk contract for specific patients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: allriskcontracts
+        schema:
+          type: boolean
+        required: false
+        description: If true, deletes all patient risk contract associations
+      - in: query
+        name: riskcontractid
+        schema:
+          type: integer
+        required: false
+        description: Risk Contract ID
+      - in: query
+        name: patients
+        schema:
+          type: array
+          items:
+            type: object
+        required: false
+        description: List of patients to delete risk contracts.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartRiskcontracts
+      x-scopes: []
+      tags:
+      - Chart
+      - Patient Risk Contract
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

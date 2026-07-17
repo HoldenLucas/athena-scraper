@@ -1,0 +1,425 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/freeze:
+    put:
+      summary: Freeze appointment slot
+      description: Freezes an appointment slot so that patients can no longer schedule
+        an appointment in that slot. Once frozen, the time slot will not be listed
+        for booking an appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Returns true if the call to freeze/unfreeze appointment
+                      was successful.
+                  slotsfound:
+                    type: integer
+                    description: Count of open slots found.
+                  errormessage:
+                    type: string
+                    description: If success is not true, this will detail the error
+                      that occurred.
+                  slotsaffected:
+                    type: integer
+                    description: Count of open slots that were affected by the freeze/unfreeze
+                      operation.
+                  appointmentsfound:
+                    type: integer
+                    description: Count of booked appointments found. Only returned
+                      when INCLUDEOVERLAPPING or EXCLUDEBOOKEDAPPOINTMENTS parameters
+                      are used.
+                  appointmentsaffected:
+                    type: integer
+                    description: Count of booked appointments that were affected by
+                      the freeze/unfreeze operation.
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidFreeze
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                excludebookedappointments:
+                  description: Required and only allowed if includeoverlapping is
+                    set
+                  type: boolean
+                freeze:
+                  description: If true, slot will be frozen, if false, slot will be
+                    unfrozen
+                  type: boolean
+                includeoverlapping:
+                  description: Whether the freeze is scoped by provider or by department
+                  enum:
+                  - ''
+                  - by provider
+                  - by department
+                  - by providernpi
+                  type: string
+                requirescancellation:
+                  description: If true, appointment can be cancelled, if false, cannot
+                    cancel the appointment
+                  type: boolean
+              required:
+              - freeze
+              type: object
+        required: true
+      tags:
+      - Appointments
+      - Appointments (book/reschedule/cancel)
+  /v1/{practiceid}/appointments/open:
+    post:
+      summary: Create a new appointment slot
+      description: Provides the ability to add new open appointment slots
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentids:
+                    description: An hash of appointment IDs to the time requested.
+                    type: object
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsOpen
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - appointmentdate
+              - appointmenttime
+              - departmentid
+              - providerid
+              properties:
+                reasonid:
+                  type: integer
+                  description: The appointment reason (/patientappointmentreasons)
+                    to be created. Either this or a raw appointment type ID must be
+                    provided.
+                providerid:
+                  type: integer
+                  description: The athenaNet provider ID.
+                departmentid:
+                  type: integer
+                  description: The athenaNet department ID.
+                appointmentdate:
+                  type: string
+                  description: The appointment date for the new open appointment slot
+                    (mm/dd/yyyy).
+                appointmenttime:
+                  type: array
+                  items:
+                    type: string
+                  description: The time (hh24:mi) for the new appointment slot.  Multiple
+                    times (either as a comma delimited list or multiple POSTed values)
+                    are allowed.  24 hour time.
+                appointmenttypeid:
+                  type: integer
+                  description: The appointment type ID to be created.  Either this
+                    or a reason must be provided.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Slots
+    get:
+      summary: Get list of open appointment slots
+      description: Retrieves access to open appointment slots
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: appointmenttypeid
+        schema:
+          type: integer
+        required: false
+        description: Normally, an appointment reason ID should be used which will
+          map to the correct underlying appointment type in athenaNet. This field
+          will ignore the practice's existing setup for what should be scheduled.
+          Please consult with athenahealth before using. Either an appointmenttypeid
+          or a reasonid must be specified or no results will be returned.
+      - in: query
+        name: departmentid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: providerid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: The athenaNet provider ID. Required if a reasonid other than
+          -1 is specified.
+      - in: query
+        name: showfrozenslots
+        schema:
+          type: boolean
+        required: false
+        description: By default, we hide appointments that are frozen from being returned
+          via the API.   This flag allows you to show frozen slots in the set of results
+          returned.
+      - in: query
+        name: ignoreschedulablepermission
+        schema:
+          type: boolean
+        required: false
+        description: By default, we show only appointments that are are available
+          to scheduled via the API.   This flag allows you to bypass that restriction
+          for viewing available appointments (but you still may not be able to schedule
+          based on this permission!).  This flag does not, however, show the full
+          schedule (that is, appointments that are already booked).
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: End of the appointment search date range (mm/dd/yyyy).  Inclusive.
+          Defaults to seven days from startdate.
+      - in: query
+        name: bypassscheduletimechecks
+        schema:
+          type: boolean
+        required: false
+        description: Bypass checks that usually require returned appointments to be
+          some amount of hours in the future (as configured by the practice, defaulting
+          to 24 hours), and also ignores the setting that only shows appointments
+          for a certain number of days in the future (also configurable by the practice,
+          defaulting to 90 days).
+      - in: query
+        name: reasonid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: The athenaNet patient appointment reason ID, from GET /patientappointmentreasons.
+          While this is not technically required due to some unusual use cases, it
+          is highly recommended for most calls. We do allow a special value of -1
+          for the reasonid. This reasonid will return open, web-schedulable slots
+          regardless of reason.  However, slots returned using a search of -1 may
+          return slots that are not bookable by any reason ID (they may be bookable
+          by specific appointment type IDs instead).  This argument allows multiple
+          valid reason IDs to be specified (e.g. reasonid=1,2,3), so if you are looking
+          for slots that match "any" reason, it is recommended that you enumerate
+          the set of reasons you are looking for.  Either a reasonid or an appointmenttypeid
+          must be specified or no results will be returned. If a reasonid other than
+          -1 is specified then a providerid must also be specified.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: Start of the appointment search date range (mm/dd/yyyy).  Inclusive.  Defaults
+          to today.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    description: This is the ID of the appointment to use when booking.
+                      To be clear about the behind-the-scenes functionality, this
+                      is technically the first ID that will be used. Because of the
+                      ability to combine multiple "generic" slots into a single appointment,
+                      this may be first ID used. This is important only if trying
+                      to reconcile this against a practice's schedule template.
+                    type: integer
+                  appointmenttype:
+                    description: The practice-friendly (not patient friendly) name
+                      for this appointment type.  Note that this may <strong>not</strong>
+                      be the same as the booked appointment because of "generic" slots.
+                    type: string
+                  appointmenttypeid:
+                    description: This is the ID for the appointment type.   Note that
+                      this may <strong>not</strong> be the same as the booked appointment
+                      because of "generic" slots.
+                    type: integer
+                  date:
+                    description: The appointment date.
+                    type: string
+                  departmentid:
+                    description: The athenaNet department ID for the appointment
+                    type: integer
+                  duration:
+                    description: Duration of the input appointment type, or duration
+                      of the appointment if appointment type is not given as input
+                    type: integer
+                  frozenyn:
+                    description: If true, this appointment slot is frozen
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  localproviderid:
+                    description: The local athenaNet ID for the provider of the appointment.
+                    type: integer
+                  patientappointmenttypename:
+                    description: The patient-friendly name for this appointment type.  Note
+                      that this may <strong>not</strong> be the same as the booked
+                      appointment because of "generic" slots.
+                    type: string
+                  providerid:
+                    description: The athenaNet ID for the provider of the appointment.
+                    type: integer
+                  reasonid:
+                    description: A list of reason IDs that could be used for this
+                      slot.  Only present if multiple reason IDs are requested.
+                    type: integer
+                  renderingproviderid:
+                    description: The rendering provider ID.
+                    type: integer
+                  starttime:
+                    description: As HH:MM (where HH is the 0-23 hour and MM is the
+                      minute).  This time is local to the department.
+                    type: string
+                  validappointmenttypeids:
+                    description: A list of Appointment Type IDs that are valid to
+                      be booked in this slot. This will only be included if "New Schedule
+                      Admin" is enabled for the practice.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsOpen
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Slots
+  /v1/{practiceid}/appointments/{appointmentid}:
+    delete:
+      summary: Delete open appointment slot
+      description: Deletes an open appointment slot, which will no longer allow appointments
+        to be scheduled in that timeslot.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    description: The appointment ID that was deleted.
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidAppointmentsAppointmentid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointments (book/reschedule/cancel)
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

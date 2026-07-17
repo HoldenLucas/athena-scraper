@@ -1,0 +1,716 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/reviewofsystems:
+    get:
+      summary: Get review of systems findings and notes for given encounter
+      description: Retrieves a Physical Exam summary for a specific encounter
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: If templateids are passed in, this will return only the template
+          data for the ids passed in, and not the data selected for the current encounter.
+          The showstructured flag must be true to use this. This can be used in conjunction
+          with wellchildtemplateids.
+        in: query
+        name: templateids
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+      - description: If wellchildtemplateids are passed in, this will return only
+          the template data for the ids passed in, and not the data selected for the
+          current encounter. The showstructured flag must be true to use this. This
+          can be used in conjunction with templateids.
+        in: query
+        name: wellchildtemplateids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: If true, returns the review of systems as structured data. If
+          false, returns it via lightly-HTML marked up English text, as displayed
+          in the athenanet encounter summary.
+        in: query
+        name: showstructured
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hpitoros:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether ROS is as noted in HPI.
+                  templates:
+                    type: string
+                    description: The comma separated list of selected review of systems
+                      templates used.
+                  reportedby:
+                    enum:
+                    - ''
+                    - Patient
+                    - Parent
+                    - Caregiver
+                    - Staff
+                    type: string
+                    description: "\n\t\t\t\t\tThe type of person who reported information\
+                      \ for the review of systems template. One of Patient, Parent,\
+                      \ Caregiver, or Staff.\n\t\t\t\t"
+                  sectionnote:
+                    type: string
+                    description: The structured section-level note for the review
+                      of systems section.
+                  summarytext:
+                    type: string
+                    description: The unstructured review of systems summary.
+                  templatedata:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        templateid:
+                          type: integer
+                          description: ID of the template.
+                        templatename:
+                          type: string
+                          description: Name of the template.
+                    description: An array of objects each containing the name and
+                      id for review of systems templates attached to the encounter.
+                  wellchildros:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sentences:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              findings:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    freetext:
+                                      type: string
+                                      description: The value of the text field sometimes
+                                        associated with this finding.
+                                    medcinid:
+                                      type: integer
+                                      description: Where available, the matching MEDCIN
+                                        ID for this clinical finding.
+                                    selected:
+                                      enum:
+                                      - ''
+                                      - false
+                                      - true
+                                      type: string
+                                      description: Whether the finding is selected.
+                                        If templateids are not passed in, this field
+                                        will not be returned.
+                                    findingid:
+                                      type: integer
+                                      description: ID of the finding you are updating.
+                                        If you pass in an invalid ID we will simply
+                                        ignore it.
+                                    findingname:
+                                      type: string
+                                      description: The label for this finding. Note
+                                        that this may contain specific answers for
+                                        this finding (e.g. "wakes up 2 hours after
+                                        going to sleep"). See GENERICFINDINGNAME for
+                                        an example that does not contain specific
+                                        answers.
+                                    findingnote:
+                                      type: string
+                                      description: The note for this finding.
+                                    findingtype:
+                                      type: string
+                                      description: Describes the finding -- either
+                                        NORMAL, ABNORMAL, or NEUTRAL.
+                                    optionlists:
+                                      type: string
+                                      description: An array of arrays.  Each inner
+                                        array contains the possible options for a
+                                        dropdown list. The order of the these arrays
+                                        corresponds to the ordering of dropdowns from
+                                        left to right within the finding.
+                                    selectedoptions:
+                                      type: string
+                                      description: The options the user has chosen
+                                        from any dropdowns for this finding.  The
+                                        order of these selections corresponds to the
+                                        order of the dropdowns from left to right
+                                        in the finding name.
+                                    contradictionids:
+                                      type: string
+                                      description: A string representing an array
+                                        of finding IDs that contradict the current
+                                        finding ID. What this means is that if this
+                                        finding is selected, any findings in the CONTRADICTIONIDS
+                                        should not be selected.
+                                    genericfindingname:
+                                      type: string
+                                      description: The general label for this finding.
+                                        It will not contain any specific answers for
+                                        this finding (e.g. "wakes up ___ {{minutes*|hours}}
+                                        after going to sleep").
+                                description: The list of findings.
+                              sentenceid:
+                                type: integer
+                                description: ID of the sentence you are updating.
+                                  If you pass in an invalid ID we will simply ignore
+                                  it.
+                              sentencename:
+                                type: string
+                                description: The label for this sentence
+                              sentencenote:
+                                type: string
+                                description: The note for this sentence.
+                          description: The list of sentences
+                        paragraphid:
+                          type: integer
+                          description: ID of the paragraph you are updating. If you
+                            pass in an invalid ID we will simply ignore it.
+                        paragraphname:
+                          type: string
+                          description: The label for this paragraph
+                    description: "The structured well child review of systems data.\
+                      \ It is structured as a list of paragraphs, each containing\
+                      \ a list of sentences, each containing a list of findings.\n\
+                      \t\t\t\t\tThis is targeted towards children but behaves the\
+                      \ same as any other review of systems templates."
+                  lastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ the user who last modified the review of systems section.\n\
+                      \t\t\t"
+                  reviewofsystems:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sentences:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              findings:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    freetext:
+                                      type: string
+                                      description: The value of the text field sometimes
+                                        associated with this finding.
+                                    medcinid:
+                                      type: integer
+                                      description: Where available, the matching MEDCIN
+                                        ID for this clinical finding.
+                                    selected:
+                                      enum:
+                                      - ''
+                                      - false
+                                      - true
+                                      type: string
+                                      description: Whether the finding is selected.
+                                        If templateids are not passed in, this field
+                                        will not be returned.
+                                    findingid:
+                                      type: integer
+                                      description: ID of the finding you are updating.
+                                        If you pass in an invalid ID we will simply
+                                        ignore it.
+                                    findingname:
+                                      type: string
+                                      description: The label for this finding.
+                                    findingnote:
+                                      type: string
+                                      description: The note for this finding.
+                                    findingtype:
+                                      type: string
+                                      description: Describes the finding -- either
+                                        NORMAL, ABNORMAL, or NEUTRAL.
+                                    optionlists:
+                                      type: string
+                                      description: An array of arrays.  Each inner
+                                        array contains the possible options for a
+                                        dropdown list. The order of the these arrays
+                                        corresponds to the ordering of dropdowns from
+                                        left to right within the finding.
+                                    selectedoptions:
+                                      type: string
+                                      description: The options the user has chosen
+                                        from any dropdowns for this finding.  The
+                                        order of these selections corresponds to the
+                                        order of the dropdowns from left to right
+                                        in the finding name.
+                                    contradictionids:
+                                      type: string
+                                      description: A string representing an array
+                                        of finding IDs that contradict the current
+                                        finding ID. What this means is that if this
+                                        finding is selected, any findings in the CONTRADICTIONIDS
+                                        should not be selected.
+                                    genericfindingname:
+                                      type: string
+                                      description: The general label for this finding.
+                                        It will not contain any specific answers for
+                                        this finding (e.g. "wakes up ___ {{minutes*|hours}}
+                                        after going to sleep").
+                                description: The list of findings.
+                              sentenceid:
+                                type: integer
+                                description: ID of the sentence you are updating.
+                                  If you pass in an invalid ID we will simply ignore
+                                  it.
+                              sentencename:
+                                type: string
+                                description: The label for this sentence.
+                              sentencenote:
+                                type: string
+                                description: The note for this sentence.
+                          description: The list of sentences.
+                        paragraphid:
+                          type: integer
+                          description: ID of the paragraph you are updating. If you
+                            pass in an invalid ID we will simply ignore it.
+                        paragraphname:
+                          type: string
+                          description: The label for this paragraph.
+                    description: The structured review of systems data. It is structured
+                      as a list of paragraphs, each containing a list of sentences,
+                      each containing a list of findings.
+                  wellchildtemplates:
+                    type: string
+                    description: The comma separated list of selected well child review
+                      of systems templates used.
+                  wellchildreportedby:
+                    enum:
+                    - ''
+                    - Patient
+                    - Parent
+                    - Caregiver
+                    - Staff
+                    type: string
+                    description: "\n\t\t\t\t\tThe type of person who reported information\
+                      \ for the well child review of systems template. One of Patient,\
+                      \ Parent, Caregiver, or Staff.\n\t\t\t\t"
+                  lastmodifieddatetime:
+                    type: string
+                    description: The last time any information in the review of systems
+                      section was modified
+                  wellchildsectionnote:
+                    type: string
+                    description: The structured section-level note for the well child
+                      review of systems section.
+                  wellchildsummarytext:
+                    type: string
+                    description: The unstructured well child review of systems summary.
+                  wellchildtemplatedata:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        templateid:
+                          type: integer
+                          description: ID of the template.
+                        templatename:
+                          type: string
+                          description: Name of the template.
+                    description: An array of objects each containing the name and
+                      id for well child review of systems templates attached to the
+                      encounter.
+                  wellchildlastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ the user who last modified the well child review of systems\
+                      \ section.\n\t\t\t"
+                  sectionnotelastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ a the user who last modified the review of systems section\
+                      \ note.\n\t\t\t"
+                  wellchildlastmodifieddatetime:
+                    type: string
+                    description: The last time any information in the well child review
+                      of systems section was modified
+                  sectionnotelastmodifieddatetime:
+                    type: string
+                    description: The last time the review of systems section note
+                      was modified
+                  wellchildsectionnotelastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ a the user who last modified the well child review of systems\
+                      \ section note.\n\t\t\t"
+                  wellchildsectionnotelastmodifieddatetime:
+                    type: string
+                    description: The last time the well child review of systems section
+                      note was modified
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridReviewofsystems
+      x-scopes: []
+      tags:
+      - Encounter
+      - Review of Systems
+    put:
+      summary: Update review of systems findings and notes for given encounter
+      description: Modifies the Physical Exam summary for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridReviewofsystems
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                hpitoros:
+                  type: boolean
+                  description: Whether ROS is as noted in HPI.
+                reportedby:
+                  enum:
+                  - ''
+                  - Patient
+                  - Parent
+                  - Caregiver
+                  - Staff
+                  type: string
+                  description: "\n\t\t\t\t\tThe type of person who reported information\
+                    \ for the review of systems template. One of Patient, Parent,\
+                    \ Caregiver, or Staff.\n\t\t\t\t This will always be set to null\
+                    \ if you do not pass any templateids even if you set this to a\
+                    \ non null value in the API. This is because this field is only\
+                    \ valid when there is an ROS template added to the encounter."
+                sectionnote:
+                  type: string
+                  description: The text to be updated to the review of systems section
+                    note for this encounter.
+                templateids:
+                  type: array
+                  items:
+                    type: integer
+                  description: This is a JSON array of the template ids that should
+                    remain on (or be added to) the ROS. Any template ids not included
+                    in this list will be removed from the ROS.
+                wellchildros:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sentences:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            findings:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  freetext:
+                                    type: string
+                                    description: The value of the text field sometimes
+                                      associated with this finding.
+                                  findingid:
+                                    type: string
+                                    description: The ID of this finding. Like sentences,
+                                      these are how specific findings are identified
+                                      as part of the new well child ROS.
+                                  findingnote:
+                                    type: string
+                                    description: The note for this finding
+                                  selectedoptions:
+                                    type: array
+                                    description: 'The options the user has chosen
+                                      from any dropdowns for this finding. The order
+                                      of these selections should correspond to the
+                                      order of the dropdowns from left to right in
+                                      the finding name. Note: there must be some value
+                                      specified for every dropdown in OPTIONLISTS.
+                                      To indicate that no option is selected for a
+                                      particular dropdown, set the corresponding value
+                                      in SELECTEDOPTIONS to "" or null (e.g. SELECTEDOPTIONS:
+                                      [""] or SELECTEDOPTIONS: [null]).'
+                              description: The list of findings
+                            sentenceid:
+                              type: string
+                              description: ID of the sentence.  These are how sentences
+                                are identified as part of the new well child ROS.
+                            sentencenote:
+                              type: string
+                              description: The note for this sentence
+                        description: The list of sentences
+                      paragraphid:
+                        type: string
+                        description: ID of a paragraph that is part of the new well
+                          child ROS.
+                  description: This is a JSON structure containing everything you
+                    want the well child ROS to now contain.  If you call the GET version
+                    of this call you can see some sample output.  It is extremely
+                    important to note that anything you pass in will become the new
+                    well child ROS. Even if you only wish to make an addition, you
+                    will need to pass in the whole output of the GET plus your addition,
+                    otherwise anything you don't pass in will be removed.
+                reviewofsystems:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sentences:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            findings:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  freetext:
+                                    type: string
+                                    description: The value of the text field sometimes
+                                      associated with this finding.
+                                  findingid:
+                                    type: string
+                                    description: The ID of this finding. Like sentences,
+                                      these are how specific findings are identified
+                                      as part of the new ROS.
+                                  findingnote:
+                                    type: string
+                                    description: The note for this finding
+                                  selectedoptions:
+                                    type: array
+                                    description: 'The options the user has chosen
+                                      from any dropdowns for this finding. The order
+                                      of these selections should correspond to the
+                                      order of the dropdowns from left to right in
+                                      the finding name. Note: there must be some value
+                                      specified for every dropdown in OPTIONLISTS.
+                                      To indicate that no option is selected for a
+                                      particular dropdown, set the corresponding value
+                                      in SELECTEDOPTIONS to "" or null (e.g. SELECTEDOPTIONS:
+                                      [""] or SELECTEDOPTIONS: [null]).'
+                              description: The list of findings
+                            sentenceid:
+                              type: string
+                              description: ID of the sentence.  These are how sentences
+                                are identified as part of the new ROS.
+                            sentencenote:
+                              type: string
+                              description: The note for this sentence
+                        description: The list of sentences
+                      paragraphid:
+                        type: string
+                        description: ID of a paragraph that is part of the new ROS.
+                  description: This is a JSON structure containing everything you
+                    want the ROS to now contain.  If you call the GET version of this
+                    call you can see some sample output.  It is extremely important
+                    to note that anything you pass in will become the new ROS. Even
+                    if you only wish to make an addition, you will need to pass in
+                    the whole output of the GET plus your addition, otherwise anything
+                    you don't pass in will be removed.
+                replacesectionnote:
+                  type: boolean
+                  description: If true, will replace the existing section note with
+                    the new one. If false, will append to the existing note.
+                wellchildreportedby:
+                  enum:
+                  - ''
+                  - Patient
+                  - Parent
+                  - Caregiver
+                  - Staff
+                  type: string
+                  description: "\n\t\t\t\t\tThe type of person who reported information\
+                    \ for the well child review of systems template. One of Patient,\
+                    \ Parent, Caregiver, or Staff.\n\t\t\t\t This will always be set\
+                    \ to null if you do not pass any wellchildtemplateids even if\
+                    \ you set this to a non null value in the API. This is because\
+                    \ this field is only valid when there is a Well Child ROS template\
+                    \ added to the encounter."
+                wellchildsectionnote:
+                  type: string
+                  description: The text to be updated to the well child review of
+                    systems section note for this encounter.
+                wellchildtemplateids:
+                  type: array
+                  items:
+                    type: integer
+                  description: This is a JSON array of the well child template ids
+                    that should remain on (or be added to) the ROS. Any template ids
+                    not included in this list will be removed from the well child
+                    ROS section.
+                wellchildreplacesectionnote:
+                  type: boolean
+                  description: If true, will replace the existing well child section
+                    note with the new one. If false, will append to the existing note.
+        required: true
+      tags:
+      - Encounter
+      - Review of Systems
+  /v1/{practiceid}/chart/encounter/{encounterid}/reviewofsystems/templates:
+    get:
+      summary: Get list of 'review of systems' findings and notes for given encounter
+      description: 'BETA: Retrieves the list of Review of Systems templates for this
+        encounter'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunits:
+                    description: The units for measuring age. (Y=years, M=months,
+                      W=weeks, D=days)
+                    type: string
+                  encountersection:
+                    description: The section this template belongs to. For this API,
+                      either ReviewOfSystems or WellChildROS.
+                    type: string
+                  maxage:
+                    description: The maximum age filtered by this template
+                    type: integer
+                  minage:
+                    description: The minimum age filtered by this template
+                    type: integer
+                  name:
+                    description: The name of the template
+                    type: string
+                  note:
+                    description: The note attached to this template
+                    type: string
+                  sex:
+                    description: The sex filtered by this template
+                    type: string
+                  templateid:
+                    description: The template ID.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridReviewofsystemsTemplates
+      x-scopes: []
+      tags:
+      - Encounter
+      - Review of Systems
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

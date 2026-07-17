@@ -1,0 +1,462 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/providers:
+    get:
+      summary: Get list of all providers
+      description: Retrieve a list of all providers available in a specific practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: providertype
+        schema:
+          type: string
+        required: false
+        description: The provider type to filter the results on. Valid provider type
+          values can be found by using GET /reference/providertypes.
+      - in: query
+        name: name
+        schema:
+          type: string
+        required: false
+        description: ''
+      - in: query
+        name: showallproviderids
+        schema:
+          type: boolean
+        required: false
+        description: In athenaNet's internal data structures, a single provider can
+          be represented by multiple IDs. These IDs are used in certain external messages
+          (e.g. HL7) and thus these IDs may need to be known by the API user as well.   When
+          set to true, a list of all of these ancillary IDs will be provided.
+      - in: query
+        name: showusualdepartmentguessthreshold
+        schema:
+          type: number
+        required: false
+        description: There are situations where determining where a provider "normally"
+          practices is desired. Unfortuantely, there is no such concept in athenaNet
+          since providers often practice in multiple locations. However, we can use
+          some intelligence to determine this by looking back over the previous few
+          months (90 days) to see actual practice. To enable this, set this value
+          between 0 and 1; it is highly recommended to be at least .5. This is the
+          ratio of appointments in a given department to the total number of appointments
+          for that provider. A value of .5 means "the provider's appointments are
+          50% in the department guessed." Setting this to 1 would only return a department
+          if ALL of the provider's appointments were in one department.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptingnewpatientsyn:
+                    description: Indicates whether the provider is accepting new patients.
+                      This field is currently only for informational purposes, and
+                      does not drive any athenaNet functionality.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  ansinamecode:
+                    description: This is the ANSI name with ANSI code for this provider's
+                      specialty.
+                    type: string
+                  ansispecialtycode:
+                    description: This is the ANSI code for this provider's specialty.
+                    type: string
+                  billable:
+                    description: Indicates if this is a billable provider.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  createencounteroncheckinyn:
+                    description: If true, appointments scheduled with this provider
+                      will create an encounter when the appointment is checked in
+                      for encounter supported appointment types. Only applies to the
+                      primary providerid. If the provider has other IDs with the same
+                      API, please use 'showallproviderids' to see which IDs create
+                      encounters.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  createencounterprovideridlist:
+                    description: A list of provider IDs for this provider NPI that
+                      will create an encounter when the appointment is checked in
+                      for encounter supported appointment types. Only populated if
+                      'showallproviderids' is set.
+                    type: string
+                  directaddress:
+                    description: The direct email address for the provider
+                    type: string
+                  displayname:
+                    description: The preferred name to use when displaying this provider.
+                    type: string
+                  entitytype:
+                    description: Either "Person" or "Non-Person" (e.g. X-Ray machines)
+                    type: string
+                  federalidnumber:
+                    description: The federal ID number for provider, if SHOWFEDERALIDNUMBER
+                      is set.
+                    type: string
+                  firstname:
+                    description: The provider's first name.
+                    type: string
+                  hideinportalyn:
+                    description: If set, this provider does not appear in athenaCommunicator's
+                      web portal.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  homedepartment:
+                    description: For certain purposes, this can be considered to be
+                      the "home" or default department for a provider.
+                    type: string
+                  lastname:
+                    description: The provider's last name.
+                    type: string
+                  middleinitial:
+                    description: The provider's middle initial.
+                    type: string
+                  npi:
+                    description: The NPI for this provider, if available.
+                    type: integer
+                  otherprovideridlist:
+                    description: When showallproviderids is set to true, a list of
+                      all other athenaNet providers IDs that may refer to this same
+                      provider. If not present with showallproviderids, there are
+                      no other IDs other than the primary ID.
+                    type: string
+                  personalpronouns:
+                    description: The preferred personal pronouns of this provider.
+                    type: string
+                  providergrouplist:
+                    description: When showallproviderids is set to true, a list of
+                      all provider groups that this provider is registered in. Data
+                      is only relevant if a practice is using Provider-Group-Based
+                      Data Permissions in their practice.
+                    type: string
+                  providerid:
+                    description: The ID to be used for this provider. Note that in
+                      athenaNet, an individual provider (as defined by a unique NPI)
+                      may have multiple provider IDs.  For the API, we have collapsed
+                      these to a single canonical ID.
+                    type: integer
+                  providertype:
+                    description: There is a long potential list of provider type in
+                      the form "full name (id)", but "MD", "NP" or "NP S" (Nurse Practitioner
+                      (Supervising)), "RES" (resident), "EQUIP", "DO", "PA" or "PASUP"
+                      (Physician's Assistant (Supervising)), "TECH", "RN", LPT", "CRNA"
+                      or "CRNASUP" (Certified Registered Nurse Anesthesiologist (Supervising)),
+                      and MA (Medical Assistant) are among the most common.
+                    type: string
+                  providertypeid:
+                    description: This is just the ID (a text string) such as "NP"
+                      or "NP S" for the provider type.
+                    type: string
+                  providerusername:
+                    description: The username of the provider.
+                    type: string
+                  scheduleresourcetype:
+                    description: Name of the scheduling resource type tied to the
+                      provider.
+                    type: string
+                  schedulingname:
+                    description: The scheduling name for this provider (as used in
+                      athenaNet).
+                    type: string
+                  sex:
+                    description: The sex of this provider.
+                    type: string
+                  specialty:
+                    description: A friendly name for this provider's specialty.
+                    type: string
+                  specialtyid:
+                    description: The ID of the provider's specialty.
+                    type: integer
+                  supervisingproviderid:
+                    description: The ID of the supervising provider.
+                    type: integer
+                  supervisingproviderusername:
+                    description: The username of the supervising provider.
+                    type: string
+                  usualdepartmentid:
+                    description: The "usual" department for this provider, if SHOWUSUALDEPARTMENTGUESSTHRESHOLD
+                      is set.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidProviders
+      x-scopes: []
+      tags:
+      - Administrative
+      - Providers
+    post:
+      summary: Add new provider
+      description: 'BETA: Create a new record of provider in the system'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  alertmessage:
+                    description: Alert message if the operation did not work.
+                    type: string
+                  errorreason:
+                    description: Error message if the operation did not work.
+                    type: string
+                  providerid:
+                    description: The ID to be used for this provider. Note that in
+                      athenaNet, an individual provider (as defined by a unique NPI)
+                      may have multiple provider IDs.  For the API, we have collapsed
+                      these to a single canonical ID. For updates and deletes, this
+                      will be either 1 or -1 depending on success or failure.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidProviders
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - medicalgroupid
+              - entitytypeid
+              - schedulingname
+              - billable
+              - signatureonfileflag
+              properties:
+                sex:
+                  type: string
+                  description: The sex of the provider (M or F)
+                ssn:
+                  type: integer
+                  description: The SSN of the provider.
+                ansicode:
+                  type: string
+                  description: The provider taxonomy code of the provider.
+                billable:
+                  type: boolean
+                  description: This provider is a supervising provider and is credentialed
+                    to bill for services.
+                lastname:
+                  type: string
+                  description: The last name of the provider.
+                username:
+                  type: string
+                  description: The username for the provider.
+                firstname:
+                  type: string
+                  description: The first name of the provider.
+                npinumber:
+                  type: integer
+                  description: The NPI of the provider.
+                namesuffix:
+                  type: string
+                  description: The suffix of the provider.
+                specialtyid:
+                  type: string
+                  description: The specialty ID of the provider. See GET /reference/providerspecialties
+                    for a mapping of ID to specialty name.
+                staffbucket:
+                  type: boolean
+                  description: Create a staff bucket for this provider.
+                crdreferring:
+                  type: boolean
+                  description: This provider is a Coordinator referring provider.
+                entitytypeid:
+                  type: integer
+                  description: The entity type of provider. 1 = person, 2 = non-person
+                hideinportal:
+                  type: boolean
+                  description: Hide this provider in the Patient Portal.
+                ndctatnumber:
+                  type: string
+                  description: The NDC TAT number for this provider.
+                providertype:
+                  type: string
+                  description: The abbreviation for the provider type of the provider.
+                    (e.g., MD, NP). See GET /reference/providertypes for a mapping
+                    of abbreviation to provider type.
+                directaddress:
+                  type: string
+                  description: The direct email address for the provider.
+                middleinitial:
+                  type: string
+                  description: The middle name of the provider.
+                reportingname:
+                  type: string
+                  description: The reporting name for the provider.
+                alternatephone:
+                  type: string
+                  description: The phone number of the provider.
+                billednamecase:
+                  type: string
+                  description: The billing name of the provider.
+                medicalgroupid:
+                  type: integer
+                  description: The medical group of the provider.
+                practiceroleid:
+                  type: integer
+                  description: The practice role ID for the provider.
+                schedulingname:
+                  type: string
+                  description: The scheduling name of the provider.
+                schedulingnote:
+                  type: string
+                  description: The scheduling note for the provider.
+                providergroupid:
+                  type: integer
+                  description: The provider group of the provider.
+                providerprofileid:
+                  type: string
+                  description: The provider profile of the provider (integer or 'NEW')
+                trackmissingslips:
+                  type: boolean
+                  description: This provider renders services that should be tracked
+                    on the Missing Slips Worklist.
+                personalpronounsid:
+                  type: integer
+                  description: The personal pronouns ID of the provider. See GET /personalpronouns
+                    for a mapping of ID to personal pronouns displaytext.
+                signatureonfileflag:
+                  type: boolean
+                  description: This provider's signature is on file.
+                acceptingnewpatients:
+                  type: boolean
+                  description: Indicates whether the provider is accepting new patients.
+                    This field is currently only for informational purposes, and does
+                    not drive any athenaNet functionality.
+                supervisingproviderid:
+                  type: integer
+                  description: The supervising provider ID for this provider.
+                scheduleresourcetypeid:
+                  type: integer
+                  description: The scheduling resource type id of the provider.
+                communicatordisplayname:
+                  type: string
+                  description: The communicator display name for the provider.
+                supervisingprovidertype:
+                  enum:
+                  - ''
+                  - self
+                  type: string
+                  description: If set to self,set supervisingprovider to itself.
+                createencounteroncheckin:
+                  type: boolean
+                  description: Automatically create encounters at check-in.
+                communicatorhomedepartment:
+                  type: integer
+                  description: The communicator home department for the provider.
+        required: true
+      tags:
+      - Administrative
+      - Providers
+  /v1/{practiceid}/personalpronouns:
+    get:
+      summary: Get the mapping of personal pronouns id to display name.
+      description: 'Get the mapping of personal pronouns id to display name. Note:
+        This endpoint may rely on specific settings to be enabled in athenaNet Production
+        to function properly that are not required in other environments. Please see
+        <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  personalpronounsdisplaytext:
+                    type: string
+                  personalpronounsid:
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPersonalpronouns
+      x-scopes: []
+      tags:
+      - Administrative
+      - Personal Pronouns
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

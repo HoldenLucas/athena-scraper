@@ -1,0 +1,164 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/customfields:
+    get:
+      summary: Get custom-field information from patient's records
+      description: Retrieves custom fields information for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: string
+        required: true
+        description: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  customfieldid:
+                    description: Corresponds to the /customfields customfieldid.
+                    type: string
+                  customfieldvalue:
+                    description: For a non-select custom field, the value.
+                    type: string
+                  optionid:
+                    description: For a select custom field, the selectid value (from
+                      /customfield's selectlist).
+                    type: string
+                  referringproviderid:
+                    description: For a referring provider custom field, the referring
+                      provider's ID.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidCustomfields
+      x-scopes: []
+      tags:
+      - Patients
+      - Updating Patient Custom Fields
+    put:
+      summary: Update custom-field information from patient's records
+      description: Modifies custom fields data for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Indicates that this call was successful.
+                  updatedcount:
+                    type: string
+                    description: The number of fields updated.
+                  disallowedcount:
+                    type: string
+                    description: The number of fields not updated because the field
+                      is not allowed to be updated.
+          description: Success
+      operationId: putPracticeidPatientsPatientidCustomfields
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                customfields:
+                  description: A JSON representation of any updates to custom fields.
+                    The contents of this should match the custom fields output (either
+                    with /patients/{patientid}/customfields or within a /patients/{patientid}
+                    call) with, of course, any updates. Validation should happen based
+                    on the structure given in the /customfields/ call; this means
+                    that the values submitted in a select list should be a proper
+                    option ID, that number fields are restricted to numbers, and date
+                    fields restricted to dates (mm/dd/yyyy).
+                  type: array
+                departmentid:
+                  type: string
+                ignorecustomfieldpermissions:
+                  description: If True, will Ignore Customfield permissions, Custom
+                    fields will be updated as if they were regular fields.
+                  type: boolean
+              required:
+              - departmentid
+              - customfields
+              type: object
+        required: true
+      tags:
+      - Patients
+      - Updating Patient Custom Fields
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

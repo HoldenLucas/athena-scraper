@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/cancercases:
+    get:
+      summary: Get open cancer cases for the patient and department.
+      description: The open cancer cases for a specified patient and department.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The ID of the department to retrieve cancer cases for.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  cancercases:
+                    description: List of cancer cases for this patient
+                    items:
+                      properties:
+                        behavior:
+                          description: Behavior of the cancer.
+                          properties:
+                            code:
+                              description: Code identifier for the behavior.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        cancercaseid:
+                          description: The id of the cancer case.
+                          type: integer
+                        diagnosis:
+                          description: Code and description of the most recent diagnosis.
+                          properties:
+                            code:
+                              description: Code identifier for the diagnosis.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        diagnosisdate:
+                          description: The date the cancer was diagnosed. This date
+                            is attached to the cancer case, and is not necessarily
+                            associated with a diagnosis on the patient's chart.
+                          type: string
+                        diagnosticconfirmation:
+                          description: Evidence used to confirm the cancer diagnosis.
+                          properties:
+                            code:
+                              description: Code identifier for the confirmation.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        documentdescription:
+                          description: The description of the most recent diagnosis.
+                            Includes the code associated with the diagnosis.
+                          type: string
+                        histologicaltype:
+                          description: The histologic morphology of the cancer.
+                          properties:
+                            code:
+                              description: Code identifier for the histological type.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        lastmodifiedby:
+                          description: User who last modified the cancer case.
+                          type: string
+                        lastmodifieddate:
+                          description: Date and time when the cancer case was last
+                            changed.
+                          type: string
+                        laterality:
+                          description: Laterality of the cancer as determined during
+                            the time of diagnosis.
+                          properties:
+                            code:
+                              description: Code identifier for the laterality.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        primarysite:
+                          description: Specific site in the body where the cancer
+                            was identified.
+                          properties:
+                            code:
+                              description: Code identifier for the primary site.
+                              type: string
+                            codeset:
+                              description: Codeset of the code.
+                              type: string
+                            description:
+                              description: Description of the code identifier.
+                              type: string
+                          type: object
+                        stages:
+                          description: TNM Staging Information for a cancer case.
+                          items:
+                            properties:
+                              clinicalm:
+                                description: Presence of metastasis.
+                                properties:
+                                  code:
+                                    description: Code identifier for the presence
+                                      of metastasis.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                type: object
+                              clinicaln:
+                                description: Degree of spread to regional lymph nodes.
+                                properties:
+                                  code:
+                                    description: Code identifier for the degree of
+                                      spread.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                type: object
+                              clinicalstagedescriptor:
+                                description: Describes the stage of the cancer.
+                                properties:
+                                  code:
+                                    description: Code identifier for the stage descriptor.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                  longdescription:
+                                    description: More detailed description of the
+                                      code identifier.
+                                    type: string
+                                type: object
+                              clinicalstagegroup:
+                                description: Identifies the stage of the cancer.
+                                properties:
+                                  code:
+                                    description: Code identifier for the stage.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                type: object
+                              clinicalt:
+                                description: Size or extent of the primary tumor.
+                                properties:
+                                  code:
+                                    description: Code identifier for the primary tumor
+                                      size / extent.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                type: object
+                              edition:
+                                description: Edition of the TNM system being used.
+                                properties:
+                                  code:
+                                    description: Code identifier for the TNM edition.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                  longdescription:
+                                    description: More detailed description of the
+                                      code identifier.
+                                    type: string
+                                type: object
+                              lastmodifiedby:
+                                description: User who last modified the stage.
+                                type: string
+                              lastmodifieddate:
+                                description: Date and time when the stage was last
+                                  changed.
+                                type: string
+                              stagedate:
+                                description: Date / time the stage was assigned
+                                type: string
+                              stagedby:
+                                description: Who assigned the stage to the patient.
+                                properties:
+                                  code:
+                                    description: Code identifier for the stager.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  description:
+                                    description: Description of the code identifier.
+                                    type: string
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidCancercases
+      x-scopes: []
+      tags:
+      - Chart
+      - Cancer Cases
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/misc/properjsonencoding:
+    post:
+      summary: Set strict JSON encoding format for API-return data-types
+      description: Configures the setting determining whether or not JSON responses
+        are properly encoded for Booleans, integers, and strings
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true if operation was a success.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidMiscProperjsonencoding
+      x-scopes: []
+      tags:
+      - Administrative
+      - Proper JSON Encoding Setting
+    get:
+      summary: Get the current status for strict-JSON encoding format setting
+      description: Retrieves the configured setting whether or not JSON responses
+        are properly encoded for Booleans, integers, and strings
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  useproperjsontypesyn:
+                    default: false
+                    description: If true, will return booleans as JSON true/false
+                      and integers as type ints for fields that have been marked as
+                      such types.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMiscProperjsonencoding
+      x-scopes: []
+      tags:
+      - Administrative
+      - Proper JSON Encoding Setting
+    delete:
+      summary: Disables setting strict JSON encoding format for API-return data-types
+      description: Disables the setting determining JSON responses
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true if operation was a success.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidMiscProperjsonencoding
+      x-scopes: []
+      tags:
+      - Administrative
+      - Proper JSON Encoding Setting
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

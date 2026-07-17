@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/portalaccess:
+    get:
+      summary: Get list of users having access to given patient
+      description: Retrieve a list of portal users associated with a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: detailedresponse
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, returns portal user access info in more details
+          for the patient
+      - in: query
+        name: communicatorbrandid
+        schema:
+          type: integer
+        required: false
+        description: The athenaNet Communicator brand ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  accesslevel:
+                    description: The level of access that the user has to the patient.
+                    type: string
+                  communicatorbrandid:
+                    description: ID of the communicator brand associated with the
+                      permission
+                    type: integer
+                  email:
+                    description: Email address of the portal user. This is what they
+                      use to login to the patient portal.
+                    type: string
+                  name:
+                    description: Name of the portal user
+                    type: string
+                  relationshiptopatient:
+                    description: Describes the relationship of the portal user to
+                      the patient.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPortalaccess
+      x-scopes: []
+      tags:
+      - Patients
+      - Portal Status
+  /v1/{practiceid}/patients/{patientid}/portalinvitation:
+    post:
+      summary: Send invitations to patient portal
+      description: Resends the Portal Invitation or Lost Password email
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidPortalinvitation
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                email:
+                  type: string
+                  description: If not the patient (whose email should already be recorded),
+                    the email of the third party being invited.
+                lastname:
+                  type: string
+                  description: The last name of the third party being granted access.
+                firstname:
+                  type: string
+                  description: The first name of the third party being granted access.
+                homephone:
+                  type: string
+                  description: The home number of the third party being granted access.
+                    "declined" allowed.
+                mobilephone:
+                  type: string
+                  description: The mobile number of the third party being granted
+                    access. "declined" allowed.
+                departmentid:
+                  type: integer
+                permissionlevel:
+                  enum:
+                  - ''
+                  - FULL
+                  - GUARANTOR
+                  - PATIENT
+                  type: string
+                  description: If the access is for someone other than the patient,
+                    additional fields (first/last name, home/mobile phone, email)
+                    also become required. If not passed in, patient is assumed.
+                patientinitiated:
+                  type: boolean
+                  description: Defaulting to true, is this action taken by the patient
+                    (instead of a practice user).
+        required: true
+      tags:
+      - Patients
+      - Send Portal Invitation/Lost Password Email
+  /v1/{practiceid}/patients/{patientid}/portalstatus:
+    get:
+      summary: Get patient's portal status
+      description: Retrieves the status of portal registration of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  blockedfailedloginsyn:
+                    description: Is this patient blocked from the portal due to failed
+                      login attempts.
+                    type: string
+                  entitytodisplay:
+                    description: Either "FAMILY" or "PATIENT".
+                    type: string
+                  familyblockedfailedloginsyn:
+                    description: Is this patient's family blocked from the portal
+                      due to failed login attempts.
+                    type: string
+                  familyregisteredyn:
+                    description: Is there a family member registered with access to
+                      this patient.
+                    type: string
+                  lastlogindate:
+                    description: The last login date.
+                    type: string
+                  lastloginentity:
+                    description: Either "PATIENT" or "FAMILY", the last entity who
+                      accessed this patient.
+                    type: string
+                  noportalyn:
+                    description: The privacy setting for blocking the patient from
+                      the portal is set.
+                    type: string
+                  portalregistrationdate:
+                    description: The date the patient registered for the portal.
+                    type: string
+                  registeredyn:
+                    description: If this patient is registered or not for the portal.
+                    type: string
+                  status:
+                    description: "The status of the patient.  Possible statuses:\n\
+                      \t\t\t\t <li>REGISTERED: The patient is registered for the portal.\n\
+                      \t\t\t\t <li>NOTREGISTERED: The patient is not registered for\
+                      \ the portal.\n\t\t\t\t <li>FAMILYLOGIN: This patient is set\
+                      \ up for a family member to login.\n\t\t\t\t <li>NOPORTAL: The\
+                      \ privacy setting for blocking the patient from the portal is\
+                      \ set.\n\t\t\t\t <li>BLOCKEDFAILEDLOGINS: The patient is blocked\
+                      \ because of failed login attempts.\n\t\t\t\t <li>FAMILYBLOCKEDFAILEDLOGINS:\
+                      \ The family member is blocked because of failed login attempts.\t\
+                      \t\t\t \n"
+                    type: string
+                  termsaccepted:
+                    default: false
+                    description: Has this patient accepted the portal's Terms and
+                      Conditions.  This is a good indicator if the patient has actually
+                      logged in to the portal or simply is registered without ever
+                      having logged in.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPortalstatus
+      x-scopes: []
+      tags:
+      - Patients
+      - Portal Status
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

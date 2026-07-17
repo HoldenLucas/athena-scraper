@@ -1,0 +1,227 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/providers/{providerprofileid}/enrollmentdocs:
+    get:
+      summary: Get list of enrollment documentation for given provider profile
+      description: Retrieves the enrollment documents for a single provider
+      parameters:
+      - in: path
+        name: providerprofileid
+        schema:
+          type: integer
+        required: true
+        description: providerprofileid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: open
+        schema:
+          type: boolean
+        required: false
+        description: A boolean flag indicating that the response should include only
+          document's whose OPEN field is true or false (depending on the flag value).
+          If this flag is not set, all documents will be included in the response.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  enrollmentdocuments:
+                    description: The set of enrollment documents for this provider
+                    items:
+                      properties:
+                        displayname:
+                          description: The human readable name of the document
+                          type: string
+                        documentid:
+                          description: The ID that refers to the ENROLLMENTPERIOD
+                            ID where the document is stored
+                          type: integer
+                        documenttype:
+                          description: The all-caps string that describes the type
+                            of document
+                          type: string
+                        effectivedate:
+                          description: The date on which the document is effective
+                          type: string
+                        enrollmentcategory:
+                          description: The name of the enrollment category for the
+                            document (i.e. the type of document)
+                          type: string
+                        enrollmentcategoryid:
+                          description: The ID of the enrollment category for the document
+                            (i.e. the type of document)
+                          type: integer
+                        entity:
+                          description: Type of entity (PROVIDER or MEDICALGROUP)
+                          type: string
+                        entityid:
+                          description: The ID of the ENTITY
+                          type: integer
+                        entitynumber:
+                          description: If the document is associated with a number,
+                            (like a DEA License number or NPI number) it is populated
+                            here
+                          type: string
+                        entitynumberid:
+                          description: If the document is associated with a number
+                            (like a DEA License number or NPI number), the ID of that
+                            number is populated here
+                          type: integer
+                        expirationdate:
+                          description: The date on which the document expires
+                          type: string
+                        open:
+                          description: A boolean indicating whether or not this document
+                            has been received or not
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        parametertype:
+                          description: The document is classified by its ENROLLMENTCATEGORY.
+                            The PARAMETERTYPE is a secondary classification within
+                            ENROLLMENTCATEGORY
+                          type: string
+                        providerprofileid:
+                          description: The ID of the provider profile associated with
+                            the document
+                          type: integer
+                        stateid:
+                          description: The STATE ID if the parameter type is STATE
+                          type: string
+                        status:
+                          description: The name of the status (ENROLLMENTSTATUSVALUE's
+                            NAME) the document is in
+                          type: string
+                        statusid:
+                          description: The ID of the status (ENROLLMENTSTATUSVALUE's
+                            ID) the document is in
+                          type: string
+                        taskid:
+                          description: The full enrollment task ID where the document
+                            is stored
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidProvidersProviderprofileidEnrollmentdocs
+      x-scopes: []
+      tags:
+      - Administrative
+      - Provider Enrollment Documents
+    post:
+      summary: Upload new enrollment documentation for given provider profile
+      description: Modifies a set of enrollment documents for the given provider
+      parameters:
+      - in: path
+        name: providerprofileid
+        schema:
+          type: integer
+        required: true
+        description: providerprofileid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  enrollmentperiodid:
+                    description: The ID of the document that was posted
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidProvidersProviderprofileidEnrollmentdocs
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - entityid
+              - entity
+              - taskid
+              - enrollmentcategoryid
+              - document
+              - username
+              properties:
+                entity:
+                  type: string
+                  description: Type of entity (PROVIDER or MEDICALGROUP)
+                taskid:
+                  type: string
+                  description: The full enrollment task ID where the document is stored
+                document:
+                  type: string
+                  description: 64 bit encoded PNG image
+                entityid:
+                  type: string
+                  description: The ID of the ENTITY
+                username:
+                  type: string
+                  description: Username the database update will be logged under
+                enrollmentcategoryid:
+                  type: string
+                  description: The ID of the enrollment category for the document
+                    (i.e. the type of document)
+        required: true
+      tags:
+      - Administrative
+      - Provider Enrollment Documents
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,924 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/collectpayment:
+    post:
+      summary: Enter patient's payment information
+      description: Accepts patients credit card payment information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  epaymentid:
+                    description: "\n\t\t\t\t\tAfter a successful payment, this ID\
+                      \ can be used to retrieve\n\t\t\t\t\tthe receipt.\n\t\t\t\t"
+                    type: integer
+                  errortext:
+                    description: The error text returned by the credit card processor.
+                    type: string
+                  success:
+                    description: true for success.  false for an error.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidCollectpayment
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                amount:
+                  type: string
+                  description: 'DEPRECATED: Please use "otheramount".'
+                trackdata:
+                  type: string
+                  description: The track data obtained from the credit card swipe.
+                    This can be track1 and/or track2 data. In either case, please
+                    including the start and end sentinels. ("%" and "?" for track1
+                    and ";" and "?" for track2.)
+                billingzip:
+                  type: string
+                  description: The billing zipcode for the credit card.  (Required
+                    if track data is not supplied.)
+                nameoncard:
+                  type: string
+                  description: 'The name on the credit card.  (Required if trackdata
+                    is not supplied; track 2 does NOT supply name.)  Please truncate
+                    at 30 characters. (Max length: 30)'
+                copayamount:
+                  type: string
+                  description: The amount associated with a particular appointment
+                    for a copay.
+                otheramount:
+                  type: string
+                  description: The amount being collected that is not associated with
+                    individual appointment. This money goes into the "unapplied" bucket.
+                    In the future, these payments will be able to be broken down by
+                    individual claim level. Co-pay amounts should be in "copayamount".
+                claimpayment:
+                  type: array
+                  items:
+                    type: object
+                  description: 'A JSON representation of claim ID and payment combinations.  For
+                    example, ''[ { "1":"1.00"}, { "2":"5.00"} ].''  This indicates
+                    a payment of $1 for claim ID #1 and a payment of $5 for claim
+                    ID #2.'
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                todayservice:
+                  type: boolean
+                  description: Apply the other amount value to today's service.
+                accountnumber:
+                  type: string
+                  description: The account number of the credit card.  (Required if
+                    trackdata is not supplied.)
+                appointmentid:
+                  type: integer
+                  description: The ID of the appointment where the copay should be
+                    applied.
+                ecommercemode:
+                  type: boolean
+                  description: Use ECommerce credit card mode (e.g. for telemedicine).
+                    trackdata may NOT be used if this mode is true.
+                billingaddress:
+                  type: string
+                  description: 'The billing address for the credit card.  (Required
+                    if track data is not supplied.)  If more than 20 characters, please
+                    truncate. (Max length: 20)'
+                cardsecuritycode:
+                  type: integer
+                  description: 'The CVV2: the 3 (or 4 for Amex) digit value normally
+                    found on the back (or front for Amex) of the credit card. This
+                    is required for ecommerce mode payments.'
+                expirationmonthmm:
+                  type: integer
+                  description: The month the credit card expires (MM).  (Required
+                    if trackdata is not supplied.)
+                expirationyearyyyy:
+                  type: integer
+                  description: The year the credit card expires (YYYY).  (Required
+                    if trackdata is not supplied.)
+                allowduplicatepayments:
+                  type: boolean
+                  description: Allows duplicate payments.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Payment
+  /v1/{practiceid}/patients/{patientid}/collectpayment/singleappointment/{appointmentid}:
+    post:
+      summary: Enter appointment's payment information
+      description: Stores the card information in order to charge this card in the
+        future
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  epaymentid:
+                    description: "\n\t\t\t\t\tAfter a successful payment, this ID\
+                      \ can be used to retrieve\n\t\t\t\t\tthe receipt.\n\t\t\t\t"
+                    type: integer
+                  errortext:
+                    description: The error text returned by the credit card processor.
+                    type: string
+                  success:
+                    description: true for success.  false for an error.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidCollectpaymentSingleappointmentAppointmentid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - billingzip
+              - email
+              - billingaddress
+              properties:
+                email:
+                  type: string
+                  description: The email address of the patient. This is the email
+                    that the notification that the charge is about to happen and the
+                    receipt afterwards will be emailed to.
+                maxamount:
+                  type: integer
+                  description: The maximum amount that will be charged when remittance
+                    information is received.
+                trackdata:
+                  type: string
+                  description: The track data obtained from the credit card swipe.
+                    This can be track1 and/or track2 data. In either case, please
+                    including the start and end sentinels. ("%" and "?" for track1
+                    and ";" and "?" for track2.)
+                billingzip:
+                  type: string
+                  description: The billing zipcode for the credit card.
+                nameoncard:
+                  type: string
+                  description: 'The name on the credit card.  (Required if trackdata
+                    is not supplied; track 2 does NOT supply name.)  Please truncate
+                    at 30 characters. (Max length: 30)'
+                claimpayment:
+                  type: array
+                  items:
+                    type: object
+                  description: 'A JSON representation of claim ID and payment combinations.  For
+                    example, ''[ { "1":"1.00"}, { "2":"5.00"} ].''  This indicates
+                    a payment of $1 for claim ID #1 and a payment of $5 for claim
+                    ID #2.'
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                todayservice:
+                  type: boolean
+                  description: Apply the other amount value to today's service.
+                accountnumber:
+                  type: string
+                  description: The account number of the credit card.  (Required if
+                    trackdata is not supplied.)
+                ecommercemode:
+                  type: boolean
+                  description: Use ECommerce credit card mode (e.g. for telemedicine).
+                    trackdata may NOT be used if this mode is true.
+                billingaddress:
+                  type: string
+                  description: 'The billing address for the credit card. (Max length:
+                    20)'
+                cardsecuritycode:
+                  type: integer
+                  description: 'The CVV2: the 3 (or 4 for Amex) digit value normally
+                    found on the back (or front for Amex) of the credit card.  When
+                    creating contracts, this is required if using accountnumber instead
+                    of track data.'
+                expirationmonthmm:
+                  type: integer
+                  description: The month the credit card expires (MM).  (Required
+                    if trackdata is not supplied.)
+                expirationyearyyyy:
+                  type: integer
+                  description: The year the credit card expires (YYYY).  (Required
+                    if trackdata is not supplied.)
+                allowduplicatepayments:
+                  type: boolean
+                  description: Allows duplicate payments.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Single Appointment Contracts
+  /v1/{practiceid}/patients/{patientid}/recordpayment:
+    post:
+      summary: Record patient's payment information details
+      description: Records the data related to a cash, check, or non-CCP credit card
+        patient payment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  paymentbatchid:
+                    description: The ID of the payment batch where the payment was
+                      posted.
+                    type: integer
+                  success:
+                    description: true for success.  false for an error.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidRecordpayment
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - paymentmethod
+              properties:
+                postdate:
+                  type: string
+                  description: The date the payment was made.  Defaulted to today.
+                checknumber:
+                  type: string
+                  description: The check number.  This is required if the payment
+                    is made by check.
+                copayamount:
+                  type: string
+                  description: The amount associated with a particular appointment
+                    for a copay.
+                otheramount:
+                  type: string
+                  description: The amount being collected that is not associated with
+                    individual appointment. This money goes into the "unapplied" bucket.
+                    In the future, these payments will be able to be broken down by
+                    individual claim level. Co-pay amounts should be in "copayamount".
+                claimpayment:
+                  type: array
+                  description: 'A JSON representation of claim ID and payment combinations.  For
+                    example, ''[ { "1":"1.00"}, { "2":"5.00"} ].''  This indicates
+                    a payment of $1 for claim ID #1 and a payment of $5 for claim
+                    ID #2.'
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                todayservice:
+                  enum:
+                  - ''
+                  - false
+                  - true
+                  type: string
+                  description: Apply the other amount value to today's service.
+                appointmentid:
+                  type: integer
+                  description: The ID of the appointment where the copay should be
+                    applied.
+                paymentmethod:
+                  type: string
+                  description: Valid values include CASH or CHECK or OTHER PAYMENT[PAYPAL/VENMO
+                    etc] or anything as a result of /configuration/validnonccpcreditcardmethods.
+                    Note that practices using Credit Card Plus (CCP) should typically
+                    NOT be using this call and should instead use the collectpayment
+                    endpoints to charge the card. In addition, all payments recorded
+                    via this method are subject to the same policies as any other
+                    money collected by athenahealth.
+                cardnumberlast4:
+                  type: string
+                  description: The last 4 digits of the credit card number.  This
+                    is required if the payment method is a credit card.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Payment
+  /v1/{practiceid}/patients/{patientid}/voidpayment/{epaymentid}:
+    post:
+      summary: Void an individual payment from an epayment ID.
+      description: This only works from the time of the payment to the time it is
+        settled, generally around 8 p.m. Eastern time nightly.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the upload of the signed receipt was successful
+                      or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidVoidpaymentEpaymentid
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Payment
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/payments:
+    post:
+      summary: Record a Patient Payment made via a third party vendor
+      description: This API will record when a patient has made a payment via a third
+        party vendor. It is important to note that the third party vendor will actually
+        conduct the transaction. This API is simply for recording that transaction
+        after the fact. Additionally, the third party vendor can use this API to tell
+        athena to tie a given payment to the Copay portion of a patient's balance.
+        Lastly, if the third party vendor is using athena's current Credit Card Processor
+        (CCP), which is Elavon, then they can also provide additional details (i.e.
+        VENDORTERMINALID and BANKDEPOSITDATE) in order to drive automated reconciliation
+        between the movement of the money and the indicated payment transaction.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patientpaymentid:
+                    type: integer
+                    description: The athena reference for the payment that was recorded.
+                      Caller should pass this same reference later on for refunding
+                  previouslyrecordedyn:
+                    enum:
+                    - false
+                    - true
+                    type: string
+                    description: "If the payment was considered a duplicate, then\
+                      \ athena will not record the payment, but will set this field\
+                      \ to true \n\t\t\t\t\t\tand return the previously recorded id\
+                      \ in PATIENTPAYMENTID field. A payment will be considered duplicate\
+                      \ if a will be considered duplicate if a record payment call\
+                      \ hapenned for the same patient id and same total payment amount\
+                      \ within a period of 6 hours. To avoid getting duplicate payments,\
+                      \ use different reference id  in EXTERNALREFID"
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodePayments
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                appointmentid:
+                  description: The ID of the appointment where the copay should be
+                    applied.
+                  type: integer
+                bankdepositdate:
+                  description: The date when payment gets deposited to US Bank.
+                  type: string
+                cardnumberlast4:
+                  description: The last 4 digits of the credit card number.  This
+                    is required if the payment method is a credit card.
+                  type: string
+                checknumber:
+                  description: The check number.  This is required if the payment
+                    is made by check.
+                  type: string
+                claimpayment:
+                  description: 'A JSON representation of claim ID and payment combinations.  For
+                    example, ''[ { "1":"1.00"}, { "2":"5.00"} ].''  This indicates
+                    a payment of $1 for claim ID #1 and a payment of $5 for claim
+                    ID #2.'
+                  items:
+                    type: object
+                  type: array
+                copayamount:
+                  description: The amount associated with a particular appointment
+                    for a copay.
+                  type: string
+                departmentid:
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                  type: integer
+                externalrefid:
+                  description: The Vendor side reference for this payment. This is
+                    expected to be unique for a vendor as it is the one used for checking
+                    if a particular  payment is duplicate of another. Also, in case
+                    of any issues, this field will help us with debugging. Maxlength
+                    = 32
+                  type: string
+                movetounappliedifoverpay:
+                  description: In case of overpay in a particular claim, automatically
+                    move the balance amount for that particular claim to unapplied
+                  type: boolean
+                otheramount:
+                  description: The amount being collected that is not associated with
+                    individual appointment. This money goes into the "unapplied" bucket.
+                    In the future, these payments will be able to be broken down by
+                    individual claim level.
+                  type: string
+                patientid:
+                  description: The ID of the patient for whom the payment is being
+                    made
+                  type: integer
+                paymentmethod:
+                  description: The vendor-specific payment method by which payment
+                    is collected.
+                  type: string
+                postdate:
+                  description: The date the payment was made based on Eastern time
+                    zone.  Defaulted to today.
+                  type: string
+                todayservice:
+                  description: Apply the other amount value to today's service.
+                  enum:
+                  - ''
+                  - false
+                  - true
+                  type: string
+                vendorterminalid:
+                  description: The TID is used to make the CC payment with payment
+                    gateway.  This is required if the payment method is a credit card.
+                  type: string
+              required:
+              - departmentid
+              - patientid
+              - externalrefid
+              - paymentmethod
+              type: object
+        required: true
+      tags:
+      - PatientPayVendors
+      - Patient Pay Vendor Payment and Refunds
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/payments/{patientpaymentid}/refund:
+    post:
+      summary: Record a Patient Refund made by a third party vendor
+      description: This API will record when a patient has been refunded via a third
+        party vendor. It is important to note that the third party vendor will actually
+        move the money back to the patient. This API is simply for recording the transaction
+        after the fact. Additionally, this endpoint only accepts full refunds. If
+        a partial adjustment is needed, please use the Adjustments API.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientpaymentid
+        schema:
+          type: string
+        required: true
+        description: patientpaymentid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recordedtime:
+                    type: date_time
+                    description: The time the patient refund was recorded
+                  patientpaymentid:
+                    type: integer
+                    description: The athena reference for the refund that was recorded.
+                      Caller should pass this same reference later on for refunding
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodePaymentsPatientpaymentidRefund
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                bankdepositdate:
+                  description: The date when the payment gets deposited to US Bank.
+                  type: string
+                departmentid:
+                  description: The ID of the department where the refund is issued.
+                  type: number
+                externalrefid:
+                  description: The Vendor side reference for this refund. This is
+                    expected to be unique for a vendor as it is the one used for checking
+                    if a particular refund is duplicate of another. Also, in case
+                    of any issues, this field will help us with debugging. Maxlength
+                    = 32
+                  type: string
+                fullrefund:
+                  description: Currently the only supported value is true. Passing
+                    this as false would return an error
+                  type: boolean
+                ispaymentsettled:
+                  description: This input will be used to decide whether the refund
+                    needs to be voided or refunded. So based on the Vendor credit
+                    card processor settlement time, vendor will decide to use ISPAYMENTSETTLED
+                    = true if the actual refund happened after the settlement time
+                  type: boolean
+                patientid:
+                  description: The ID of the patient for whom the payment is made
+                  type: number
+                paymentmethod:
+                  description: The vendor-specific payment method by which payment
+                    is collected.
+                  type: string
+                postdate:
+                  description: The date the payment was made.  Defaulted to today.
+                  type: string
+                vendorterminalid:
+                  description: The TID is used to make the CC payment with payment
+                    gateway.  This is required if the payment method is a credit card.
+                  type: string
+              required:
+              - departmentid
+              - patientid
+              - externalrefid
+              - paymentmethod
+              type: object
+        required: true
+      tags:
+      - PatientPayVendors
+      - Patient Pay Vendor Payment and Refunds
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/adjustingcharges:
+    post:
+      summary: Record an adjustment to a patient balance made by a third party vendor
+      description: This API will allow third party vendors to adjust off any portion
+        of a patient balance on each charge line. Note that each adjustment can not
+        exceed the total outstanding charge amount. This endpoint can be used for
+        scenarios where third party vendors may offer discounts (e.g. when a payment
+        is made in full within a certain timeframe). Note that if all charges of a
+        claim are fully adjusted off, the claim will be moved to 'CLOSED'.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  charges:
+                    items:
+                      properties:
+                        chargeid:
+                          description: Charge passed as i/p for applying adjustment
+                          type: number
+                        status:
+                          description: Status of adjustment
+                          type: string
+                        vendoradjustmentid:
+                          description: Athena reference to the adjustment made
+                          type: number
+                      type: object
+                    type: array
+                  error:
+                    description: Error at Patient Level
+                    type: string
+                  patientid:
+                    description: Patient ID
+                    type: number
+                type: object
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodeAdjustingcharges
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - charges
+              - patientid
+              properties:
+                charges:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      amount:
+                        type: string
+                        description: Amount to adjust
+                      chargeid:
+                        type: number
+                        description: Initial Charge created for a claim that corresponds
+                          to the transaction type CHARGE
+                      externalrefid:
+                        type: string
+                        description: Vendor side reference for the adjustment made
+                      customtransactioncode:
+                        type: string
+                        description: Custom Transaction code created by the practice
+                  required:
+                  - amount
+                  - chargeid
+                patientid:
+                  type: number
+                  description: Patient ID
+        required: true
+      tags:
+      - PatientPayVendors
+      - Post a Patient Pay Vendor adjustment against a charge
+  /v1/{practiceid}/patients/paymenthistory:
+    get:
+      summary: View Payment history information
+      description: Retrieves payment history information for the list of patients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: true
+        description: End date
+      - in: query
+        name: patientidlist
+        schema:
+          type: array
+          items:
+            type: integer
+        required: true
+        description: Array of Patient IDs
+      - in: query
+        name: additionalpaymentinfo
+        schema:
+          type: boolean
+        required: false
+        description: Get additional payment information includes date of service,
+          original plan, supervising provider.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: true
+        description: Start Date
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  payments:
+                    description: Payment record
+                    items:
+                      properties:
+                        checkccnumber:
+                          description: Last 4 digits of check or credit card number
+                          type: string
+                        dateofservice:
+                          description: Date of service
+                          type: string
+                        epaymentdate:
+                          description: Date the payment was made.
+                          type: string
+                        epaymentid:
+                          description: EPayment ID
+                          type: integer
+                        epaymentreceiptid:
+                          description: EPayment Receipt ID
+                          type: integer
+                        method:
+                          description: Method of payment
+                          type: string
+                        nameoncard:
+                          description: Name on credit card from EPAYMENTCARD table
+                          type: string
+                        originalplan:
+                          description: Insurance package name
+                          type: string
+                        patientid:
+                          description: Patient ID
+                          type: integer
+                        patientpaymentid:
+                          description: Patient Payment ID
+                          type: integer
+                        payments:
+                          description: Payment amount
+                          type: integer
+                        placeofpayment:
+                          description: 'Gives the place of payment. Ex: FRONTDESK,PORTALDESKTOP,PORTALMOBILE
+                            etc'
+                          type: string
+                        postdate:
+                          description: Date the payment was posted.
+                          type: string
+                        prepaymentid:
+                          description: Pre payment id of a payment. Will be available
+                            when transaction reason is PREPAYMENT
+                          type: number
+                        reason:
+                          description: Reason for payment.
+                          type: string
+                        supervisingprovider:
+                          description: Supervising provider name
+                          type: string
+                        transactionid:
+                          description: Transaction ID
+                          type: integer
+                        type:
+                          description: Denotes the payment or refund.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPaymenthistory
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Payment
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

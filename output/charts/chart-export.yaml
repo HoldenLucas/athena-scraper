@@ -1,0 +1,148 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/documentexport:
+    post:
+      summary: Create patient chart export document
+      description: Create patient chart export document record
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentid:
+                    description: The document ID.
+                    type: string
+                  exporteddocumentcount:
+                    description: The number of other documents that should be included
+                      in the export.
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidDocumentexport
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - createfromdaterangestart
+              properties:
+                departmentid:
+                  type: integer
+                  description: The department ID associated with the document export.
+                createfromdaterangeend:
+                  type: string
+                  description: The end date, inclusive, of the chart export.  Defaults
+                    to today.
+                createfromdaterangestart:
+                  type: string
+                  description: The start date, inclusive, of the chart export.
+                createfromdatedocumentclass:
+                  type: array
+                  items:
+                    type: string
+                  description: One or more document classes to include in the export.  Defaults
+                    to LABRESULT, IMAGINGRESULT, and CLINICALDOCUMENT.
+        required: true
+      tags:
+      - Chart
+      - Document (Chart) Export
+  /v1/{practiceid}/chart/{patientid}/documentexport/{documentid}:
+    get:
+      summary: Retrieve created patient chart export document
+      description: Retrieves the chart export document of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: documentid
+        schema:
+          type: integer
+        required: true
+        description: documentid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: Department ID for the patient.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidDocumentexportDocumentid
+      x-scopes: []
+      tags:
+      - Chart
+      - Document (Chart) Export
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

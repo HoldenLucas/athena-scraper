@@ -1,0 +1,976 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/vaccines:
+    post:
+      summary: Add vaccine to patient's chart
+      description: Records a vaccine in the patient's chart in Vaccine section
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  vaccineids:
+                    description: IDs of any vaccines that were created (currently
+                      only one can be created at a time)
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidVaccines
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - cvx
+              - administerdate
+              properties:
+                cvx:
+                  type: integer
+                  description: Vaccine Administered Code
+                ndc:
+                  type: string
+                  description: The National Drug Code for the administered vaccine
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+                administerdate:
+                  type: string
+                  description: Date when this vaccine was administered (if administered).
+                    Can be in YYYY, MM/YYYY, or MM/DD/YYYY format.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+        required: true
+      tags:
+      - Chart
+      - Vaccines
+    get:
+      summary: Get list of patient's vaccines
+      description: Retrieves patient's historical vaccines
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: showrefused
+        schema:
+          type: boolean
+        required: false
+        description: Include refused vaccines in the result
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Include deleted vaccines in the result
+      - in: query
+        name: showdeclinedorders
+        schema:
+          type: boolean
+        required: false
+        description: If set, include orders that were declined
+      - in: query
+        name: showprescribednotadministered
+        schema:
+          type: boolean
+        required: false
+        description: Include vaccines that were prescribed but were not administered
+          in the result
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  vaccines:
+                    description: List of vaccines administered to the patient
+                    items:
+                      properties:
+                        administerdate:
+                          description: Date when this vaccine was administered (if
+                            administered). Can be in YYYY, MM/YYYY, or MM/DD/YYYY
+                            format.
+                          type: string
+                        administernote:
+                          description: Note associated with administering the vaccine,
+                            if available
+                          type: string
+                        administerroute:
+                          description: Route by which this vaccine was administered
+                          type: string
+                        administerroutedescription:
+                          description: Description of the route by which this vaccine
+                            was administered
+                          type: string
+                        administersite:
+                          description: Site where the vaccine was administered
+                          type: string
+                        amount:
+                          description: Quantity of the vaccine that was administered
+                          type: number
+                        approvedby:
+                          description: The username of the user who approved this
+                            vaccine order, if clinical
+                          type: string
+                        approveddate:
+                          description: Date when this vaccine order was approved,
+                            if clinical
+                          type: string
+                        clinicalorderclasses:
+                          description: The various Clinical Order Classes associated
+                            with this Vaccine
+                          items:
+                            properties:
+                              clinicalorderclassid:
+                                description: The clinical order class id
+                                type: number
+                              name:
+                                description: The name for this clinical order class
+                                type: string
+                            type: object
+                          type: array
+                        contraindicationreason:
+                          description: List of codes indicating why the order was
+                            contraindicated (for vaccines only). If this field is
+                            not present, the order does not contain a contraindication
+                            reason.
+                          items:
+                            properties:
+                              code:
+                                description: The code indicating why the order was
+                                  contraindicated.
+                                type: string
+                              codeset:
+                                description: The codeset that the code belongs to.
+                                type: string
+                              description:
+                                description: The plaintext description of the contraindication
+                                  reason.
+                                type: string
+                            type: object
+                          type: array
+                        cvx:
+                          description: Vaccine Administered Code
+                          type: integer
+                        declinedreason:
+                          description: List of codes indicating why the order was
+                            not given. If this field is not present, the order was
+                            not declined. If the array is empty, no reason has been
+                            chosen.
+                          items:
+                            properties:
+                              code:
+                                description: The code indicating why the order was
+                                  not given.
+                                type: string
+                              codeset:
+                                description: The codeset that the code belongs to.
+                                type: string
+                              description:
+                                description: The plaintext description of the reason
+                                  the order was not given.
+                                type: string
+                            type: object
+                          type: array
+                        declinedreasontext:
+                          description: The user-facing description of the reason the
+                            order was not given.
+                          type: string
+                        deleteddate:
+                          description: Date when this vaccine was deleted (if deleted)
+                          type: string
+                        description:
+                          description: Vaccine description
+                          type: string
+                        enteredby:
+                          description: The username of the user who entered the historic
+                            vaccine information into the chart
+                          type: string
+                        entereddate:
+                          description: Date when the vaccine information was entered
+                            into the chart
+                          type: string
+                        expirationdate:
+                          description: Date to administer vaccine by
+                          type: string
+                        genusname:
+                          description: The name of the vaccine that appears in the
+                            UI of the chart
+                          type: string
+                        lotnumber:
+                          description: The lot number of the vaccine that was administered.
+                            This is an identifier assigned to a batch of medications
+                            by the manufacturer.
+                          type: string
+                        mvx:
+                          description: Manufacturer code
+                          type: string
+                        ndc:
+                          description: The National Drug Code for the administered
+                            vaccine.
+                          type: string
+                        orderedby:
+                          description: The username of the user who ordered the vaccine
+                          type: string
+                        ordereddate:
+                          description: Date the vaccine was ordered
+                          type: string
+                        partiallyadministered:
+                          description: Whether this vaccine was partially administered
+                            or not.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        prescribeddate:
+                          description: Date when this vaccine was prescribed (if prescribed)
+                          type: string
+                        refuseddate:
+                          description: Date when this vaccine was refused (if refused)
+                          type: string
+                        refusednote:
+                          description: Note associated with refusal, if available
+                          type: string
+                        refusedreason:
+                          description: Reason for refusal, if available
+                          type: string
+                        status:
+                          description: 'Status of this vaccine (one of: ADMINISTERED,
+                            REFUSED, PRESCRIBED but not adminstered yet)'
+                          type: string
+                        submitdate:
+                          description: Date when this vaccine order was submitted,
+                            if clinical
+                          type: string
+                        units:
+                          description: Units corresponding to the above quantity
+                          type: string
+                        vaccinator:
+                          description: Individual who has administered the vaccine
+                          type: string
+                        vaccineid:
+                          description: Athena ID for this vaccine (prefix of H for
+                            historical, C for clinical)
+                          type: string
+                        vaccineinformationstatements:
+                          description: The Vaccine Information Statements (VIS) that
+                            were given to the patient, grouped by Clinical Order Class
+                          items:
+                            properties:
+                              clinicalorderclassid:
+                                description: The clinical order class id
+                                type: number
+                              dateonvis:
+                                description: The VIS date associated with this vaccine
+                                  and clinical order class id
+                                type: string
+                            type: object
+                          type: array
+                        vaccinetype:
+                          description: Type of vaccine (either CLINICAL - ordered/administered
+                            by the practice, or HISTORICAL - from patient's previous
+                            medical history or alternative source)
+                          type: string
+                        visgivendate:
+                          description: Date when the Vaccine Information Statement
+                            was given to the patient
+                          type: string
+                      type: object
+                    type: array
+                  vaccinesectionnote:
+                    description: The note associated with the vaccines section in
+                      a patient's chart
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidVaccines
+      x-scopes: []
+      tags:
+      - Chart
+      - Vaccines
+  /v1/{practiceid}/chart/{patientid}/vaccines/{vaccineid}:
+    put:
+      summary: Update patient's vaccine data
+      description: Modifies the vaccine data of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vaccineid
+        schema:
+          type: string
+        required: true
+        description: vaccineid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidVaccinesVaccineid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - cvx
+              - administerdate
+              properties:
+                cvx:
+                  type: integer
+                  description: Vaccine Administered Code
+                ndc:
+                  type: string
+                  description: The National Drug Code for the administered vaccine
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+                administerdate:
+                  type: string
+                  description: Date when this vaccine was administered (if administered).
+                    Can be in YYYY, MM/YYYY, or MM/DD/YYYY format.
+        required: true
+      tags:
+      - Chart
+      - Vaccines
+    delete:
+      summary: Remove vaccine from patient's chart
+      description: Delete's a specific vaccine data from patient's chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vaccineid
+        schema:
+          type: string
+        required: true
+        description: vaccineid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: deleteddate
+        schema:
+          type: string
+        required: false
+        description: Date when this vaccine record was deleted from athenaNet (defaults
+          to today)
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidVaccinesVaccineid
+      x-scopes: []
+      tags:
+      - Chart
+      - Vaccines
+  /v1/{practiceid}/chart/healthhistory/vaccine/changed/subscription/events:
+    get:
+      summary: Get list of vaccine change events to which you can subscribe
+      description: Retrieves the list of events that can be input for the vaccines
+        changed subscription
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryVaccineChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Chart
+      - Historical Vaccine Changed Subscription
+  /v1/{practiceid}/chart/healthhistory/vaccine/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for vaccines
+      description: Subscribe for changed Vaccines events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      historical vaccine was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartHealthhistoryVaccineChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+                departmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'For every New/Update Subscriptions complete list of
+                    departmentids should be passed. NOTE: Without DepartmentIDs entire
+                    Context/Practice will be subscribed.'
+        required: true
+      tags:
+      - Chart
+      - Historical Vaccine Changed Subscription
+    get:
+      summary: Get list of vaccine change subscription(s)
+      description: Retrieves list of events for Vaccines
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryVaccineChangedSubscription
+      x-scopes: []
+      tags:
+      - Chart
+      - Historical Vaccine Changed Subscription
+    delete:
+      summary: Unsubscribe to all/specific change events for vaccines
+      description: Delete an specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      historical vaccine was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartHealthhistoryVaccineChangedSubscription
+      x-scopes: []
+      tags:
+      - Chart
+      - Historical Vaccine Changed Subscription
+  /v1/{practiceid}/chart/healthhistory/vaccine/changed:
+    get:
+      summary: Get list of changes in vaccines based on subscription
+      description: Retrieves list of modified vaccines data of a patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 5000)Please note
+          that this endpoint has a different default than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  administerdate:
+                    description: Date when this vaccine was administered (if administered).
+                      Can be in YYYY, MM/YYYY, or MM/DD/YYYY format.
+                    type: string
+                  administernote:
+                    description: Note associated with administering the vaccine, if
+                      available
+                    type: string
+                  administerroute:
+                    description: Route by which this vaccine was administered
+                    type: string
+                  administerroutedescription:
+                    description: Description of the route by which this vaccine was
+                      administered
+                    type: string
+                  administersite:
+                    description: Site where the vaccine was administered
+                    type: string
+                  amount:
+                    description: Quantity of the vaccine that was administered
+                    type: number
+                  approvedby:
+                    description: The username of the user who approved this vaccine
+                      order, if clinical
+                    type: string
+                  approveddate:
+                    description: Date when this vaccine order was approved, if clinical
+                    type: string
+                  chartsharinggroupid:
+                    description: ID of the chart sharing group that the vaccine is
+                      associated with. This can be used to determine what department
+                      a vaccine belongs with.
+                    type: integer
+                  clinicalorderclasses:
+                    description: The various Clinical Order Classes associated with
+                      this Vaccine
+                    items:
+                      properties:
+                        clinicalorderclassid:
+                          description: The clinical order class id
+                          type: number
+                        name:
+                          description: The name for this clinical order class
+                          type: string
+                      type: object
+                    type: array
+                  contraindicationreason:
+                    description: List of codes indicating why the order was contraindicated
+                      (for vaccines only). If this field is not present, the order
+                      does not contain a contraindication reason.
+                    items:
+                      properties:
+                        code:
+                          description: The code indicating why the order was contraindicated.
+                          type: string
+                        codeset:
+                          description: The codeset that the code belongs to.
+                          type: string
+                        description:
+                          description: The plaintext description of the contraindication
+                            reason.
+                          type: string
+                      type: object
+                    type: array
+                  cvx:
+                    description: Vaccine Administered Code
+                    type: integer
+                  declinedreason:
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                    items:
+                      properties:
+                        code:
+                          description: The code indicating why the order was not given.
+                          type: string
+                        codeset:
+                          description: The codeset that the code belongs to.
+                          type: string
+                        description:
+                          description: The plaintext description of the reason the
+                            order was not given.
+                          type: string
+                      type: object
+                    type: array
+                  declinedreasontext:
+                    description: The user-facing description of the reason the order
+                      was not given.
+                    type: string
+                  deleteddate:
+                    description: Date when this vaccine was deleted (if deleted)
+                    type: string
+                  description:
+                    description: Vaccine description
+                    type: string
+                  enteredby:
+                    description: The username of the user who entered the historic
+                      vaccine information into the chart
+                    type: string
+                  entereddate:
+                    description: Date when the vaccine information was entered into
+                      the chart
+                    type: string
+                  expirationdate:
+                    description: Date to administer vaccine by
+                    type: string
+                  genusname:
+                    description: The name of the vaccine that appears in the UI of
+                      the chart
+                    type: string
+                  lotnumber:
+                    description: The lot number of the vaccine that was administered.
+                      This is an identifier assigned to a batch of medications by
+                      the manufacturer.
+                    type: string
+                  mvx:
+                    description: Manufacturer code
+                    type: string
+                  ndc:
+                    description: The National Drug Code for the administered vaccine.
+                    type: string
+                  orderedby:
+                    description: The username of the user who ordered the vaccine
+                    type: string
+                  ordereddate:
+                    description: Date the vaccine was ordered
+                    type: string
+                  partiallyadministered:
+                    description: Whether this vaccine was partially administered or
+                      not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  patientid:
+                    description: ID of the patient that the vaccine is associated
+                      with.
+                    type: integer
+                  prescribeddate:
+                    description: Date when this vaccine was prescribed (if prescribed)
+                    type: string
+                  refuseddate:
+                    description: Date when this vaccine was refused (if refused)
+                    type: string
+                  refusednote:
+                    description: Note associated with refusal, if available
+                    type: string
+                  refusedreason:
+                    description: Reason for refusal, if available
+                    type: string
+                  status:
+                    description: 'Status of this vaccine (one of: ADMINISTERED, REFUSED,
+                      PRESCRIBED but not adminstered yet)'
+                    type: string
+                  submitdate:
+                    description: Date when this vaccine order was submitted, if clinical
+                    type: string
+                  units:
+                    description: Units corresponding to the above quantity
+                    type: string
+                  vaccinator:
+                    description: Individual who has administered the vaccine
+                    type: string
+                  vaccineid:
+                    description: Athena ID for this vaccine (prefix of H for historical,
+                      C for clinical)
+                    type: string
+                  vaccineinformationstatements:
+                    description: The Vaccine Information Statements (VIS) that were
+                      given to the patient, grouped by Clinical Order Class
+                    items:
+                      properties:
+                        clinicalorderclassid:
+                          description: The clinical order class id
+                          type: number
+                        dateonvis:
+                          description: The VIS date associated with this vaccine and
+                            clinical order class id
+                          type: string
+                      type: object
+                    type: array
+                  vaccinetype:
+                    description: Type of vaccine (either CLINICAL - ordered/administered
+                      by the practice, or HISTORICAL - from patient's previous medical
+                      history or alternative source)
+                    type: string
+                  visgivendate:
+                    description: Date when the Vaccine Information Statement was given
+                      to the patient
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryVaccineChanged
+      x-scopes: []
+      tags:
+      - Chart
+      - Historical Vaccine Changed Subscription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

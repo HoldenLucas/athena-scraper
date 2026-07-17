@@ -1,0 +1,290 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/gynhistory:
+    get:
+      summary: Get patient's GYN history
+      description: Retrieves the list of questions and their responses captured in
+        the GYN History
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  questions:
+                    items:
+                      properties:
+                        answer:
+                          description: The answer given by the patient to the question
+                          type: string
+                        answercreatedby:
+                          description: The username of the provider who first created
+                            the answer.
+                          type: string
+                        answercreateddatetime:
+                          description: The date and time the answer was first created.
+                          type: string
+                        answerlastmodifiedby:
+                          description: The username of the provider who last modified
+                            the answer.
+                          type: string
+                        answerlastmodifieddatetime:
+                          description: The date and time the answer was last modified.
+                          type: string
+                        note:
+                          description: Any special notes
+                          type: string
+                        notelastmodifiedby:
+                          description: The username of the provider who last modified
+                            the note.
+                          type: string
+                        notelastmodifieddatetime:
+                          description: The date and time the note was last modified.
+                          type: string
+                        question:
+                          description: Question being inquired about
+                          type: string
+                        questionid:
+                          description: Athena ID for the question
+                          type: string
+                      type: object
+                    type: array
+                  sectionnote:
+                    description: Additional notes for the entire OB/GYN history section,
+                      if any
+                    type: string
+                  sectionnotelastmodifiedby:
+                    description: The username of the provider who last modified the
+                      section note.
+                    type: string
+                  sectionnotelastmodifieddatetime:
+                    description: The date and time the section note was last modified.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidGynhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - GYN History
+    put:
+      summary: Update patient's GYN history
+      description: Modifies the list of questions and their responses captured in
+        the GYN History
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidGynhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      notes:
+                        type: string
+                        description: Any additional notes
+                      answer:
+                        type: string
+                        description: Answer to this question
+                      delete:
+                        type: boolean
+                        description: Remove the answer to this question
+                      questionid:
+                        type: string
+                        description: The athenaNet question id.
+                  required:
+                  - questionid
+                  description: A JSON array of questions mimicking <a href="https://docs.athenahealth.com/api/api-ref/gyn-history">the
+                    input</a> described in the PUT call.
+                sectionnote:
+                  type: string
+                  description: Any additional section notes
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+        required: true
+      tags:
+      - Chart
+      - GYN History
+  /v1/{practiceid}/chart/configuration/gynhistory:
+    get:
+      summary: Get list of GYN history questions asked by this practice
+      description: Retrieve the configured list of questions and answers related to
+        a patients GYN history.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: specialty
+        schema:
+          type: string
+        required: false
+        description: Filter by specialty ID.
+      - in: query
+        name: patientfacing
+        schema:
+          type: boolean
+        required: false
+        description: Only show questions configured for patient self check in.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Include deleted questions
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  deleted:
+                    description: True if this question has been deleted
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  inputtype:
+                    description: Input type expected for the answer
+                    type: string
+                  ordering:
+                    description: Used for re-ordering questions
+                    type: number
+                  question:
+                    description: Question being inquired about
+                    type: string
+                  questionid:
+                    description: Athena ID for the question
+                    type: string
+                  selectoptions:
+                    description: Options available for the answer (empty list means
+                      that there are no restrictions)
+                    items:
+                      properties: null
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationGynhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - GYN History
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

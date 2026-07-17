@@ -1,0 +1,344 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/usermessages/{username}:
+    get:
+      summary: Get list of user-messages (internal emails)
+      description: Retrieves a list of messages for a specific username
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: username
+        schema:
+          type: string
+        required: true
+        description: username
+      - in: query
+        name: folder
+        schema:
+          type: string
+        required: false
+        description: Requested message folder. Can be INBOX, SENT, SAVED, TRASH. Defaults
+          to INBOX.
+      - in: query
+        name: showunreadonly
+        schema:
+          type: boolean
+        required: false
+        description: Only return unread messages. Defaults to false.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  flag:
+                    description: Whether this message has been flagged for followup.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  from:
+                    description: The sender of this message.
+                    type: string
+                  message:
+                    description: The body of the message.
+                    type: string
+                  messageid:
+                    description: The ID of this message.
+                    type: integer
+                  priority:
+                    description: The priority of this message. Can be NORMAL, HIGH,
+                      or LOW.
+                    type: string
+                  read:
+                    description: Whether this message has been read.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  sentdate:
+                    description: The date and time this message was sent.
+                    type: string
+                  subject:
+                    description: The subject of this message.
+                    type: string
+                  to:
+                    description: The list of recipients of this message.
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidUsermessagesUsername
+      x-scopes: []
+      tags:
+      - Administrative
+      - Send and Receive Messages Between Users
+    post:
+      summary: Send a new user-message (internal email)
+      description: Sends a message from the specific user to a list of recipients
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: username
+        schema:
+          type: string
+        required: true
+        description: username
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: The error message on failure, if any.
+                    type: string
+                  success:
+                    description: Whether the message was sent successfully.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidUsermessagesUsername
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - recipientlist
+              - message
+              - subject
+              properties:
+                link:
+                  type: string
+                  description: The SSO URL to link to the message.
+                message:
+                  type: string
+                  description: The body of this message. Limit of 4000 characters.
+                payload:
+                  type: string
+                  description: String to identify where the message should link to.
+                subject:
+                  type: string
+                  description: The subject of this message. Limit of 80 characters.
+                linktext:
+                  type: string
+                  description: The display text for the URL provided.
+                priority:
+                  enum:
+                  - ''
+                  - HIGH
+                  - LOW
+                  - NORMAL
+                  type: string
+                  default: NORMAL
+                  description: The priority of this message. Can be NORMAL, HIGH,
+                    or LOW. Defaults to NORMAL.
+                externalid:
+                  type: string
+                  description: String identifier to determine where the message came
+                    from.
+                defaultlink:
+                  type: boolean
+                  description: If set, will use the domain configured for SSO.
+                recipientlist:
+                  type: string
+                  description: A comma separated list of users to this this message
+                    to.
+        required: true
+      tags:
+      - Administrative
+      - Send and Receive Messages Between Users
+  /v1/{practiceid}/usermessages/{username}/{messageid}:
+    put:
+      summary: Update specific user-message (internal email)
+      description: Modifies the specific message as either read by the user or is
+        flagged
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: username
+        schema:
+          type: string
+        required: true
+        description: username
+      - in: path
+        name: messageid
+        schema:
+          type: integer
+        required: true
+        description: messageid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: The error message on failure, if any.
+                    type: string
+                  success:
+                    description: Whether the message was updated successfully.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidUsermessagesUsernameMessageid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                flag:
+                  type: boolean
+                  description: Set whether this message is flagged for followup.
+                read:
+                  type: boolean
+                  description: Set whether this message is read.
+                folder:
+                  enum:
+                  - ''
+                  - INBOX
+                  - SAVED
+                  - SENT
+                  - TRASH
+                  type: string
+                  description: Move the message to this folder. Can be INBOX, SENT,
+                    SAVED, TRASH.
+        required: true
+      tags:
+      - Administrative
+      - Delete Messages Sent Between Users (Internal Email)
+    delete:
+      summary: Delete specific user-message (internal email)
+      description: Deletes the specific user message permanetly
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: username
+        schema:
+          type: string
+        required: true
+        description: username
+      - in: path
+        name: messageid
+        schema:
+          type: integer
+        required: true
+        description: messageid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: The error message on failure, if any.
+                    type: string
+                  success:
+                    description: Whether the message was deleted successfully.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidUsermessagesUsernameMessageid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Delete Messages Sent Between Users (Internal Email)
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

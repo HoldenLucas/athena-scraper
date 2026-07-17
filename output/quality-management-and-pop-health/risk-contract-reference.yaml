@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/populationmanagement/riskcontract:
+    get:
+      summary: Get basic/default risk contract information
+      description: Retrieves the risk contract information
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: ID of the risk contract. Exactly one of RISKCONTRACTID or NAME
+          must be provided.
+        in: query
+        name: riskcontractid
+        required: false
+        schema:
+          type: integer
+      - description: Title of the risk contract. Exactly one of RISKCONTRACTID or
+          NAME must be provided.
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The name of the ACO
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful
+                  description:
+                    type: string
+                    description: Description of the ACO contract
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      message.
+                  riskcontractid:
+                    type: integer
+                    description: The created/updated ID of the risk contract
+          description: Success
+      operationId: getPracticeidPopulationmanagementRiskcontract
+      x-scopes: []
+      tags:
+      - PopulationManagement
+      - Risk Contract
+    put:
+      summary: Update basic/default risk contract information
+      description: Modifies the risk contract information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessages:
+                    description: A list of failed submissions where each failure is
+                      identified by patient id and department id.
+                    items:
+                      properties:
+                        description:
+                          description: Risk contract description
+                          type: string
+                        message:
+                          description: Error message.
+                          type: string
+                        title:
+                          description: Risk contract title
+                          type: string
+                      type: object
+                    type: array
+                  riskcontractid:
+                    description: the created/updated id of the risk contract
+                    type: integer
+                  success:
+                    description: Whether the operation was successful
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPopulationmanagementRiskcontract
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Risk contract title.
+                description:
+                  type: string
+                  description: Risk contract description
+                riskcontractid:
+                  type: integer
+                  description: Risk contract id.
+        required: true
+      tags:
+      - PopulationManagement
+      - Risk Contract
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

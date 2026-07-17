@@ -1,0 +1,314 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/claims/{claimid}/attachments:
+    post:
+      summary: Upload new attachment
+      description: Upload new document for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  claimattachmentid:
+                    description: Attachment id.
+                    type: integer
+                  errormessage:
+                    description: Error message to be returned in case of failure.
+                    type: string
+                  success:
+                    description: The value will be set to true if content is attached
+                      successfully and false in case of failure.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidClaimsClaimidAttachments
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - attachmentcontents
+              - attachmenttype
+              - filename
+              properties:
+                note:
+                  type: string
+                  description: The claim attachment notes.
+                filename:
+                  type: string
+                  description: The attachment file name.
+                attachmenttype:
+                  type: string
+                  description: The claim attachment type class ID.
+                attachmentcontents:
+                  type: string
+                  description: The claim attachment content. Currently only PDF files
+                    are supported.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+    get:
+      summary: Get list of all claim attachments
+      description: Retrieves a list of claim documents for a specific claim
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: claimid
+        in: path
+        name: claimid
+        required: true
+        schema:
+          type: integer
+      - description: Optional. Send "true" to receive a pre-signed URL to retrieve
+          the file. Presigned URL will be available only when the toggle SECOLBW_12829_GET_PRESIGNED_URL
+          is ON.
+        in: query
+        name: showpresignedurl
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  attachmenttype:
+                    description: The claim attachment type. In most cases this matches
+                      the attachmenttypeclass.
+                    type: string
+                  attachmenttypeclassid:
+                    description: This is the claim attachment type class.
+                    type: string
+                  claimattachmentid:
+                    description: Unique id for the claim attachment.
+                    type: integer
+                  contenttype:
+                    description: The claim attachment mime type.
+                    type: string
+                  fileaccesspath:
+                    description: The claim attachment access path.
+                    type: string
+                  presignedurl:
+                    description: The claim attachment presigned url. Presigned URL
+                      will be available only when the toggle SECOLBW_12829_GET_PRESIGNED_URL
+                      is ON.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsClaimidAttachments
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+    put:
+      summary: Update existing claim attachment
+      description: Modifies an existing claim document for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: Error message to be returned in case of failure.
+                    type: string
+                  success:
+                    description: The value will be set to true if attachment updated
+                      successfully or false in case of failure.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidClaimsClaimidAttachments
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - claimattachmentid
+              properties:
+                note:
+                  type: string
+                  description: The claim attachment notes, Either attachmentype or
+                    notes is required.
+                attachmenttype:
+                  type: string
+                  description: The claim attachment type class ID. Either attachmentype
+                    or notes is required.
+                claimattachmentid:
+                  type: integer
+                  description: The athena claim attachment ID.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+    delete:
+      summary: Delete claim attachment
+      description: Removes the document record from the system for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: query
+        name: claimattachmentid
+        schema:
+          type: integer
+        required: true
+        description: The claim attachment type class ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: Error message to be returned in case of failure.
+                    type: string
+                  success:
+                    description: The value will be set to true if attachment is deleted
+                      successfully or false in case of failure.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidClaimsClaimidAttachments
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/claims/attachmenttypeclass:
+    get:
+      summary: Get list of attachment class-type(s)
+      description: Retrieves a list of attachment categories the user can submit for
+        the claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  attachmenttypeid:
+                    description: The claim attachment class ID.
+                    type: string
+                  attachmenttypename:
+                    description: The claim attachment class name.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsAttachmenttypeclass
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

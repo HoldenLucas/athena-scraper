@@ -1,0 +1,436 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/authorizations:
+    post:
+      summary: Add patient's release authorizations and consent details
+      description: Add a record of release authorization to a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  releaseauthorizationid:
+                    description: The id of the release authorizaton
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidAuthorizations
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - effectivedate
+              - departmentid
+              - signeddate
+              properties:
+                note:
+                  type: string
+                  description: Any additional notes for the release authorization
+                signeddate:
+                  type: string
+                  description: The date the release authorization release is signed
+                revokeddate:
+                  type: string
+                  description: The date the release authorization was revoked
+                clientformid:
+                  type: integer
+                  description: The client form ID that the release authorization is
+                    for
+                departmentid:
+                  type: integer
+                  description: Department ID of the patient
+                effectivedate:
+                  type: string
+                  description: The starting date that the release authorization takes
+                    effect
+                expirationdate:
+                  type: string
+                  description: The last date that the release authorization is valid
+        required: true
+      tags:
+      - Patients
+      - Patient Authorizations
+    get:
+      summary: Get patient's release authorizations and consent details
+      description: Retrieve the list of release authorizations for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - EXPIRED
+          - REVOKED
+          - VALID
+          type: string
+          x-enumDescriptions:
+          - EXPIRED
+          - REVOKED
+          - VALID
+        required: false
+        description: Release authorization status (VALID, EXPIRED, REVOKED)
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID of the patient
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Show deleted authorizations
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clientformid:
+                    description: The ID of the client form being authorized for release
+                    type: integer
+                  clientformname:
+                    description: The name of the form that is authorized for release
+                    type: string
+                  deleted:
+                    description: The date the release authorization was deleted
+                    type: string
+                  effectivedate:
+                    description: Date that the release authorization is effective
+                      from
+                    type: string
+                  expirationdate:
+                    description: Date that the release authorization expires
+                    type: string
+                  note:
+                    description: Note in regards to the release authorization
+                    type: string
+                  releaseauthorizationid:
+                    description: The id of the release authorizaton
+                    type: integer
+                  revokeddate:
+                    description: Date that the release authorization was revoked
+                    type: string
+                  signeddate:
+                    description: Date that the patient signed the release authorization
+                    type: string
+                  status:
+                    description: 'Current status of the release authorization. These
+                      values can be: EXPIRED, VALID, or REVOKED'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidAuthorizations
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Authorizations
+  /v1/{practiceid}/patients/{patientid}/authorizations/{releaseauthorizationid}:
+    get:
+      summary: Get specific release authorization record
+      description: Retrieve information of a specific release authorizations for a
+        patient
+      parameters:
+      - in: path
+        name: releaseauthorizationid
+        schema:
+          type: integer
+        required: true
+        description: releaseauthorizationid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - EXPIRED
+          - REVOKED
+          - VALID
+          type: string
+          x-enumDescriptions:
+          - EXPIRED
+          - REVOKED
+          - VALID
+        required: false
+        description: Release authorization status (VALID, EXPIRED, REVOKED)
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID of the patient
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Show deleted authorizations
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clientformid:
+                    description: The ID of the client form being authorized for release
+                    type: integer
+                  clientformname:
+                    description: The name of the form that is authorized for release
+                    type: string
+                  deleted:
+                    description: The date the release authorization was deleted
+                    type: string
+                  effectivedate:
+                    description: Date that the release authorization is effective
+                      from
+                    type: string
+                  expirationdate:
+                    description: Date that the release authorization expires
+                    type: string
+                  note:
+                    description: Note in regards to the release authorization
+                    type: string
+                  releaseauthorizationid:
+                    description: The id of the release authorizaton
+                    type: integer
+                  revokeddate:
+                    description: Date that the release authorization was revoked
+                    type: string
+                  signeddate:
+                    description: Date that the patient signed the release authorization
+                    type: string
+                  status:
+                    description: 'Current status of the release authorization. These
+                      values can be: EXPIRED, VALID, or REVOKED'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidAuthorizationsReleaseauthorizationid
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Authorizations
+    put:
+      summary: Update specific release authorization record
+      description: Modifies information of a specific release authorizations for a
+        patient
+      parameters:
+      - in: path
+        name: releaseauthorizationid
+        schema:
+          type: integer
+        required: true
+        description: releaseauthorizationid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates that this call was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidAuthorizationsReleaseauthorizationid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                note:
+                  type: string
+                  description: Any additional notes for the release authorization
+                signeddate:
+                  type: string
+                  description: The date the release authorization release is signed
+                revokeddate:
+                  type: string
+                  description: The date the release authorization was revoked
+                clientformid:
+                  type: integer
+                  description: The client form ID that the release authorization is
+                    for
+                departmentid:
+                  type: integer
+                  description: Department ID of the patient
+                effectivedate:
+                  type: string
+                  description: The starting date that the release authorization takes
+                    effect
+                expirationdate:
+                  type: string
+                  description: The last date that the release authorization is valid
+        required: true
+      tags:
+      - Patients
+      - Patient Authorizations
+    delete:
+      summary: Delete specific release authorization record
+      description: Delete a release authorizations for a specific patient
+      parameters:
+      - in: path
+        name: releaseauthorizationid
+        schema:
+          type: integer
+        required: true
+        description: releaseauthorizationid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID of the patient
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates that this call was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidPatientsPatientidAuthorizationsReleaseauthorizationid
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Authorizations
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

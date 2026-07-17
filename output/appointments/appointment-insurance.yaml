@@ -1,0 +1,527 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/insurances:
+    get:
+      summary: Get insurance package details for the appointment
+      description: Retrieves all insurances of the patient for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: query
+        name: showfullssn
+        schema:
+          type: boolean
+        required: false
+        description: If set, will show full SSN instead of a masked number.
+      - in: query
+        name: showcancelled
+        schema:
+          type: boolean
+        required: false
+        description: If set, include cancelled and expired insurances.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 5000)Please note
+          that this endpoint has a different default than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  adjusterfax:
+                    description: CASE POLICY FIELD - Fax for the adjuster on this
+                      case policy.  Only available for auto insurance or worker's
+                      comp case policies.
+                    type: string
+                  adjusterfirstname:
+                    description: CASE POLICY FIELD - First name of the adjuster on
+                      this case policy.  Only available for auto insurance or worker's
+                      comp case policies.
+                    type: string
+                  adjusterlastname:
+                    description: CASE POLICY FIELD - Last name of the adjuster on
+                      this case policy.  Only available for auto insurance or worker's
+                      comp case policies.
+                    type: string
+                  adjusterphone:
+                    description: CASE POLICY FIELD - Phone number/other contact info
+                      for the adjuster on this case policy.  Only available for auto
+                      insurance or worker's comp case policies.
+                    type: string
+                  anotherpartyresponsibleyn:
+                    description: CASE POLICY FIELD - Boolean field indicating if another
+                      party was responsible for this accident.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  autoaccidentstate:
+                    description: CASE POLICY FIELD - Two-letter abbreviation for the
+                      state in which the auto accident took place. Only meaningful
+                      for auto insurance case policies.
+                    type: string
+                  cancelled:
+                    description: The date in which the insurance was marked cancelled.
+                    type: string
+                  cancelledby:
+                    description: 'BETA FIELD: The username of the user who cancelled
+                      this insurance in athenanet.'
+                    type: string
+                  caseinjurydate:
+                    description: CASE POLICY FIELD - Date of the injury.  Required
+                      for auto insurance, legal, and worker's comp case policies.
+                    type: string
+                  casepolicytypename:
+                    description: CASE POLICY FIELD - The name of this type of case
+                      policy.
+                    type: string
+                  ccmstatusid:
+                    description: Status ID of current CCM enrollment.
+                    type: integer
+                  ccmstatusname:
+                    description: The name of current CCM enrollment status.
+                    type: string
+                  coinsurancepercent:
+                    description: The coinsurance percentage for this insurance. If
+                      you've just POSTed a new insurance you will have to wait for
+                      the auto eligbility check before this field populates.
+                    type: number
+                  confidentialitycode:
+                    description: Gives the confidentiality code for the patient.
+                    type: string
+                  copays:
+                    description: Details about the copays for this insurance package.
+                      If you've just POSTed a new insurance you will have to wait
+                      for the auto eligbility check before these populate.
+                    items:
+                      properties:
+                        copayamount:
+                          description: The amount of the copay.
+                          type: string
+                        copaytype:
+                          description: What the copay amount applies to.
+                          type: number
+                      type: object
+                    type: array
+                  coveragetype:
+                    description: Details about the coverage type for this insurance
+                      package. This information is available according to the access
+                      level from the session user.
+                    items:
+                      properties:
+                        coveragetypecode:
+                          description: Coverage type code for this insurance.
+                          type: integer
+                        coveragetypedescription:
+                          description: Coverage type description for this insurance.
+                          type: string
+                      type: object
+                    type: array
+                  created:
+                    description: 'BETA FIELD: The date in which the insurance was
+                      created.'
+                    type: string
+                  createdby:
+                    description: 'BETA FIELD: The username of the user who created
+                      this insurance in athenanet.'
+                    type: string
+                  deletednote:
+                    description: 'BETA FIELD: The athenaNet insurance notes added
+                      while cancelling the insurance.'
+                    type: string
+                  descriptionofinjury:
+                    description: CASE POLICY FIELD - A description of the injury.  Only
+                      available for auto insurance and worker's comp case policies.
+                    type: string
+                  eligibilitylastchecked:
+                    description: Date the eligibility was last checked.
+                    type: string
+                  eligibilitymessage:
+                    description: The message, usually from our engine, of the eligibility
+                      check.
+                    type: string
+                  eligibilityreason:
+                    description: The source of the current status. Athena is our eligibility
+                      engine.
+                    type: string
+                  eligibilitystatus:
+                    description: Current eligibility status of this insurance package.
+                    type: string
+                  employerid:
+                    description: The employer ID associated with the patient's insurance.
+                    type: string
+                  expirationdate:
+                    description: Date the insurance expires.
+                    type: string
+                  icd10codes:
+                    description: CASE POLICY FIELD - See documentation for ICD9CODES.
+                    items:
+                      type: string
+                    type: array
+                  icd9codes:
+                    description: CASE POLICY FIELD - A list of ICD9 accepted diagnosis
+                      codes. Only available for worker's comp case policies.
+                    items:
+                      type: integer
+                    type: array
+                  injuredbodypart:
+                    description: CASE POLICY FIELD - Text field for describing the
+                      injured body part.  Only available for auto insurance  and worker's
+                      comp case policies.
+                    type: string
+                  insuranceclaimnumber:
+                    description: CASE POLICY FIELD - The auto insurance claim number
+                      or the worker's comp claim number.
+                    type: string
+                  insuranceid:
+                    description: The athena insurance policy ID.
+                    type: string
+                  insuranceidnumber:
+                    description: The insurance policy ID number (as presented on the
+                      insurance card itself).
+                    type: string
+                  insurancepackageaddress1:
+                    description: Address 1 for the AthenaNet insurance Package.
+                    type: string
+                  insurancepackageaddress2:
+                    description: Address 2 for the AthenaNet insurance Package.
+                    type: string
+                  insurancepackagecity:
+                    description: City for the AthenaNet insurance Package.
+                    type: string
+                  insurancepackageid:
+                    description: The athenaNet insurance package ID.
+                    type: integer
+                  insurancepackagepayerid:
+                    description: Insurance Package Payer ID (EMC Code)
+                    type: string
+                  insurancepackagestate:
+                    description: State of the AthenaNet insurance package
+                    type: string
+                  insurancepackagezip:
+                    description: Zip code of the AthenaNet insurance package
+                    type: string
+                  insurancepayername:
+                    description: 'BETA FIELD: Name of the payer specific insurance
+                      package.'
+                    type: string
+                  insurancephone:
+                    description: 'The phone number for the insurance company. Note:
+                      This defaults to the insurance package phone number. If this
+                      is set, it will override it. Likewise if blanked out, it will
+                      go back to default.'
+                    type: string
+                  insuranceplandisplayname:
+                    description: Superpackagename of the specific insurance package.
+                    type: string
+                  insuranceplanname:
+                    description: Name of the specific insurance package.
+                    type: string
+                  insurancepolicyholder:
+                    description: The full name of the insurance policy holder.
+                    type: string
+                  insurancepolicyholderaddress1:
+                    description: The first address line of the insurance policy holder.
+                    type: string
+                  insurancepolicyholderaddress2:
+                    description: The second address line of the insurance policy holder.
+                    type: string
+                  insurancepolicyholdercity:
+                    description: The city of the insurance policy holder.
+                    type: string
+                  insurancepolicyholdercountrycode:
+                    description: The country code (3 letter) of the insurance policy
+                      holder.
+                    type: string
+                  insurancepolicyholdercountryiso3166:
+                    description: The <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO
+                      3166</a> country code of the insurance policy holder.
+                    type: string
+                  insurancepolicyholderdob:
+                    description: The DOB of the insurance policy holder (mm/dd/yyyy).
+                    type: string
+                  insurancepolicyholderfirstname:
+                    description: The first name of the insurance policy holder.  Except
+                      for self-pay, required for new policies.
+                    type: string
+                  insurancepolicyholderlastname:
+                    description: The last name of the insurance policy holder.  Except
+                      for self-pay, required for new policies.
+                    type: string
+                  insurancepolicyholdermiddlename:
+                    description: The middle name of the insurance policy holder.
+                    type: string
+                  insurancepolicyholdersex:
+                    description: The sex of the insurance policy holder.  Except for
+                      self-pay, required for new policies.
+                    type: string
+                  insurancepolicyholderssn:
+                    description: The SSN of the insurance policy holder. If set, it
+                      should be either 9 digits or masked 9 chars(* followed by digits).
+                    type: string
+                  insurancepolicyholderstate:
+                    description: The state of the insurance policy holder.
+                    type: string
+                  insurancepolicyholdersuffix:
+                    description: The suffix of the insurance policy holder.
+                    type: string
+                  insurancepolicyholderzip:
+                    description: The zip of the insurance policy holder.
+                    type: string
+                  insuranceproducttype:
+                    description: The athenaNet insurance product type.
+                    type: string
+                  insurancetype:
+                    description: Type of insurance. E.g., Medicare Part B, Group Policy,
+                      HMO, etc.
+                    type: string
+                  insuredentitytypeid:
+                    description: The ID of the entity type for this insurance.
+                    type: integer
+                  insuredidnumber:
+                    description: The insurance policy ID number of insured.
+                    type: string
+                  insuredpcp:
+                    type: string
+                  insuredpcpid:
+                    description: The primary care physician ID that is associated
+                      with the insurance.
+                    type: integer
+                  insuredpcpnpi:
+                    description: The national provider id of the primary care physcian
+                      assicated with the insurance.
+                    type: integer
+                  insuredreferringprovider:
+                    description: The referring provider that is associated with the
+                      insurance.
+                    type: string
+                  insuredreferringproviderid:
+                    description: The referring provider ID that is associated with
+                      the insurance.
+                    type: integer
+                  ircid:
+                    description: Insurance category / company internal ID
+                    type: integer
+                  ircname:
+                    description: Insurance category / company. E.g., United Healthcare,
+                      BCBS-MA, etc.
+                    type: string
+                  issuedate:
+                    description: Date the insurance was issued.
+                    type: string
+                  lastupdated:
+                    description: Date on which patient record was last updated.
+                    type: string
+                  lastupdatedby:
+                    description: User who last updated the patient record.
+                    type: string
+                  note:
+                    description: The athenaNet insurance notes.
+                    type: string
+                  packageexpirationdate:
+                    description: 'BETA FIELD: Expiration date of insurance package.'
+                    type: string
+                  paymentplanid:
+                    description: 'BETA FIELD: The payment plan id associated with
+                      patient''s insurance.'
+                    type: number
+                  pendinginsurancepackageid:
+                    description: 'BETA FIELD: The insurance package id of pending
+                      insurance package.'
+                    type: number
+                  pendinginsurancepackagename:
+                    description: 'BETA FIELD: The insurance package name of pending
+                      insurance package.'
+                    type: string
+                  policynumber:
+                    description: The insurance group number.  This is sometimes present
+                      on an insurance card.
+                    type: string
+                  relatedtoautoaccidentyn:
+                    description: CASE POLICY FIELD - Boolean field indicating whether
+                      this case policy is related to an auto accident.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  relatedtoemploymentyn:
+                    description: CASE POLICY FIELD - Boolean field indicating whether
+                      this case policy is related to the patient's employer.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  relatedtootheraccidentyn:
+                    description: CASE POLICY FIELD - Boolean field indicating whether
+                      this case policy is related to another accident.  Only available
+                      for worker's comp case policies.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  relationshiptoinsured:
+                    default: Self
+                    description: This patient's relationship to the policy holder
+                      (text).
+                    type: string
+                  relationshiptoinsuredid:
+                    default: 1
+                    description: This patient's relationship to the policy holder
+                      (as an ID).  See <a href="/workflows/patient-relationship-mapping">the
+                      mapping</a>.
+                    type: integer
+                  repricername:
+                    description: CASE POLICY FIELD - Name for the repricer.  Only
+                      available for worker's comp case policies.
+                    type: string
+                  repricerphone:
+                    description: CASE POLICY FIELD - Phone number for the repricer.  Only
+                      available for worker's comp case policies.
+                    type: string
+                  sequencenumber:
+                    description: 1 = primary, 2 = secondary, 3 = tertiary, etc.  Must
+                      have a primary before a secondary and a secondary before a tertiary,
+                      etc.
+                    type: integer
+                  slidingfeeplanid:
+                    description: If the patient is on a sliding fee plan, this is
+                      the ID of that plan.  See /slidingfeeplans.
+                    type: integer
+                  stateofreportedinjury:
+                    description: CASE POLICY FIELD - Two-letter state abbreviation
+                      for the state this injury was reported in.  Only available for
+                      worker's comp case policies.
+                    type: string
+                  workcompboardnumber:
+                    description: CASE POLICY FIELD - Worker Compensation Board Number.  Only
+                      available for worker's comp case policies.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidInsurances
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Appointment Insurance
+    put:
+      summary: Update insurance package details for the appointment
+      description: Modifies the insurance package of the patient for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the update was not successful, a string explaining
+                      why.
+                    type: string
+                  success:
+                    description: If update was successful, returns true.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidInsurances
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                primaryinsuranceid:
+                  type: integer
+                  description: The athenaNet patient insurance ID for the policy you
+                    want to use as primary for this appointment.
+                secondaryinsuranceid:
+                  type: integer
+                  description: The athenaNet patient insurance ID for the policy you
+                    want to use as secondary for this appointment.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Appointment Insurance
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

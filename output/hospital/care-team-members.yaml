@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/careteammembers:
+    get:
+      summary: Get patient's care team members
+      description: Retrieve the current list of care team members for a patient based
+        on the hospital stay
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showallstatuses
+        schema:
+          type: boolean
+        required: false
+        description: By default only returns careteam members with a status of "active".
+          If set to true, both active and not active careteam members will be returned.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ansispecialtyname:
+                    description: The specialty of this care team member.
+                    type: string
+                  careteamrole:
+                    description: The role of this care team member.
+                    type: string
+                  careteamrolename:
+                    description: The display name for the role of this care team member.
+                    type: string
+                  city:
+                    description: The city of this care team member.
+                    type: string
+                  enddate:
+                    description: The end date of this care team member. Returned in
+                      mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  fax:
+                    description: The fax number of this care team member.
+                    type: string
+                  firstname:
+                    description: The first name of this care team member.
+                    type: string
+                  lastname:
+                    description: The last name of this care team member.
+                    type: string
+                  npi:
+                    description: The NPI of this care team member.
+                    type: string
+                  phonenumber:
+                    description: The phone number of this care team member.
+                    type: string
+                  preferredname:
+                    description: The preferred name of this care team member.
+                    type: string
+                  providerid:
+                    description: The provider ID of this care team member.
+                    type: integer
+                  recipientclass:
+                    description: Information about the care team member's organization.
+                    type: string
+                  startdate:
+                    description: The start date of this care team member. Returned
+                      in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  state:
+                    description: The state of this care team member.
+                    type: string
+                  taxonomycode:
+                    description: The ansicode/taxonomy code of this care team member.
+                    type: string
+                  zip:
+                    description: The zipcode of this care team member.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidCareteammembers
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Care Team Members
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

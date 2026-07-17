@@ -1,0 +1,738 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/insurancepackages:
+    get:
+      summary: Get list of standard insurance packages
+      description: Retrieve list of insurance packages for a given search criteria
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: insuranceplanname
+        schema:
+          type: string
+        required: true
+        description: The name of the insurer.
+      - in: query
+        name: insurancestate
+        schema:
+          type: string
+        required: false
+        description: The two letter state abbreviation of the insurer's location.
+      - in: query
+        name: insurancezip
+        schema:
+          type: string
+        required: false
+        description: The zipcode of the insurer. Nine digit zipcodes are accepted
+          in the format of 12345-6789.
+      - in: query
+        name: insuranceaddress
+        schema:
+          type: string
+        required: false
+        description: The address of the insurer.
+      - in: query
+        name: memberid
+        schema:
+          type: string
+        required: true
+        description: The patient's insurance member ID.
+      - in: query
+        name: stateofcoverage
+        schema:
+          type: string
+        required: false
+        description: Two letter state abbreviation that filters for insurances that
+          cover this state.
+      - in: query
+        name: insurancephone
+        schema:
+          type: string
+        required: false
+        description: The phone number of the insurer.
+      - in: query
+        name: producttypeid
+        schema:
+          type: array
+          items:
+            enum:
+            - 21
+            - 22
+            - 6
+            - 10
+            - 2
+            - 5
+            - 23
+            - 24
+            - 3
+            - 12
+            - 7
+            - 4
+            - 8
+            - 1
+            - 11
+            - 25
+            - 9
+            - 26
+            - 27
+            type: string
+            x-enumDescriptions:
+            - Behavioral health
+            - Contracts
+            - EPO
+            - FFS
+            - HMO
+            - Indemnity
+            - Legal
+            - MVA
+            - Medicare Supplement
+            - Other
+            - PFFS
+            - POS
+            - POS II
+            - PPO
+            - QPOS
+            - Radiology
+            - TRICARE Supplement
+            - Vision
+            - Workers Comp
+        required: false
+        description: The insurance product type ID.
+      - in: query
+        name: insurancecity
+        schema:
+          type: string
+        required: false
+        description: The city of the insurer.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 15, max 500)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  addresslist:
+                    description: The addresses associated with this insurance package.
+                      The default address is listed first.
+                    items:
+                      type: string
+                    type: array
+                  affiliations:
+                    description: The affiliations associated with this insurance package.
+                    items:
+                      type: string
+                    type: array
+                  insurancepackageid:
+                    description: The athena insurance package ID.
+                    type: integer
+                  insuranceplanname:
+                    description: Name of the specific insurance package.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInsurancepackages
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Insurance Package Search
+  /v1/{practiceid}/insurancepackages/casepolicies:
+    get:
+      summary: Get case-policies for insurance packages
+      description: Retrieve case policies information for a specific payer
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: The name of the insurer.
+        in: query
+        name: insuranceplanname
+        required: true
+        schema:
+          type: string
+      - description: The two letter state abbreviation of the insurer.
+        in: query
+        name: insurancestate
+        required: false
+        schema:
+          type: string
+      - description: The zipcode of the insurer. Nine digit zipcodes are accepted
+          in the format of 12345-6789.
+        in: query
+        name: insurancezip
+        required: false
+        schema:
+          type: string
+      - description: The address of the insurer.
+        in: query
+        name: insuranceaddress
+        required: false
+        schema:
+          type: string
+      - description: The phone number of the insurer.
+        in: query
+        name: insurancephone
+        required: false
+        schema:
+          type: string
+      - description: Filter by a case policy type ID.
+        in: query
+        name: casepolicytypeid
+        required: false
+        schema:
+          enum:
+          - 3
+          - 11
+          - 1
+          - 6
+          - 16
+          - 9
+          - 14
+          - 17
+          - 4
+          - 7
+          - 10
+          - 12
+          - 5
+          - 8
+          - 2
+          type: integer
+          x-enumDescriptions:
+          - Auto Insurance
+          - Cancer
+          - Cash
+          - Contracts
+          - Dental
+          - Durable Medical Equipment
+          - EAP
+          - Foundation
+          - Legal
+          - Mental Health
+          - Personal Injury
+          - Podiatry
+          - Research
+          - Vision
+          - Worker's Comp
+      - description: The city of the insurer.
+        in: query
+        name: insurancecity
+        required: false
+        schema:
+          type: string
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  insuranceplanname:
+                    type: string
+                    description: Name of the specific insurance package.
+                  insurancepackageid:
+                    type: integer
+                    description: The athena insurance package ID.
+          description: Success
+      operationId: getPracticeidInsurancepackagesCasepolicies
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Insurance Package Search
+  /v1/{practiceid}/insurancepackages/configuration/locallyadministered:
+    post:
+      summary: Create new local insurance package
+      description: Create a new record of locally administered insurance package
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  insurancepackageid:
+                    description: The ID of the locally administered insurance package
+                      or the pending insurance package created.
+                    type: integer
+                  ispending:
+                    description: Returns true/false if the package request is pending.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidInsurancepackagesConfigurationLocallyadministered
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - phone
+              - claimformat
+              - name
+              - address
+              - city
+              properties:
+                fax:
+                  type: string
+                  description: The fax number of the locally administered insurance
+                    package.
+                zip:
+                  type: string
+                  description: The zip code of the locally administered insurance
+                    package.
+                city:
+                  type: string
+                  description: The city of the locally administered insurance package.
+                name:
+                  type: string
+                  description: The name of the locally administered insurance package.
+                note:
+                  type: string
+                  description: Notes about the locally administered insurance package.
+                phone:
+                  type: string
+                  description: The phone number of the locally administered insurance
+                    package.
+                state:
+                  type: string
+                  description: The state of the locally administered insurance package.
+                address:
+                  type: string
+                  description: The address (line 1) of the locally administered insurance
+                    package.
+                address2:
+                  type: string
+                  description: The address (line 2) of the locally administered insurance
+                    package.
+                countryid:
+                  type: integer
+                  description: The athena country ID of the locally administered insurance
+                    package.
+                frequency:
+                  enum:
+                  - ''
+                  - M
+                  - W
+                  - D
+                  type: string
+                  description: The frequency of invoice billing.  Acceptable values
+                    are M (monthly), W (weekly) and D (daily). This is required when
+                    claimformat=CorporateBilling and invalid when claimformat=CMS1500.
+                claimformat:
+                  enum:
+                  - ''
+                  - CMS1500
+                  - CorporateBilling
+                  type: string
+                  description: The claim format to use for billing.  Acceptable values
+                    are CMS1500 or CorporateBilling (for invoices).
+                contactname:
+                  type: string
+                  description: The contact name of the locally administered insurance
+                    package.
+                effectivedate:
+                  type: string
+                  description: The effective date of the locally administered insurance
+                    package.
+                expirationdate:
+                  type: string
+                  description: The expiration date of the locally administered insurance
+                    package.
+                switchoverdate:
+                  type: string
+                  description: The ICD-10 switchover date of the locally administered
+                    insurance package (defaults to 10/01/2015).
+                invoicecoversheet:
+                  type: boolean
+                  description: Indicates whether or not invoices should include a
+                    cover sheet.
+                invoiceoverduedays:
+                  type: integer
+                  description: The number of days after which an overdue invoice should
+                    be submitted.  This is only valid when invoicesubmitoverdue=true.
+                    The value must be an integer between 60 and 200.  The default
+                    value is 60.
+                invoiceemailaddress:
+                  type: string
+                  description: The email address to which claims/invoices should be
+                    submitted. This is required when invoicesendviaemail=true and
+                    invalid when invoicesendviaemail=false.
+                invoicesendviaemail:
+                  type: boolean
+                  description: Indicates whether or not claims/invoices should be
+                    submitted via email.
+                invoicesubmitoverdue:
+                  type: boolean
+                  description: Indicates whether or not overdue invoices should be
+                    submitted for this locally administered insurance package. This
+                    can only be true when invoicesubmitcorrected=true.
+                invoiceshowadjustments:
+                  type: boolean
+                  description: Indicates whether or not invoices should show allowable
+                    adjustments.
+                invoicesubmitcorrected:
+                  type: boolean
+                  description: Indicates whether or not corrected invoices should
+                    be submitted for this locally administered insurance package.
+                invoicepurchaseordernumber:
+                  type: string
+                  description: The purchase order number to include on invoices for
+                    this locally administered insurance package.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Locally Administered Insurance Packages
+  /v1/{practiceid}/insurancepackages/configuration/locallyadministered/{insurancepackageid}:
+    put:
+      summary: Update local insurance package
+      description: Modifies an existing record of locally administered insurance package
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: insurancepackageid
+        schema:
+          type: integer
+        required: true
+        description: insurancepackageid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidInsurancepackagesConfigurationLocallyadministeredInsurancepackageid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                fax:
+                  type: string
+                  description: The fax number of the locally administered insurance
+                    package.
+                zip:
+                  type: string
+                  description: The zip code of the locally administered insurance
+                    package.
+                city:
+                  type: string
+                  description: The city of the locally administered insurance package.
+                name:
+                  type: string
+                  description: The name of the locally administered insurance package.
+                note:
+                  type: string
+                  description: Notes about the locally administered insurance package.
+                phone:
+                  type: string
+                  description: The phone number of the locally administered insurance
+                    package.
+                state:
+                  type: string
+                  description: The state of the locally administered insurance package.
+                address:
+                  type: string
+                  description: The address (line 1) of the locally administered insurance
+                    package.
+                address2:
+                  type: string
+                  description: The address (line 2) of the locally administered insurance
+                    package.
+                countryid:
+                  type: integer
+                  description: The athena country ID of the locally administered insurance
+                    package.
+                frequency:
+                  enum:
+                  - ''
+                  - M
+                  - W
+                  - D
+                  type: string
+                  description: The frequency of invoice billing.  Acceptable values
+                    are M (monthly), W (weekly) and D (daily). This is required when
+                    claimformat=CorporateBilling and invalid when claimformat=CMS1500.
+                claimformat:
+                  enum:
+                  - ''
+                  - CMS1500
+                  - CorporateBilling
+                  type: string
+                  description: The claim format to use for billing.  Acceptable values
+                    are CMS1500 or CorporateBilling (for invoices).
+                contactname:
+                  type: string
+                  description: The contact name of the locally administered insurance
+                    package.
+                effectivedate:
+                  type: string
+                  description: The effective date of the locally administered insurance
+                    package.
+                expirationdate:
+                  type: string
+                  description: The expiration date of the locally administered insurance
+                    package.
+                switchoverdate:
+                  type: string
+                  description: The ICD-10 switchover date of the locally administered
+                    insurance package (defaults to 10/01/2015).
+                invoicecoversheet:
+                  type: boolean
+                  description: Indicates whether or not invoices should include a
+                    cover sheet.
+                invoiceoverduedays:
+                  type: integer
+                  description: The number of days after which an overdue invoice should
+                    be submitted.  This is only valid when invoicesubmitoverdue=true.
+                    The value must be an integer between 60 and 200.  The default
+                    value is 60.
+                invoiceemailaddress:
+                  type: string
+                  description: The email address to which claims/invoices should be
+                    submitted. This is required when invoicesendviaemail=true and
+                    invalid when invoicesendviaemail=false.
+                invoicesendviaemail:
+                  type: boolean
+                  description: Indicates whether or not claims/invoices should be
+                    submitted via email.
+                invoicesubmitoverdue:
+                  type: boolean
+                  description: Indicates whether or not overdue invoices should be
+                    submitted for this locally administered insurance package. This
+                    can only be true when invoicesubmitcorrected=true.
+                invoiceshowadjustments:
+                  type: boolean
+                  description: Indicates whether or not invoices should show allowable
+                    adjustments.
+                invoicesubmitcorrected:
+                  type: boolean
+                  description: Indicates whether or not corrected invoices should
+                    be submitted for this locally administered insurance package.
+                invoicepurchaseordernumber:
+                  type: string
+                  description: The purchase order number to include on invoices for
+                    this locally administered insurance package.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Locally Administered Insurance Packages
+  /v1/{practiceid}/insurancepackages/configuration/locallyadministered/{insurancepackageid}/deactivate:
+    put:
+      summary: Disable a local insurance package
+      description: Deactivate an existing record of locally administered insurance
+        package so that it cannot be further used.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: insurancepackageid
+        schema:
+          type: integer
+        required: true
+        description: insurancepackageid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidInsurancepackagesConfigurationLocallyadministeredInsurancepackageidDeactivate
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                expirationdate:
+                  type: string
+                  description: The expiration date of the locally administered insurance
+                    package.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Locally Administered Insurance Packages
+  /v1/{practiceid}/insurancepackages/configuration/locallyadministered/{insurancepackageid}/reactivate:
+    put:
+      summary: Re-enable a local insurance package
+      description: Re-activate an existing deactivated record of locally administered
+        insurance package
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: insurancepackageid
+        schema:
+          type: integer
+        required: true
+        description: insurancepackageid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidInsurancepackagesConfigurationLocallyadministeredInsurancepackageidReactivate
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                expirationdate:
+                  type: string
+                  description: The expiration date of the locally administered insurance
+                    package.  By default, reactivating a package will blank out the
+                    expiration date of a package.  This parameter should be used if
+                    the expiration date needs to be restored to a specific date.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Locally Administered Insurance Packages
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

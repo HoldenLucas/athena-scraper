@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/beds:
+    get:
+      summary: Get a list of avaible beds in the hospital
+      description: Retrives a list of avaiable beds in the hospital
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID.
+      - in: query
+        name: bedid
+        schema:
+          type: integer
+        required: false
+        description: The bed ID.
+      - in: query
+        name: unitid
+        schema:
+          type: integer
+        required: false
+        description: The unit id.
+      - in: query
+        name: hospitalroomid
+        schema:
+          type: integer
+        required: false
+        description: The hospital room id.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  alloweddepartmentids:
+                    description: One or more allowed department IDs.
+                    items:
+                      type: integer
+                    type: array
+                  bedid:
+                    description: The bed ID.
+                    type: integer
+                  bedname:
+                    description: The name of the bed.
+                    type: string
+                  hospitalroomid:
+                    description: The hospital room ID.
+                    type: integer
+                  hospitalroomname:
+                    description: The name of the hospital room.
+                    type: string
+                  unitid:
+                    description: The unit ID.
+                    type: integer
+                  unitname:
+                    description: The name of the unit.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidBeds
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Beds
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

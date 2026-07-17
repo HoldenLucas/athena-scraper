@@ -1,0 +1,827 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/documentassignment/{documentid}:
+    get:
+      summary: Get possible assignment usernames for document
+      description: Retrieves the usernames that can be assigned any single document
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: documentid
+        schema:
+          type: integer
+        required: true
+        description: documentid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentstatus:
+                    type: string
+                    description: Status of the document
+                  currentassignment:
+                    type: string
+                    description: Person the document is assigned to
+                  availableforassignment:
+                    type: array
+                    items:
+                      type: string
+                    description: List of usernames available to assign this document
+          description: Success
+      operationId: getPracticeidDocumentassignmentDocumentid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - This returns all the usernames that this document can be assigned to.
+  /v1/{practiceid}/documenttypes:
+    get:
+      summary: Get list of document types
+      description: Retrieves a list of document types based on the documentsubclass
+        filter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: The search string as a list of search words.
+      - in: query
+        name: documentsubclass
+        schema:
+          enum:
+          - ADMIN
+          - ADMIN_BILLING
+          - ADMIN_CONSENT
+          - ADMIN_HIPAA
+          - ADMIN_INSURANCEAPPROVAL
+          - ADMIN_INSURANCECARD
+          - ADMIN_INSURANCEDENIAL
+          - ADMIN_LEGAL
+          - ADMIN_MEDICALRECORDREQ
+          - ADMIN_REFERRAL
+          - ADMIN_SIGNEDFORMSLETTERS
+          - ADVERTISEMENT
+          - CLINICALDOCUMENT
+          - CLINICALDOCUMENT_ADMISSIONDISCHARGE
+          - CLINICALDOCUMENT_CONSULTNOTE
+          - CLINICALDOCUMENT_MENTALHEALTH
+          - CLINICALDOCUMENT_OPERATIVENOTE
+          - CLINICALDOCUMENT_URGENTCARE
+          - IMAGINGRESULT
+          - LABRESULT
+          - ORDER
+          - PHONEMESSAGE
+          - PHYSICIANAUTH
+          - PHYSICIANAUTH_CAREPLANOVERSIGHT
+          type: string
+          x-enumDescriptions:
+          - Admin
+          - Admin - Billing Document
+          - Admin - Consent
+          - Admin - HIPAA/Privacy
+          - Admin - Insurance Approval Notification
+          - Admin - Insurance Card
+          - Admin - Insurance Denial Notification
+          - Admin - Legal
+          - Admin - Medical Records Request
+          - Admin - Referral
+          - Admin - Signed Forms & Letters
+          - Advertisement
+          - Clinical Document
+          - Clinical Document - Admission/Discharge Summary
+          - Clinical Document - Consult Note
+          - Clinical Document - Mental Health Consult
+          - Clinical Document - Operative Note
+          - Clinical Document - Emergency/Urgent Care
+          - Imaging/Diagnostic Result
+          - Lab Result
+          - Order (already signed)
+          - Phone Message
+          - Physician Authorization
+          - Physician Authorization - Care Plan Oversight
+        required: false
+        description: Limit the results to document types that could apply to a document
+          of the type specified.  If omitted, the results will not be filtered.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 500)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documenttypeid:
+                    description: The ID for this document type.
+                    type: integer
+                  name:
+                    description: A long form description of this document type.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidDocumenttypes
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Types
+  /v1/{practiceid}/patients/{patientid}/documents:
+    post:
+      summary: Add document to patient's chart
+      description: Create a document in patient's chart based on the document subclass
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentid:
+                    type: string
+                    description: The document ID of the created document.
+          description: Success
+      operationId: postPracticeidPatientsPatientidDocuments
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - attachmentcontents
+              - documentsubclass
+              properties:
+                entityid:
+                  type: string
+                  description: Identifier of entity creating the document. entitytype
+                    is required while passing entityid.
+                autoclose:
+                  type: boolean
+                  description: Documents will, normally, automatically appear in the
+                    clinical inbox for providers to review. In some cases, you might
+                    want to force the document to skip the clinical inbox, and go
+                    directly to the patient chart with a "closed" status. For that
+                    case, set this to true.
+                actionnote:
+                  type: string
+                  description: Any note to accompany the creation of this document.
+                entitytype:
+                  enum:
+                  - ''
+                  - PROVIDER
+                  - PATIENT
+                  - OTHERS
+                  type: string
+                  description: Type of entity creating the document. entityid is required
+                    while passing entitytype.
+                providerid:
+                  type: integer
+                  description: The provider ID attached to this document. This populates
+                    the provider name field.
+                departmentid:
+                  type: integer
+                  description: The department ID associated with the uploaded document.
+                    Except when appointmentid is supplied, this is required.
+                internalnote:
+                  type: string
+                  description: The 'Internal Note' attached to this document
+                appointmentid:
+                  type: integer
+                  description: The appointment ID associated with this document, for
+                    certain document classes. These can only be uploaded AFTER check-in.
+                    The department ID is looked up from the appointment. (Department
+                    ID takes precedence if both are supplied.)
+                attachmenttype:
+                  enum:
+                  - ''
+                  - BMP
+                  - GIF
+                  - JPG
+                  - JPEG
+                  - PDF
+                  - PNG
+                  - TIF
+                  - TIFF
+                  type: string
+                  description: The file type of the attachment.
+                documentsubclass:
+                  enum:
+                  - ADMIN_BILLING
+                  - ADMIN_CONSENT
+                  - ADMIN_HIPAA
+                  - ADMIN_INSURANCEAPPROVAL
+                  - ADMIN_INSURANCECARD
+                  - ADMIN_INSURANCEDENIAL
+                  - ADMIN_LEGAL
+                  - ADMIN_MEDICALRECORDREQ
+                  - ADMIN_REFERRAL
+                  - ADMIN_SIGNEDFORMSLETTERS
+                  - ADMIN_VACCINATIONRECORD
+                  - CLINICALDOCUMENT
+                  - CLINICALDOCUMENT_ADMISSIONDISCHARGE
+                  - CLINICALDOCUMENT_CONSULTNOTE
+                  - CLINICALDOCUMENT_MENTALHEALTH
+                  - CLINICALDOCUMENT_OPERATIVENOTE
+                  - CLINICALDOCUMENT_URGENTCARE
+                  - ENCOUNTERDOCUMENT_IMAGEDOC
+                  - ENCOUNTERDOCUMENT_PATIENTHISTORY
+                  - ENCOUNTERDOCUMENT_PROCEDUREDOC
+                  - ENCOUNTERDOCUMENT_PROGRESSNOTE
+                  - MEDICALRECORD_CHARTTOABSTRACT
+                  - MEDICALRECORD_COUMADIN
+                  - MEDICALRECORD_GROWTHCHART
+                  - MEDICALRECORD_HISTORICAL
+                  - MEDICALRECORD_PATIENTDIARY
+                  - MEDICALRECORD_VACCINATION
+                  - PHONEMESSAGE
+                  type: string
+                  description: The document subclass.
+                originalfilename:
+                  type: string
+                  description: The original file name of this document without the
+                    file extension. Filename should not exceed 200 characters.
+                attachmentcontents:
+                  type: string
+                  description: The file that will become the document. PDFs are recommended.
+                    Generally, this implies that this is a multipart/form-data content-type
+                    submission. This does NOT work correctly in I/O Docs. The filename
+                    itself is not used by athenaNet, but it is required to be sent.
+                    Please note encrypted PDFs are not supported with document upload
+                    APIs
+        required: true
+      tags:
+      - Forms and Documents
+      - Document Upload
+    get:
+      summary: Get list of patient's documents
+      description: Retrieve a list of documents for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: showmetadata
+        schema:
+          type: boolean
+        required: false
+        description: When "true" is passed we will return filetype, filesize and originalfilename
+          if applicable
+      - in: query
+        name: encounterid
+        schema:
+          type: integer
+        required: false
+        description: Show only documents attached to this encounter.
+      - in: query
+        name: status
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+        required: false
+        description: The status of the task to filter document results.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: An optional filter to specify the end of the documents search
+          date range (MM/DD/YYYY). Inclusive.
+      - in: query
+        name: documentclass
+        schema:
+          type: string
+        required: false
+        description: The class(es) of document(s) comma separated.
+      - in: query
+        name: documentsubclass
+        schema:
+          type: string
+        required: false
+        description: The document subclass to filter document results.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, deleted documents are not listed.  Set to list these.
+      - in: query
+        name: getentityinfo
+        schema:
+          type: boolean
+        required: false
+        description: If true, entityid and entitytype will be returned. entityid will
+          be populated in createduser attribute.
+      - in: query
+        name: showdeclinedorders
+        schema:
+          type: boolean
+        required: false
+        description: If set, include orders that were declined
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: An optional filter to specify the start of the documents search
+          date range (MM/DD/YYYY). Inclusive.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dmeid:
+                    type: number
+                    description: The primary key for dme class of documents. This
+                      is in place of a documentid.
+                  rtoid:
+                    type: number
+                    description: The primary key for rto class of documents. This
+                      is in place of a documentid.
+                  acogid:
+                    type: number
+                    description: The primary key for acog class of documents. This
+                      is in place of a documentid.
+                  htmlid:
+                    type: number
+                    description: The primary key for html class of documents. This
+                      is in place of a documentid.
+                  status:
+                    type: string
+                    description: Status of the document
+                  adminid:
+                    type: number
+                    description: The primary key for admin class of documents. This
+                      is in place of a documentid.
+                  orderid:
+                    type: number
+                    description: The primary key for order class of documents. This
+                      is in place of a documentid.
+                  subject:
+                    type: string
+                    description: Subject of the document
+                  filesize:
+                    type: number
+                    description: The file size of this document.
+                  letterid:
+                    type: number
+                    description: The primary key for letter class of documents. This
+                      is in place of a documentid.
+                  priority:
+                    type: number
+                    description: Document priority, when available.
+                  patientid:
+                    type: number
+                    description: The athenaNet patient ID
+                  surgeryid:
+                    type: number
+                    description: The primary key for surgery class of documents. This
+                      is in place of a documentid.
+                  unknownid:
+                    type: number
+                    description: The primary key for unknown class of documents. This
+                      is in place of a documentid.
+                  vaccineid:
+                    type: number
+                    description: The primary key for vaccine class of documents. This
+                      is in place of a documentid.
+                  assignedto:
+                    type: string
+                    description: Person the document is assigned to
+                  documentid:
+                    type: string
+                    description: ID for the document. Note that in documents/{documentclass}
+                      calls, this will become an ID named after the document class
+                      (e.g. rtoid or letterid).
+                  entitytype:
+                    type: string
+                    description: Type of entity creating the document. Possible values
+                      are PROVIDER, PATIENT and OTHERS.
+                  hospitalid:
+                    type: number
+                    description: The primary key for hospital class of documents.
+                      This is in place of a documentid.
+                  providerid:
+                    type: number
+                    description: Provider ID for this document
+                  createddate:
+                    type: string
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                  createduser:
+                    type: string
+                    description: The user who created this document.
+                  encounterid:
+                    type: string
+                    description: Encounter ID
+                  labresultid:
+                    type: number
+                    description: The primary key for labresult class of documents.
+                      This is in place of a documentid.
+                  shareableid:
+                    type: number
+                    description: The primary key for shareable class of documents.
+                      This is in place of a documentid.
+                  coversheetid:
+                    type: number
+                    description: The primary key for coversheet class of documents.
+                      This is in place of a documentid.
+                  departmentid:
+                    type: string
+                    description: Department for the document
+                  documenttype:
+                    type: string
+                    description: The description for this document
+                  externalnote:
+                    type: string
+                    description: External note for the patient
+                  internalnote:
+                    type: string
+                    description: The 'Internal Note' attached to this document
+                  officenoteid:
+                    type: number
+                    description: The primary key for officenote class of documents.
+                      This is in place of a documentid.
+                  receivernote:
+                    type: string
+                    description: External note sent to the receiving facility
+                  tietoorderid:
+                    type: number
+                    description: Order ID of the order this document is tied to, if
+                      any
+                  appointmentid:
+                    type: number
+                    description: The appointment ID for this document.
+                  documentclass:
+                    type: string
+                    description: Class of document
+                  documentroute:
+                    type: string
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                  fileextension:
+                    type: string
+                    description: The file extension of this document.
+                  patientcaseid:
+                    type: number
+                    description: The primary key for patientcase class of documents.
+                      This is in place of a documentid.
+                  patientinfoid:
+                    type: number
+                    description: The primary key for patientinfo class of documents.
+                      This is in place of a documentid.
+                  requisitionid:
+                    type: number
+                    description: The primary key for requisition class of documents.
+                      This is in place of a documentid.
+                  declinedreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was not given.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the reason the
+                            order was not given.
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                  documentsource:
+                    type: string
+                    description: Explains where this document originated (e.g. ENCOUNTER,
+                      PORTAL, etc.)
+                  documenttypeid:
+                    type: number
+                    description: The ID of the description for this document
+                  phonemessageid:
+                    type: number
+                    description: The primary key for phonemessage class of documents.
+                      This is in place of a documentid.
+                  prescriptionid:
+                    type: number
+                    description: The primary key for prescription class of documents.
+                      This is in place of a documentid.
+                  advertisementid:
+                    type: number
+                    description: The primary key for advertisement class of documents.
+                      This is in place of a documentid.
+                  createddatetime:
+                    type: string
+                    description: Date/Time (ISO 8601) the document was created
+                  deleteddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was deleted
+                  imagingresultid:
+                    type: number
+                    description: The primary key for imagingresult class of documents.
+                      This is in place of a documentid.
+                  medicalrecordid:
+                    type: number
+                    description: The primary key for medicalrecord class of documents.
+                      This is in place of a documentid.
+                  patientrecordid:
+                    type: number
+                    description: The primary key for patientrecord class of documents.
+                      This is in place of a documentid.
+                  physicianauthid:
+                    type: number
+                    description: The primary key for physicianauth class of documents.
+                      This is in place of a documentid.
+                  correctivelensid:
+                    type: number
+                    description: The primary key for correctivelens class of documents.
+                      This is in place of a documentid.
+                  documentsubclass:
+                    type: string
+                    description: Specific type of document
+                  interpretationid:
+                    type: number
+                    description: The primary key for interpretation class of documents.
+                      This is in place of a documentid.
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  originalfilename:
+                    type: string
+                    description: The original file name of this document.
+                  surgicalresultid:
+                    type: number
+                    description: The primary key for surgicalresult class of documents.
+                      This is in place of a documentid.
+                  coordinatortaskid:
+                    type: number
+                    description: The primary key for coordinatortask class of documents.
+                      This is in place of a documentid.
+                  mednotificationid:
+                    type: number
+                    description: The primary key for mednotification class of documents.
+                      This is in place of a documentid.
+                  chartabstractionid:
+                    type: number
+                    description: The primary key for chartabstraction class of documents.
+                      This is in place of a documentid.
+                  clinicaldocumentid:
+                    type: number
+                    description: The primary key for clinicaldocument class of documents.
+                      This is in place of a documentid.
+                  clinicalproviderid:
+                    type: number
+                    description: The clinical provider ID of the performing provider
+                  declinedreasontext:
+                    type: string
+                    description: The user-facing description of the reason the order
+                      was not given.
+                  documentdescription:
+                    type: string
+                    description: Description of the document type
+                  encounterdocumentid:
+                    type: number
+                    description: The primary key for encounterdocument class of documents.
+                      This is in place of a documentid.
+                  externalaccessionid:
+                    type: string
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  internalaccessionid:
+                    type: string
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  observationdatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the observation was taken
+                  appointmentrequestid:
+                    type: number
+                    description: The primary key for appointmentrequest class of documents.
+                      This is in place of a documentid.
+                  electronicreferralid:
+                    type: number
+                    description: The primary key for electronicreferral class of documents.
+                      This is in place of a documentid.
+                  lastmodifieddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was last modified
+                  contraindicationreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was contraindicated.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the contraindication
+                            reason.
+                    description: List of codes indicating why the order was contraindicated
+                      (for vaccines only). If this field is not present, the order
+                      does not contain a contraindication reason.
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocuments
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Upload
+  /v1/{practiceid}/patients/{patientid}/documents/clinicaldocument/{documentid}/xml:
+    get:
+      summary: Get XML from document
+      description: Retrieves certain types of clinical documents which contain XML
+        ( e.g. CCDA)
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: documentid
+        schema:
+          type: integer
+        required: true
+        description: documentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  xml:
+                    description: The JSON-encoded XML for this document, if present.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsClinicaldocumentDocumentidXml
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

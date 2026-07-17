@@ -1,0 +1,232 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/feeschedules/checkprocedure:
+    get:
+      summary: Get fee-schedule for a procedure
+      description: Retrieves fees for a specific procedure code
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: procedurecode
+        schema:
+          type: array
+          items:
+            type: string
+        required: true
+        description: The procedure code (including any modifiers) for which you want
+          to find a fee (e.g "99213" or "J12345,TC"). Multiple codes (either as a
+          tab delimited list or multiple POSTed values) are allowed.
+      - in: query
+        name: servicedate
+        schema:
+          type: string
+        required: false
+        description: The date of service for which you want to check if a fee exists.  If
+          not passed, defaults to today.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID you are operating in.
+      - in: query
+        name: insurancepackageid
+        schema:
+          type: integer
+        required: true
+        description: The insurance package ID for which you want to find a fee.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentid:
+                    description: The department ID that was used in the search.
+                    type: integer
+                  description:
+                    description: The description for this fee.
+                    type: string
+                  fee:
+                    description: The amount of the fee.
+                    type: integer
+                  feeexists:
+                    description: If true, a fee is defined in the practice fee schedule
+                      for your given parameters.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  insurancepackageid:
+                    description: The insurance package ID that was used in the search.
+                    type: integer
+                  procedurecode:
+                    description: The procedure code that was searched for.
+                    type: string
+                  procedurecodegroupid:
+                    description: The ID associated with the procedure code group of
+                      the fee.
+                    type: integer
+                  procedurecodegroupname:
+                    description: The name of the procedure code group associated with
+                      this fee.
+                    type: string
+                  servicedate:
+                    description: The service date that was used in the search.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidFeeschedulesCheckprocedure
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Fee Schedules
+  /v1/{practiceid}/feeschedules/configuration/procedure:
+    post:
+      summary: Create fee-schedule for a procedure
+      description: Create a new procedure code record with procedure fees information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: An error message if the operation was not successful.
+                    type: string
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidFeeschedulesConfigurationProcedure
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - procedurecode
+              - feescheduleid
+              - amount
+              properties:
+                amount:
+                  type: number
+                  description: The amount to charge for this procedure code.
+                feescheduleid:
+                  type: integer
+                  description: The ID of the fee schedule.
+                procedurecode:
+                  type: string
+                  description: The procedure code to be added or updated.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Fee Schedules
+    delete:
+      summary: Delete fee-schedule for a procedure
+      description: Remove the existing fee schedule record for a procedure from the
+        system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: procedurecode
+        schema:
+          type: string
+        required: true
+        description: The procedure code to be removed.
+      - in: query
+        name: feescheduleid
+        schema:
+          type: integer
+        required: true
+        description: The ID of the fee schedule.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: An error message if the operation was not successful.
+                    type: string
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidFeeschedulesConfigurationProcedure
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Fee Schedules
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

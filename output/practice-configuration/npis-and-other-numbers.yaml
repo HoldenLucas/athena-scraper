@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/entitynumber:
+    post:
+      summary: add a new entity number via a MDP call
+      description: add a new entity number via a MDP call
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  enrollmentstatusid:
+                    description: The enrollmentstatus id of the newly inserted rows.
+                    type: integer
+                  errorreason:
+                    description: Error message if the operation did not work.
+                    type: string
+                  successmessage:
+                    description: Success message if the operation worked.
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidEntitynumber
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - number
+              - entityid
+              - providernumbercategoryid
+              - entitytype
+              properties:
+                note:
+                  type: string
+                  description: The note of the entity number.
+                number:
+                  type: string
+                  description: Enter the group-level entity number.
+                entityid:
+                  type: integer
+                  description: This is the provider id or medical group id.
+                entitytype:
+                  type: string
+                  description: The entity type of practice. Please enter MEDICALGROUP
+                    or PROVIDER
+                effectivedate:
+                  type: string
+                  description: 'The effective date of the entity number. Format: MM/DD/YYYY'
+                expirationdate:
+                  type: string
+                  description: 'The expiration date of the entity number. Format:
+                    MM/DD/YYYY'
+                organizationtaxcode:
+                  type: string
+                  description: 'The organizational taxonomy code of the entity number.
+                    Format: 10-character alphanumeric code'
+                suppresseligibilityyn:
+                  type: boolean
+                  description: The suppress eligibility checks flag.
+                providernumbercategoryid:
+                  type: integer
+                  description: The provider number category id of the entity number.
+        required: true
+      tags:
+      - Administrative
+      - Entity Number
+  /v1/{practiceid}/entitynumbers/{numberid}:
+    put:
+      summary: update an existing entity number via a MDP call
+      description: update an existing entity number via a MDP call
+      parameters:
+      - description: numberid
+        in: path
+        name: numberid
+        required: true
+        schema:
+          type: integer
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: Content type of the payload
+        in: header
+        name: Content-Type
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errorreason:
+                    description: Error message if the operation did not work.
+                    type: string
+                  id:
+                    description: The ID of the updated number row. -1 on error.
+                    type: integer
+                  successmessage:
+                    description: Success message if the operation worked.
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidEntitynumbersNumberid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                effectivedate:
+                  description: 'The effective date of the entity number. Format: MM/DD/YYYY'
+                  type: string
+                entityid:
+                  description: This is the provider id or medical group id.
+                  type: integer
+                entitytype:
+                  description: The entity type of practice. Please enter MEDICALGROUP
+                    or PROVIDER
+                  type: string
+                expirationdate:
+                  description: 'The expiration date of the entity number. Format:
+                    MM/DD/YYYY'
+                  type: string
+                note:
+                  description: The note of the entity number.
+                  type: string
+                number:
+                  description: Enter the entity number value.
+                  type: string
+                numberid:
+                  description: ID of the existing entity number to update.
+                  type: integer
+                organizationtaxcode:
+                  description: 'The organizational taxonomy code of the entity number.
+                    Format: 10-character alphanumeric code'
+                  type: string
+                providernumbercategoryid:
+                  description: The provider number category id of the entity number.
+                  type: integer
+                suppresseligibilityyn:
+                  description: The suppress eligibility checks flag.
+                  type: boolean
+              required:
+              - number
+              - entityid
+              - providernumbercategoryid
+              - numberid
+              - entitytype
+              type: object
+        required: true
+      tags:
+      - Administrative
+      - Entity Number
+    delete:
+      summary: delete an entity number via a MDP call
+      description: delete an entity number via a MDP call
+      parameters:
+      - description: numberid
+        in: path
+        name: numberid
+        required: true
+        schema:
+          type: integer
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: The entity type (PROVIDER or MEDICALGROUP).
+        in: query
+        name: entitytype
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errorreason:
+                    description: Error message if the operation did not work.
+                    type: string
+                  numberid:
+                    description: The ID of the deleted entity number, or -1 if error.
+                    type: integer
+                  successmessage:
+                    description: Success message if the operation worked.
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidEntitynumbersNumberid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Entity Number
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

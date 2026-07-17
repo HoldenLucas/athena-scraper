@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/misc/portalsettings:
+    get:
+      summary: Get patient portal setting details
+      description: Retrieves patient portal settings
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: The ID of the brand. If provided this will override the value
+          of PORTALDISPLAYNAME in the output structure. If you want the name used
+          in the portal for non branded portals do not pass this value.
+        in: query
+        name: communicatorbrandid
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  allowregister:
+                    description: Setting indicating whether new patients can register
+                      for the portal as t or f.
+                    type: string
+                  communicatorbrandlevelsettings:
+                    description: Communicator brand settings for the practice.
+                    items:
+                      properties:
+                        communicatorbrandid:
+                          description: ID of the Communicator brand.
+                          type: integer
+                        communicatorbrandname:
+                          description: Name of the Communicator brand.
+                          type: string
+                      type: object
+                    type: array
+                  patientportalenabled:
+                    description: Boolean to denote whether patient portal is enabled
+                      for the practice.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  portaldisplayname:
+                    description: Public facing name of the practice.
+                    type: string
+                  portalurl:
+                    description: Portal URL of the practice.
+                    type: string
+                  practicehascommunicatorbrands:
+                    description: Boolean to denote whether the practice has Communicator
+                      brands.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  smartonfhiridpid:
+                    description: Okta ID of the IDP to use to authenticate users into
+                      SMART on FHIR apps.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMiscPortalsettings
+      x-scopes: []
+      tags:
+      - Administrative
+      - Patient Portal Settings
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

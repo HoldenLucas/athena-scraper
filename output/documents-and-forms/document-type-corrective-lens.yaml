@@ -1,0 +1,536 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/correctivelens:
+    get:
+      summary: Get list of corrective lens documents for patient
+      description: Retrieve list of corrective Len documents of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+        required: false
+        description: The status of the task to filter document results.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: documentsubclass
+        schema:
+          type: string
+        required: false
+        description: The document subclass to filter document results.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, deleted documents are not listed.  Set to list these.
+      - in: query
+        name: encounterid
+        schema:
+          type: integer
+        required: false
+        description: Show only documents attached to this encounter.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Status of the document
+                  subject:
+                    type: string
+                    description: Subject of the document
+                  priority:
+                    type: string
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                  patientid:
+                    type: integer
+                    description: The athenaNet patient ID.
+                  assignedto:
+                    type: string
+                    description: Person the document is assigned to
+                  providerid:
+                    type: integer
+                    description: Provider ID for this document
+                  createddate:
+                    type: string
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                  encounterid:
+                    type: string
+                    description: Encounter ID
+                  patientnote:
+                    type: string
+                    description: External note for the patient.
+                  departmentid:
+                    type: string
+                    description: Department for the document
+                  documenttype:
+                    type: string
+                    description: The description for this document
+                  internalnote:
+                    type: string
+                    description: The 'Internal Note' attached to this document
+                  orderingmode:
+                    type: string
+                    description: Ordering Mode for a prescription.  One of Prescribe,
+                      Adminster, Dispense
+                  receivernote:
+                    type: string
+                    description: The external note sent to the receiving facility
+                  tietoorderid:
+                    type: integer
+                    description: Order ID of the order this document is tied to, if
+                      any
+                  appointmentid:
+                    type: integer
+                    description: The appointment ID for this document
+                  diagnosislist:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        diagnosiscode:
+                          type: object
+                          properties:
+                            code:
+                              type: string
+                            codeset:
+                              type: string
+                            description:
+                              type: string
+                        snomedicdcodes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                              codeset:
+                                type: string
+                              description:
+                                type: string
+                              unstrippeddiagnosiscode:
+                                type: string
+                        imodiagnosislist:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                                description: The athena id of the imo diagnosis
+                              imocode:
+                                type: object
+                                properties:
+                                  code:
+                                    type: string
+                                    description: The IMO code for this diagnosis
+                                  codeset:
+                                    type: string
+                                    description: Codeset for this code (IMO)
+                                  laterality:
+                                    type: string
+                                    description: The laterality for this IMO code
+                                  description:
+                                    type: string
+                                    description: The provider facing description for
+                                      this IMO code
+                                  needsrefinement:
+                                    enum:
+                                    - ''
+                                    - false
+                                    - true
+                                    type: string
+                                    description: Whether or not the IMO term supports
+                                      further refinement
+                                description: IMO code details for this diagnosis
+                              icdcodes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: ICD code for this diagnosis
+                                    codeset:
+                                      type: string
+                                      description: Codeset for this code (ICD9 or
+                                        ICD10)
+                                    description:
+                                      type: string
+                                      description: Brief description for this code
+                                description: List of relevant ICD codes for this IMO
+                                  code
+                              snomedcodes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: SNOMED code for this diagnosis
+                                    codeset:
+                                      type: string
+                                      description: Codeset for this code (SNOMED)
+                                    description:
+                                      type: string
+                                      description: Brief description for this code
+                                description: List of relevant SNOMED codes for this
+                                  IMO code
+                              patientfacingdescription:
+                                type: string
+                                description: The patient facing description for this
+                                  IMO code
+                              providerfacingdescription:
+                                type: string
+                                description: The provider facing description for this
+                                  IMO code
+                          description: List of IMO codes and data for this diagnosis
+                            This API attribute is being rolled out and will be Generally
+                            Available on or before TBD
+                    description: Diagnoses for this document
+                  documentclass:
+                    type: string
+                    description: Class of document
+                  documentroute:
+                    type: string
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                  glassestypeid:
+                    type: integer
+                    description: ID for the glasses type.
+                  documentsource:
+                    enum:
+                    - ''
+                    - PATIENT
+                    - CAREGIVER
+                    - PARTNER
+                    - PHARMACY
+                    - LAB
+                    - PCP
+                    - SPECIALIST
+                    - STAFF
+                    - HOSPITAL
+                    - OTHER
+                    - PORTAL
+                    - Live Operator
+                    type: string
+                    description: Explains where this document originated.
+                  documenttypeid:
+                    type: integer
+                    description: The ID of the description for this document
+                  expirationdate:
+                    type: string
+                    description: The expiration date of a correctivelens order.
+                  leftrefraction:
+                    type: object
+                    properties:
+                      axis:
+                        type: string
+                        description: The value of axis for the left eye.
+                      sphere:
+                        type: string
+                        description: The value of sphere for the left eye.
+                      cylinder:
+                        type: string
+                        description: The value of cylinder for the left eye.
+                      diameter:
+                        type: string
+                        description: The value of diameter for the left eye.
+                      basecurve:
+                        type: string
+                        description: The value of base curve for the left eye.
+                      nearaddition:
+                        type: string
+                        description: The value of near addition for the left eye.
+                      secondsphere:
+                        type: string
+                        description: The value of second sphere for the left eye.
+                      edgethickness:
+                        type: string
+                        description: The edge thickness of contact lens for the left
+                          eye.
+                      verticalprism:
+                        type: string
+                        description: The value of vertical prism for the left eye.
+                      horizontalprism:
+                        type: string
+                        description: The value of horizontal prism for the left eye.
+                      secondbasecurve:
+                        type: string
+                        description: The value of second base curve for the left eye.
+                      centralthickness:
+                        type: string
+                        description: The central thickness of contact lens for the
+                          left eye.
+                      opticalzonediameter:
+                        type: string
+                        description: The optical zone diameter of contact lens for
+                          the left eye.
+                      posteriorcurvewidth:
+                        type: string
+                        description: The value of posterior curve width for the left
+                          eye.
+                      secondarycurvewidth:
+                        type: string
+                        description: The value of secondary curve width for the left
+                          eye.
+                      verticalprismbaseid:
+                        type: integer
+                        description: The ID of vertical prism base.
+                      posteriorcurveradius:
+                        type: string
+                        description: The value of posterior curve radius for the left
+                          eye.
+                      secondarycurveradius:
+                        type: string
+                        description: The value of secondary curve radius for the left
+                          eye.
+                      horizontalprismbaseid:
+                        type: integer
+                        description: The ID of horizontal prism base.
+                      contactlensproductname:
+                        type: string
+                        description: Contact lens product name for the left eye.
+                    description: A set of refraction measurements for the left eye.
+                  createddatetime:
+                    type: string
+                    description: Date/Time (ISO 8601) the document was created
+                  deleteddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was deleted
+                  rightrefraction:
+                    type: object
+                    properties:
+                      axis:
+                        type: string
+                        description: The value of axis for the right eye.
+                      sphere:
+                        type: string
+                        description: The value of sphere for the right eye.
+                      cylinder:
+                        type: string
+                        description: The value of cylinder for the right eye.
+                      diameter:
+                        type: string
+                        description: The value of diameter for the right eye.
+                      basecurve:
+                        type: string
+                        description: The value of base curve for the right eye.
+                      nearaddition:
+                        type: string
+                        description: The value of near addition for the right eye.
+                      secondsphere:
+                        type: string
+                        description: The value of second sphere for the right eye.
+                      edgethickness:
+                        type: string
+                        description: The edge thickness of contact lens for the right
+                          eye.
+                      verticalprism:
+                        type: string
+                        description: The value of vertical prism for the right eye.
+                      horizontalprism:
+                        type: string
+                        description: The value of horizontal prism for the right eye.
+                      secondbasecurve:
+                        type: string
+                        description: The value of second base curve for the right
+                          eye.
+                      centralthickness:
+                        type: string
+                        description: The central thickness of contact lens for the
+                          right eye.
+                      opticalzonediameter:
+                        type: string
+                        description: The optical zone diameter of contact lens for
+                          the right eye.
+                      posteriorcurvewidth:
+                        type: string
+                        description: The value of posterior curve width for the right
+                          eye.
+                      secondarycurvewidth:
+                        type: string
+                        description: The value of secondary curve width for the right
+                          eye.
+                      verticalprismbaseid:
+                        type: integer
+                        description: The ID of vertical prism base.
+                      posteriorcurveradius:
+                        type: string
+                        description: The value of posterior curve radius for the right
+                          eye.
+                      secondarycurveradius:
+                        type: string
+                        description: The value of secondary curve radius for the right
+                          eye.
+                      horizontalprismbaseid:
+                        type: integer
+                        description: The ID of horizontal prism base.
+                      contactlensproductname:
+                        type: string
+                        description: Contact lens product name for the right eye.
+                    description: A set of refraction measurements for the right eye.
+                  correctivelensid:
+                    type: integer
+                    description: ID of a correctivelens document.
+                  documentsubclass:
+                    type: string
+                    description: Specific type of document
+                  futuresubmitdate:
+                    type: string
+                    description: The future submit date in the format mm/dd/yyyy.
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  pupillarydistance:
+                    type: string
+                    description: The distance between the patient's pupils, measured
+                      in millimeters. This is the only pupillary distance measurement
+                      for single-vision lenses. For multifocal lenses (e.g., bifocal,
+                      progessive), this represents the pupillary distance measurement
+                      for the purposes of distance vision.
+                  clinicalproviderid:
+                    type: integer
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country.  These include providers as well as
+                      radiology centers, labs and pharmacies.
+                  documentdescription:
+                    type: string
+                    description: Description of the document type
+                  externalaccessionid:
+                    type: string
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  internalaccessionid:
+                    type: string
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  observationdatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the observation was taken
+                  lastmodifieddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was last modified
+                  nearpupillarydistance:
+                    type: string
+                    description: The distance between the patient's pupils, measured
+                      in millimeters, for the purposes of near vision. This is used
+                      only for multifocal lenses (e.g., bifocal, progessive).
+                  notetoclinicalprovider:
+                    type: string
+                    description: A note to send to the pharmacy.
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsCorrectivelens
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document List By Class
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

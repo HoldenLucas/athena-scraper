@@ -1,0 +1,431 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/receipts:
+    get:
+      summary: Get list of payment-receipts
+      description: Retrieves a list of epayment receipts for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: string
+        required: true
+        description: The department ID for the receipts you are looking for.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  amount:
+                    description: The amount of the payment.
+                    type: string
+                  cardnumberlast4digits:
+                    description: The last 4 digits of the card number.
+                    type: string
+                  cardtypeabbreviation:
+                    description: The short version of the type of card.
+                    type: string
+                  cardtypename:
+                    description: The long version of the type of card.
+                    type: string
+                  contractid:
+                    description: If this e-payment was associated with a payment contract,
+                      this is the ID of that contract.
+                    type: string
+                  epaymentcontractbalance:
+                    description: If this e-payment was associated with a payment contract,
+                      this is the balance for the contract.
+                    type: string
+                  epaymentcontractmaxamount:
+                    description: If this e-payment was associated with a payment contract,
+                      this is the max amount allowed for the contract.
+                    type: string
+                  epaymentid:
+                    description: An ID that can be used to get a receipt.
+                    type: string
+                  requestdate:
+                    description: The timestamp (Eastern) when the payment was initiated.
+                    type: string
+                  type:
+                    description: Type of transaction associated with the payment.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidReceipts
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Receipts
+  /v1/{practiceid}/patients/{patientid}/receipts/{epaymentid}:
+    get:
+      summary: Get payment-receipts for an e-payment
+      description: Retrieves a copy of a patient receipt for a specific epayment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      - in: query
+        name: customerversion
+        schema:
+          type: boolean
+        required: false
+        description: If true, returns the customer (patient) version of the receipt.
+      - in: query
+        name: merchantversion
+        schema:
+          type: boolean
+        required: false
+        description: If true, returns the merchant version of the receipt.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  receipthtml:
+                    description: The HTML of the receipt.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidReceiptsEpaymentid
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Receipts
+  /v1/{practiceid}/patients/{patientid}/receipts/{epaymentid}/details:
+    get:
+      summary: Get payment-receipts for an e-payment
+      description: Retrieves the details of the patient payment receipt
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      - in: query
+        name: termsasjson
+        schema:
+          type: boolean
+        required: false
+        description: To include contract terms as JSON object.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  accountnumber:
+                    description: The credit card number with *'s replacing all but
+                      the last 4 digits.
+                    type: string
+                  approvalcode:
+                    description: The credit card approval code
+                    type: string
+                  authorizer:
+                    description: Code that identifies the authorizing agency.
+                    type: string
+                  cardholdername:
+                    description: The name on the card
+                    type: string
+                  cardtype:
+                    description: 'Card type: Visa, Mastercard, etc.'
+                    type: string
+                  isapproved:
+                    description: Was this transaction approved (true/false)
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  merchantaddress:
+                    description: The address of the merchant.
+                    type: string
+                  merchantaddress2:
+                    description: The address of the merchant, second line
+                    type: string
+                  merchantcity:
+                    description: The city of the merchant.
+                    type: string
+                  merchantstate:
+                    description: The state of the merchant.
+                    type: string
+                  merchantzip:
+                    description: The zip of the merchant.
+                    type: string
+                  recordnumber:
+                    description: Unique number from athenaNet.  Recommended to be
+                      printed on the receipt.
+                    type: string
+                  salestax:
+                    description: The amount ($) of sales tax for this transaction.
+                    type: string
+                  subtotal:
+                    description: The amount ($) without tax for this transaction.
+                    type: string
+                  total:
+                    description: The total amount ($) for this transaction
+                    type: string
+                  tracenumber:
+                    description: An identifier used by the processor used to trace
+                      this transaction. Strongly recommended to be printed on the
+                      receipt (and required in some circumstances)
+                    type: string
+                  transactiondate:
+                    description: The date, with time zone, to print (e.g. mm/dd/yyyy
+                      hh:mm AM/PM PDT
+                    type: string
+                  transactionreferencenumber:
+                    description: A reference number for this transaction.  Require
+                      to be printed if returned.
+                    type: string
+                  transactiontype:
+                    description: The type of transaction (PURCHASE, AUTHORIZATION,
+                      CREDIT, VOIDCREDIT, INQUIRY, VOIDPURCHASE, MANUALCONVERSION
+                      are all possible.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidReceiptsEpaymentidDetails
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Receipts
+  /v1/{practiceid}/patients/{patientid}/receipts/{epaymentid}/email:
+    post:
+      summary: Send email of payment-receipt
+      description: Emails a copy of the credit card receipt to an email recipient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates if the email attempt was successful. Note
+                      that email delivery is never guaranteed due to the nature of
+                      email!
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidReceiptsEpaymentidEmail
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  description: The email address to send to.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Receipts
+  /v1/{practiceid}/patients/{patientid}/receipts/{epaymentid}/signed:
+    get:
+      summary: Get list of signed e-payment receipts
+      description: Retrieves a PDF of the signed receipt image
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidReceiptsEpaymentidSigned
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Receipts
+    post:
+      summary: Submit authorizations for payment receipts
+      description: Upload a signed receipt/contract (via multipart/form-data).
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: epaymentid
+        schema:
+          type: integer
+        required: true
+        description: epaymentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the upload of the signed receipt was successful
+                      or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidReceiptsEpaymentidSigned
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - attachmentcontents
+              properties:
+                attachmentcontents:
+                  type: string
+                  description: The PDF of the signed receipt. This implies that this
+                    is a multipart/form-data content type. This does NOT work correctly
+                    in I/O Docs. The filename itself is not used by athenaNet.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Receipts
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

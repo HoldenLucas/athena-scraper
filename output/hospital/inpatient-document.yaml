@@ -1,0 +1,914 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/inpatient/document/clinical:
+    get:
+      summary: Get a list of specific inpatient's clinical document
+      description: 'BETA: Retrieves a list of clinical document information of a specific
+        inpatient'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - Administer
+          - Closed
+          - Dataentry
+          - Deleted
+          - Dispense
+          - Followup
+          - Hold
+          - Notify
+          - Pend
+          - Pending
+          - Pendinglabel
+          - Perform
+          - Review
+          - Schedule
+          - Scheduled
+          - Submit
+          - Submitted
+        required: false
+        description: Status of the document.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department id associated with the document.
+      - in: query
+        name: stayid
+        schema:
+          type: integer
+        required: false
+        description: The stay ID. If this field is used, the departmentid must also
+          match one of the departments returned in GET /stays/{stayid}.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: THe patient's ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  actionnote:
+                    description: The most recent action note for a document
+                    type: string
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  clinicaldocumentid:
+                    description: The primary key for inpatient clinical class of documents
+                    type: integer
+                  clinicalproviderid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country. These include providers as well as radiology
+                      centers, labs and pharmacies.
+                    type: integer
+                  createddate:
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                    type: string
+                  createduser:
+                    description: The user who created this document.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  description:
+                    description: Description of the document type
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdata:
+                    description: Text data associated with this document.
+                    type: string
+                  documentlabelid:
+                    description: A specific document type identifier.
+                    type: integer
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    type: string
+                  documenttypeid:
+                    description: The ID of the description for this document
+                    type: integer
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient
+                    type: string
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  lastmodifieddate:
+                    description: Date the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this lab result document.
+                    type: string
+                  observationdatetime:
+                    description: Date/time the observation was taken
+                    type: string
+                  pages:
+                    description: An array of image pages associated with this admin
+                      document.
+                    items:
+                      properties:
+                        contenttype:
+                          description: The content-type that will be returned by the
+                            page image call.
+                          type: string
+                        href:
+                          description: The URL to get the document image.
+                          type: string
+                        pageid:
+                          description: The ID to use in a call to get the page image.
+                          type: string
+                        pageordering:
+                          description: Within this list of pages, the ordering (starting
+                            with 1).
+                          type: string
+                      type: object
+                    type: array
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  status:
+                    description: Status of the document
+                    type: string
+                  stayid:
+                    description: Stay ID
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInpatientDocumentClinical
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Documents
+    post:
+      summary: Add clinical document to inpatient's chart
+      description: 'BETA: Creates a clinical document record of a specific patient
+        in the hospital'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  clinicaldocumentid:
+                    description: The ID of the posted clinical document
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidInpatientDocumentClinical
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - patientid
+              - attachmentcontents
+              - stayid
+              properties:
+                caseid:
+                  type: integer
+                  description: Surgical case to which the document will be attached.
+                    It's required when posting documents related to surgery like (
+                    Intraop Record, Postop Record, Block Record, Handoff Record, Presurgical
+                    Evaluation, Line Record ).
+                stayid:
+                  type: integer
+                  description: The stay ID associated with the document.
+                patientid:
+                  type: integer
+                  description: The patient ID.
+                departmentid:
+                  type: integer
+                  description: The department id associated with the document.
+                documentlabelid:
+                  type: integer
+                  description: The type of document being uploaded (this is the label
+                    that will be displayed to the user). Use GET /inpatient/configuration/documentlabels
+                    to search for valid IDs.
+                attachmentcontents:
+                  type: string
+                  description: The file that will become the document. Currently only
+                    a base 64 encoded pdf is supported.
+                observationdatetime:
+                  type: string
+                  description: If this document is tied to a clinical event it is
+                    the date the event occurred. Please use the format YYYY-M-DThh:mi:ss
+        required: true
+      tags:
+      - Inpatient
+      - Inpatient Documents
+  /v1/{practiceid}/inpatient/document/clinical/{clinicaldocumentid}:
+    get:
+      summary: Get specific clinical document by ID
+      description: 'BETA: Retrieves a specific clinical document information'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: clinicaldocumentid
+        schema:
+          type: integer
+        required: true
+        description: clinicaldocumentid
+      - in: query
+        name: pageids
+        schema:
+          type: string
+        required: false
+        description: Returns only the corresponding pages from the document (Ignores
+          invalid pageids).
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  actionnote:
+                    description: The most recent action note for a document
+                    type: string
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  clinicaldocumentid:
+                    description: The primary key for inpatient clinical class of documents
+                    type: integer
+                  clinicalproviderid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country. These include providers as well as radiology
+                      centers, labs and pharmacies.
+                    type: integer
+                  createddate:
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                    type: string
+                  createduser:
+                    description: The user who created this document.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  description:
+                    description: Description of the document type
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdata:
+                    description: Text data associated with this document.
+                    type: string
+                  documentlabelid:
+                    description: A specific document type identifier.
+                    type: integer
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    type: string
+                  documenttypeid:
+                    description: The ID of the description for this document
+                    type: integer
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient
+                    type: string
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  lastmodifieddate:
+                    description: Date the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this lab result document.
+                    type: string
+                  observationdatetime:
+                    description: Date/time the observation was taken
+                    type: string
+                  pages:
+                    description: An array of image pages associated with this admin
+                      document.
+                    items:
+                      properties:
+                        contenttype:
+                          description: The content-type that will be returned by the
+                            page image call.
+                          type: string
+                        href:
+                          description: The URL to get the document image.
+                          type: string
+                        pageid:
+                          description: The ID to use in a call to get the page image.
+                          type: string
+                        pageordering:
+                          description: Within this list of pages, the ordering (starting
+                            with 1).
+                          type: string
+                      type: object
+                    type: array
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  status:
+                    description: Status of the document
+                    type: string
+                  stayid:
+                    description: Stay ID
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInpatientDocumentClinicalClinicaldocumentid
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Documents
+  /v1/{practiceid}/inpatient/document/admin:
+    get:
+      summary: Get a list of specific inpatient's admin documents
+      description: 'BETA: Retrieves a list of administrative document.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - Administer
+          - Closed
+          - Dataentry
+          - Deleted
+          - Dispense
+          - Followup
+          - Hold
+          - Notify
+          - Pend
+          - Pending
+          - Pendinglabel
+          - Perform
+          - Review
+          - Schedule
+          - Scheduled
+          - Submit
+          - Submitted
+        required: false
+        description: Status of the document
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department id associated with the document.
+      - in: query
+        name: stayid
+        schema:
+          type: integer
+        required: false
+        description: The stay ID. If this field is used, the departmentid must also
+          match one of the departments returned in GET /stays/{stayid}.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: The patient ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  actionnote:
+                    description: The most recent action note for a document
+                    type: string
+                  admindocumentid:
+                    description: The primary key for inpatient administrative class
+                      of documents
+                    type: integer
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  clinicalproviderid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country. These include providers as well as radiology
+                      centers, labs and pharmacies.
+                    type: integer
+                  createddate:
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                    type: string
+                  createduser:
+                    description: The user who created this document.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  description:
+                    description: Description of the document type
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdata:
+                    description: Text data associated with this document.
+                    type: string
+                  documentlabelid:
+                    description: A specific document type identifier.
+                    type: integer
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    type: string
+                  documenttypeid:
+                    description: The ID of the description for this document
+                    type: integer
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient
+                    type: string
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  lastmodifieddate:
+                    description: Date the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this lab result document.
+                    type: string
+                  observationdatetime:
+                    description: Date/time the observation was taken
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  status:
+                    description: Status of the document
+                    type: string
+                  stayid:
+                    description: Stay ID
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInpatientDocumentAdmin
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Documents
+    post:
+      summary: Add inpatient's admin document
+      description: 'BETA: Creates a admin document record of a specific patient in
+        the hospital'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admindocumentid:
+                    description: The ID of the posted admin document
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidInpatientDocumentAdmin
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - attachmentcontents
+              - patientid
+              properties:
+                stayid:
+                  type: integer
+                  description: The stay ID associated with the document.
+                patientid:
+                  type: integer
+                  description: The patient ID.
+                departmentid:
+                  type: integer
+                  description: The department id associated with the document.
+                documentlabelid:
+                  type: integer
+                  description: The type of document being uploaded (this is the label
+                    that will be displayed to the user). Use GET /inpatient/configuration/documentlabels
+                    to search for valid IDs.
+                attachmentcontents:
+                  type: string
+                  description: The file that will become the document. Currently only
+                    a base 64 encoded pdf is supported.
+                observationdatetime:
+                  type: string
+                  description: If this document is tied to a clinical event it is
+                    the date the event occurred. Please use the format YYYY-M-DThh:mi:ss
+        required: true
+      tags:
+      - Inpatient
+      - Inpatient Documents
+  /v1/{practiceid}/inpatient/document/admin/{admindocumentid}:
+    get:
+      summary: Get specific admin document of an inpatient
+      description: 'BETA: Retrieves a specific administrative document.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: admindocumentid
+        schema:
+          type: integer
+        required: true
+        description: admindocumentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  actionnote:
+                    description: The most recent action note for a document
+                    type: string
+                  admindocumentid:
+                    description: The primary key for inpatient administrative class
+                      of documents
+                    type: integer
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  clinicalproviderid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country. These include providers as well as radiology
+                      centers, labs and pharmacies.
+                    type: integer
+                  createddate:
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                    type: string
+                  createduser:
+                    description: The user who created this document.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  description:
+                    description: Description of the document type
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdata:
+                    description: Text data associated with this document.
+                    type: string
+                  documentlabelid:
+                    description: A specific document type identifier.
+                    type: integer
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    type: string
+                  documenttypeid:
+                    description: The ID of the description for this document
+                    type: integer
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient
+                    type: string
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  lastmodifieddate:
+                    description: Date the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this lab result document.
+                    type: string
+                  observationdatetime:
+                    description: Date/time the observation was taken
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  status:
+                    description: Status of the document
+                    type: string
+                  stayid:
+                    description: Stay ID
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInpatientDocumentAdminAdmindocumentid
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Documents
+  /v1/{practiceid}/inpatient/configuration/documentlabels:
+    get:
+      summary: Get reference list of document labels for inpatient documents
+      description: 'BETA: Retrieve the configured list of document labels that can
+        be attached to unpatient documents.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: documentclass
+        schema:
+          enum:
+          - INPTADMIN
+          - INPTCLINICALDOCUMENT
+          type: string
+          x-enumDescriptions:
+          - Inpatient Admin
+          - Inpatient Clinical Document
+        required: true
+        description: The document class to get the label for.
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: Search by the name of the document label, at least 3 characters
+          are required.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentlabelid:
+                    description: The ID of the document label.
+                    type: integer
+                  name:
+                    description: The name of the document label.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInpatientConfigurationDocumentlabels
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Document Labels
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

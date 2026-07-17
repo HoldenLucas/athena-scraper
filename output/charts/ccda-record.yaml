@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/ccda/{patientid}/ccdaexport:
+    get:
+      summary: Retrieve CCDA document
+      description: Retrieve CCDA document for specific patient and chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: inpatient
+        schema:
+          type: boolean
+        required: true
+        description: Inpatient or ambulatory
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: Department ID.
+      - in: query
+        name: chartsharinggroupid
+        schema:
+          type: integer
+        required: false
+        description: CHARTSHARING GROUP ID.
+      - in: query
+        name: encounterid
+        schema:
+          type: integer
+        required: false
+        description: Encounter ID is a required parameter to generate CCD and DischargeSummary
+          documents.
+      - in: query
+        name: documenttype
+        schema:
+          type: string
+        required: true
+        description: Valid types are DataPortability, ReferralNote, CarePlan, DischargeSummary,
+          and CCD.
+      - in: query
+        name: enterpriseid
+        schema:
+          type: integer
+        required: false
+        description: ENTERPRISE ID.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: 'End date for filtering results within a specific time period.
+          Only for DataPortability document. Example: enddate=2014-01-01T00:00:00'
+      - in: query
+        name: version
+        schema:
+          enum:
+          - MU3
+          - USCDI
+          - USCDIV3
+          type: string
+          x-enumDescriptions:
+          - MU3
+          - USCDI
+          - USCDIV3
+        required: false
+        description: version MU3/USCDI/USCDIV3. Enable LD toggle "PSCCDA_4661_HTI1_ENABLE_USCDI_V3"
+          to generate USCDIV3.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: 'Start date for filtering results within a specific time period.
+          Only for DataPortability document. Example: startdate=2013-01-01T00:00:00'
+      - in: query
+        name: documentid
+        schema:
+          type: integer
+        required: false
+        description: Document ID.
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  document:
+                    description: CCDA XML text
+                    type: string
+                  message:
+                    description: Potential error condition or blank if none
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidCcdaPatientidCcdaexport
+      x-scopes: []
+      tags:
+      - Chart
+      - Dataportability CCDA document
+  /v1/{practiceid}/patients/{patientid}/ccda:
+    put:
+      summary: Update patient's CCDA record
+      description: Modifies CCDA document for specific patient and chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: The error messages, if any. This field is an array
+                      of errors.
+                    items:
+                      type: string
+                    type: array
+                  success:
+                    description: Flag that represents if the call was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidCcda
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - ccda
+              properties:
+                ccda:
+                  type: string
+                  description: The CCDA in XML format.
+                departmentid:
+                  type: integer
+                  description: The department ID from which to retrieve the patient's
+                    chart.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+        required: true
+      tags:
+      - Chart
+      - CCDA Access
+    get:
+      summary: Get patient's CCDA record
+      description: Retrieves CCDA document for specific patient and chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department from which to retrieve the patient's chart.
+      - in: query
+        name: purpose
+        schema:
+          enum:
+          - internal
+          type: string
+          x-enumDescriptions:
+          - Internal to Practice
+        required: true
+        description: The purpose of this request. The sections returned and required
+          patient consent will depend on the purpose. For now we will only support
+          'internal', which means it's being requested on behalf of the practice.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: For date filterable items, exclude data after this datetime.
+          Format is MM/DD/YYYY HH24:MM:SS.
+      - in: query
+        name: xmloutput
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, use XML (not JSON) as output.  Not needed if
+          an Accept header with application/xml header is included in the request.
+          If set to false, it will return the CCDA format (XML) wrapped in a JSON
+          response.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: For date filterable items, exclude data before this datetime.
+          Format is MM/DD/YYYY HH24:MM:SS.
+      - in: query
+        name: format
+        schema:
+          enum:
+          - ambulatory summary
+          - data portability
+          type: string
+          x-enumDescriptions:
+          - Ambulatory Summary
+          - Data Portability
+        required: false
+        description: There are two subtly different standards for the Transition of
+          Care Ambulatory Summary -- A referral summary (called ambulatory summary
+          here) and a data portability document. They contain the same data, but may
+          have slightly different attributes. For backwards compatibility reasons,
+          we allow both for ambulatory practices. For inpatient practices, this parameter
+          is ignored and only the data portability format is used. In the future,
+          both inpatient and ambulatory will use the data portability format by default.
+          Currently, ambulatory summary is the default for ambulatory settings, but
+          that will switch to data portability in the future, and eventually the ambulatory
+          summary format will be removed, along with this parameter. Also, only with
+          this parameter set to data portability can the startdate and enddate parameters
+          be accepted.
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ccda:
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidCcda
+      x-scopes: []
+      tags:
+      - Chart
+      - CCDA Access
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

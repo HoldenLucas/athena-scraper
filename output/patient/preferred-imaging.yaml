@@ -1,0 +1,224 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/imaging/preferred:
+    get:
+      summary: Get patient's preferred imaging service
+      description: Retrieve preferred imaging facility for a specific patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptfax:
+                    description: The flag representing if the imaging facility accepts
+                      faxes
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  address1:
+                    description: The address line 1 of the imaging facility.
+                    type: string
+                  address2:
+                    description: The address line 2 of the imaging facility.
+                    type: string
+                  city:
+                    description: The city of the imaging facility.
+                    type: string
+                  clinicalproviderid:
+                    description: The athenaNet clinical provider ID.
+                    type: integer
+                  clinicalprovidername:
+                    description: The imaging facility name.
+                    type: string
+                  faxnumber:
+                    description: The fax number of the imaging facility.
+                    type: string
+                  phonenumber:
+                    description: The phone number of the imaging facility.
+                    type: string
+                  state:
+                    description: The state of the imaging facility.
+                    type: string
+                  zip:
+                    description: The zip code of the imaging facility.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidImagingPreferred
+      x-scopes: []
+      tags:
+      - Chart
+      - Preferred Imaging
+    put:
+      summary: Update patient's preferred imaging service
+      description: Modifies preferred imaging facility for a specific patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidImagingPreferred
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - clinicalproviderid
+              - departmentid
+              properties:
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+                clinicalproviderid:
+                  type: integer
+                  description: The clinical provider ID that you wish to add.
+        required: true
+      tags:
+      - Chart
+      - Preferred Imaging
+    delete:
+      summary: Delete patient's preferred imaging service
+      description: Deletes the preferred imaging facility for a specific patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: clinicalproviderid
+        schema:
+          type: integer
+        required: true
+        description: The clinical provider ID that you wish to add.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidImagingPreferred
+      x-scopes: []
+      tags:
+      - Chart
+      - Preferred Imaging
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

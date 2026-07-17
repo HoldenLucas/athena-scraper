@@ -1,0 +1,225 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/labs/default:
+    get:
+      summary: Get patient's default lab information
+      description: Retrieve preferred laboratory information for a specific patient
+        chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptfax:
+                    description: Flag representing if the lab accepts fax
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  address1:
+                    description: Address line 1 of the lab
+                    type: string
+                  address2:
+                    description: Address line 2 of the lab
+                    type: string
+                  city:
+                    description: City of the lab
+                    type: string
+                  clinicalproviderid:
+                    description: The athenaNet clinical provider ID.
+                    type: integer
+                  clinicalprovidername:
+                    description: The lab name
+                    type: string
+                  faxnumber:
+                    description: Fax number of the lab
+                    type: string
+                  phonenumber:
+                    description: Phone number of the lab
+                    type: string
+                  state:
+                    description: State of the lab
+                    type: string
+                  zip:
+                    description: Zip code of the lab
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidLabsDefault
+      x-scopes: []
+      tags:
+      - Chart
+      - Default Labs
+    put:
+      summary: Update patient's default lab information
+      description: Modifies preferred laboratory for a specific patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidLabsDefault
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - clinicalproviderid
+              - departmentid
+              properties:
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+                clinicalproviderid:
+                  type: integer
+                  description: The clinical provider ID that you wish to add.
+        required: true
+      tags:
+      - Chart
+      - Default Labs
+    delete:
+      summary: Delete patient's default lab information
+      description: Deletes the preferred laboratory facility for a specific patient
+        chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: clinicalproviderid
+        schema:
+          type: integer
+        required: true
+        description: The clinical provider ID that you wish to add.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidLabsDefault
+      x-scopes: []
+      tags:
+      - Chart
+      - Default Labs
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

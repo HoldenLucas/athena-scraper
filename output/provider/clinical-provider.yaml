@@ -1,0 +1,331 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/clinicalproviders/{clinicalproviderid}:
+    get:
+      summary: Get information on given clinical provider
+      description: Retrieves details of a specific clinical provider
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: clinicalproviderid
+        schema:
+          type: integer
+        required: true
+        description: clinicalproviderid
+      - in: query
+        name: shownpi
+        schema:
+          type: integer
+        required: false
+        description: Include NPI in output.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, a deleted clinical provider is not returned.  Set
+          to return if deleted.
+      - in: query
+        name: showfederalidnumber
+        schema:
+          type: integer
+        required: false
+        description: Include federal ID number in output.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address of the clinical provider on file.
+                    type: string
+                  city:
+                    description: The city of the clinical provder on file.
+                    type: string
+                  clianumber:
+                    description: The CLIA number of the clinical provider on file.
+                    type: string
+                  clinicalproviderid:
+                    description: The clinical provider ID.
+                    type: integer
+                  deleted:
+                    description: The deleted state of the clinical provider.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  fax:
+                    description: The fax phone number of the clinical provider on
+                      file.
+                    type: string
+                  federalidnumber:
+                    description: The federal ID number of the clinical provider on
+                      file.
+                    type: string
+                  firstname:
+                    description: First name of the clinical provider.
+                    type: string
+                  hascompendium:
+                    description: This flag shows whether a clinical provider has any
+                      associated orders types available for placing orders.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  lastname:
+                    description: Last name of the clinical provider.
+                    type: string
+                  name:
+                    description: The name of the clinical provider
+                    type: string
+                  npi:
+                    description: The NPI of the clinical provider on file.
+                    type: string
+                  phone:
+                    description: The phone number of the clinical provider on file.
+                    type: string
+                  state:
+                    description: The state of the clinical provider on file.
+                    type: string
+                  zip:
+                    description: The zip code of the clinical provider on file.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClinicalprovidersClinicalproviderid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Clinical Providers
+  /v1/{practiceid}/clinicalproviders/search:
+    get:
+      summary: Get list of clinical providers - matching given criteria
+      description: Retrieves a list of Clinical providers based on the search criteria
+        provided
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: lastname
+        schema:
+          type: string
+        required: false
+        description: Last name of the clinical provider. First name is also required
+          if this field is passed. Last name must match exactly.
+      - in: query
+        name: firstname
+        schema:
+          type: string
+        required: false
+        description: First name of the clinical provider. Last name is also required
+          if this field is passed. First name must match exactly.
+      - in: query
+        name: zip
+        schema:
+          type: integer
+        required: false
+        description: The zip code of the clinical provider on file. Required if DISTANCE
+          is provided.
+      - in: query
+        name: phone
+        schema:
+          type: string
+        required: false
+        description: The phone number of the clinical provider on file.
+      - in: query
+        name: clinicalprovidernpi
+        schema:
+          type: integer
+        required: false
+        description: The NPI ID of the provider, if applicable.
+      - in: query
+        name: ordertype
+        schema:
+          enum:
+          - DME
+          - IMAGING
+          - LAB
+          - OTHER
+          - PRESCRIPTION
+          - PROCEDURE
+          - SURGERY
+          - VACCINE
+          - CONSULT
+          - GLASSES
+          - CONTACTLENSES
+          type: string
+          x-enumDescriptions:
+          - Durable Medical Equipment (DME)
+          - Imaging center
+          - Laboratory
+          - Other
+          - Pharmacy
+          - Facility for procedures
+          - Surgical facility
+          - Pharmacy for prescribed vaccines
+          - Consult
+          - Glasses
+          - Contact Lenses
+        required: false
+        description: The type of facility to search for.
+      - in: query
+        name: state
+        schema:
+          type: string
+        required: false
+        description: The state of the clinical provider on file. This should only
+          be the two letter state abbreviation. CITY is also required if this field
+          is passed and ZIP is not specified.
+      - in: query
+        name: name
+        schema:
+          type: string
+        required: false
+        description: Name of the provider. This field should be used for non-person
+          entities.
+      - in: query
+        name: distance
+        schema:
+          type: integer
+        required: false
+        description: The distance in miles to filter results by.
+      - in: query
+        name: fax
+        schema:
+          type: string
+        required: false
+        description: The fax phone number of the clinical provider on file.
+      - in: query
+        name: address
+        schema:
+          type: string
+        required: false
+        description: The address of the clinical provider on file. This should only
+          be the street address and not include city/state/zip. This field must also
+          have a minimum of three non-whitespace characters.
+      - in: query
+        name: city
+        schema:
+          type: string
+        required: false
+        description: The city of the clinical provider on file. STATE is also required
+          if this field is passed and ZIP is not specified.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address of the clinical provider on file.
+                    type: string
+                  city:
+                    description: The city of the clinical provder on file.
+                    type: string
+                  clinicalproviderid:
+                    description: The clinical provider ID.
+                    type: string
+                  clinicalprovidernpi:
+                    description: The NPI ID of the provider, if applicable.
+                    type: integer
+                  distance:
+                    description: How far the provider is from the given zip code in
+                      miles.
+                    type: string
+                  fax:
+                    description: The fax phone number of the clinical provider on
+                      file.
+                    type: string
+                  firstname:
+                    description: First name of the clinical provider.
+                    type: string
+                  lastname:
+                    description: Last name of the clinical provider.
+                    type: string
+                  name:
+                    description: The name of the clinical provider
+                    type: string
+                  ncpdpid:
+                    description: The NCPDP ID of the given facility, if applicable.
+                    type: integer
+                  pharmacytype:
+                    description: For pharmacies, whether this is a RETAIL or MAILORDER
+                      pharmacy.
+                    type: string
+                  phone:
+                    description: The phone number of the clinical provider on file.
+                    type: string
+                  state:
+                    description: The state of the clinical provider on file.
+                    type: string
+                  zip:
+                    description: The zip code of the clinical provider on file.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClinicalprovidersSearch
+      x-scopes: []
+      tags:
+      - Administrative
+      - Clinical Providers
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

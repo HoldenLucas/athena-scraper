@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/accidentdata:
+    get:
+      summary: Get appointment accident data
+      description: Retrieves the data for a specific appointment caused due to an
+        accident
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  anotherpartyresponsible:
+                    description: A boolean field describing whether this appointment
+                      is created because of an accident caused by another party.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  appointmentid:
+                    description: The athenaNet appointment ID.
+                    type: integer
+                  autoaccidentstate:
+                    description: The two letter state abbreviation. This field is
+                      only valid if the relatedtoautoaccident field is set (or is
+                      being set) to true.
+                    type: string
+                  relatedtoautoaccident:
+                    description: A boolean field describing whether this appointment
+                      is created because of an automobile accident.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  relatedtoemployment:
+                    description: A boolean field describing whether this appointment
+                      is created because of an accident related to the patient's employment.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  relatedtootheraccident:
+                    description: A boolean field describing whether this appointment
+                      is created because of an accident other than those listed above.
+                      This is mutually exclusive with the automobile accident field.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidAccidentdata
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Accident Data
+    put:
+      summary: Update appointment accident data
+      description: Modifies the data for a specific appointment caused due to an accident
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidAccidentdata
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                autoaccidentstate:
+                  type: string
+                  description: The two letter state abbreviation. This field is only
+                    valid if the relatedtoautoaccident field is set (or is being set)
+                    to true. If this field is set and relatedtoautoaccident is subsequently
+                    set to false, this field will be cleared.
+                relatedtoemployment:
+                  type: boolean
+                  description: A boolean field describing whether this appointment
+                    is created because of an accident related to the patient's employment.
+                relatedtoautoaccident:
+                  type: boolean
+                  description: A boolean field describing whether this appointment
+                    is created because of an automobile accident. Mutually exclusive
+                    with the relatedtootheraccident field.
+                relatedtootheraccident:
+                  type: boolean
+                  description: A boolean field describing whether this appointment
+                    is created because of an accident other than those listed above.
+                    This is mutually exclusive with the automobile accident field.
+                anotherpartyresponsible:
+                  type: boolean
+                  description: A boolean field describing whether this appointment
+                    is created because of an accident caused by another party.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Accident Data
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

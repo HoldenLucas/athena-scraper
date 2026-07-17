@@ -1,0 +1,229 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/privacyinformationverified:
+    get:
+      summary: Get patient's privacy information verification details
+      description: Retrieves a patient's verified privacy information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The ID of the department where the privacy information was verified.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  checkboxesconfigured:
+                    description: The number of checkboxes the practice has configured.
+                    type: integer
+                  insuredsignature:
+                    properties:
+                      insuredsignatureeffectivedate:
+                        description: Date the assignment of benefits check takes effect
+                        type: string
+                      insuredsignatureexpirationdate:
+                        description: Date the assignment of benefits check expires
+                        type: string
+                      isinsuredsignatureonfile:
+                        description: Flag that indicates whether or not the assignment
+                          of benefits check is set. This is set to false if it is
+                          expired.
+                        enum:
+                        - ''
+                        - false
+                        - true
+                        type: string
+                    type: object
+                  patientsignature:
+                    properties:
+                      ispatientsignatureonfile:
+                        description: Flag that indicates whether or not the release
+                          of billing information check is set. This is set to false
+                          if it is expired.
+                        enum:
+                        - ''
+                        - false
+                        - true
+                        type: string
+                      patientsignatureeffectivedate:
+                        description: Date the release of billing information check
+                          takes effect
+                        type: string
+                      patientsignatureexpirationdate:
+                        description: Date the release of billing information check
+                          expires
+                        type: string
+                    type: object
+                  privacynotice:
+                    properties:
+                      isprivacynoticeonfile:
+                        description: Flag that indicates whether or not the privacy
+                          notice check is set. This is set to false if it is expired.
+                        enum:
+                        - ''
+                        - false
+                        - true
+                        type: string
+                      privacynoticegivendate:
+                        description: Date the privacy notice was given
+                        type: string
+                      privacynoticenotgivennote:
+                        description: Note for not giving privacy notice
+                        type: string
+                      privacynoticenotgivenreason:
+                        description: Reason for not giving privacy notice
+                        type: string
+                    type: object
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPrivacyinformationverified
+      x-scopes: []
+      tags:
+      - Patients
+      - Verify Privacy Information
+    post:
+      summary: Update patient's privacy information verification details
+      description: Modifies a patient's verified privacy information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientid:
+                    description: The athena ID of the patient whose privacy information
+                      was verified.
+                    type: integer
+                  success:
+                    description: Returns true/false if the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidPrivacyinformationverified
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - signaturedatetime
+              - departmentid
+              - signaturename
+              properties:
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the privacy information
+                    was verified.
+                privacynotice:
+                  type: boolean
+                  description: If set, this flag sets the Privacy Notice privacy checkbox.
+                signaturename:
+                  type: string
+                  description: If presenting an e-siganture, the name the signer typed,
+                    up to 100 characters.
+                expirationdate:
+                  type: string
+                  description: The date this approval expires (for release of billing
+                    information and assignment of benefits).
+                insuredsignature:
+                  type: boolean
+                  description: If set, this flag sets the Assignment of Benefits privacy
+                    checkbox.
+                patientsignature:
+                  type: boolean
+                  description: If set, this flag sets the Release of Billing Information
+                    privacy checkbox.
+                signaturedatetime:
+                  type: string
+                  description: If presenting an e-signature, the mm/dd/yyyy hh24:mi:ss
+                    formatted time that the signer signed. This is required if a signature
+                    name is provided.
+                reasonpatientunabletosign:
+                  type: string
+                  description: If the patient is unable to sign a reason why.
+                signerrelationshiptopatientid:
+                  type: string
+                  description: If presenting an e-signature, and the signer is signing
+                    on behalf of someone else, the relationship of the patient to
+                    the signer. There is a documentation page with details.
+        required: true
+      tags:
+      - Patients
+      - Verify Privacy Information
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

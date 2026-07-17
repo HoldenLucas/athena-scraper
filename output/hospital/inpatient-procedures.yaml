@@ -1,0 +1,179 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/procedures/performed:
+    get:
+      summary: Get list of procedures performed for a patient stay
+      description: Retrieves a list of procedures performed on a patient during the
+        specific stay in the hospital.
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    description: The code value identifying the performed procedure.
+                    type: string
+                  codesystem:
+                    description: The code system that the procedure code belongs to
+                    type: string
+                  encounterid:
+                    description: The athena identifier for the encounter
+                    type: integer
+                  name:
+                    description: The athena description of the performed procedure.
+                    type: string
+                  note:
+                    description: The note for performed procedure.
+                    type: string
+                  performeddatetime:
+                    description: Procedure performed start date and time in iso8601
+                      format
+                    type: string
+                  procedureid:
+                    description: The athena identifier for the performed procedure
+                    type: integer
+                  scheduledenddatetime:
+                    description: Procedure performed end date and time in iso8601
+                      format
+                    type: string
+                  side:
+                    description: The performed procedure side
+                    type: string
+                  site:
+                    description: The performed procedure site
+                    type: string
+                  status:
+                    description: The status of the procedure.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidProceduresPerformed
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Procedures
+  /v1/{practiceid}/stays/{stayid}/procedures/planned:
+    get:
+      summary: Get list of planned procedures for a patient stay.
+      description: Retrieves a list of planned procedures for a specific patient stay
+        in the hospital
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    description: The code value identifying the planned procedure.
+                    type: string
+                  name:
+                    description: The athena description of the planned procedure.
+                    type: string
+                  procedureid:
+                    description: The athena identifier for the planned procedure
+                    type: integer
+                  scheduledenddatetime:
+                    description: Procedure planned end date and time in iso8601 format
+                    type: string
+                  scheduledstartdatetime:
+                    description: Procedure planned start date and time in iso8601
+                      format
+                    type: string
+                  status:
+                    description: The status of the procedure.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidProceduresPlanned
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Procedures
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

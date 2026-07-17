@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/ordergroups:
+    post:
+      summary: Create order groups for given patient
+      description: Creates an ordergroup for a specific patient chart outside an encounter
+        flow
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  encounterid:
+                    description: Encounter id.
+                    type: integer
+                  errormessage:
+                    description: Error message will be set if something goes wrong
+                      while creating the order group.
+                    type: string
+                  success:
+                    description: The value will be set to true if order group created
+                      successfully.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidOrdergroups
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                departmentid:
+                  type: integer
+                  description: The department to use for the order group.
+                patientcaseid:
+                  type: integer
+                  description: The ID of the patient case generating this new order
+                    group.
+                orderingproviderid:
+                  type: integer
+                  description: The ordering provider ID, if not given a random provider
+                    from that department will be used.
+        required: true
+      tags:
+      - Encounter
+      - Order Group
+  /v1/{practiceid}/configuration/ordersets:
+    get:
+      summary: Get list of ordersets for given user
+      description: Retrieves the list of ordersets
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: username
+        schema:
+          type: string
+        required: false
+        description: Username to find all available order sets for.  Will return all
+          order sets configured for this user as well as order sets configured for
+          all users.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Some order sets cannot be used during an encounter
+                      because some of the orders have become invalid.  If that is
+                      the case, an error message will be returned along with the order
+                      set name and ID.  If there is an error, a diagnoses array will
+                      not be returned.
+                  diagnoses:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        snomedcode:
+                          type: integer
+                          description: The SNOMED code of this diagnosis.
+                        orderrequests:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ordername:
+                                type: string
+                                description: Name of this order request.
+                              ordertypeid:
+                                type: string
+                                description: Order type ID of this order request.
+                              includedbydefault:
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                                description: Whether this item is included by default
+                                  when selecting this order set.
+                              clinicalproviderid:
+                                type: string
+                                description: ID of the clinical provider.
+                              clinicalprovidername:
+                                type: string
+                                description: Name of the clinical provider.
+                          description: An array of order requests for a diagnosis
+                            that are a part of this order set.
+                        snomedicd10code:
+                          type: string
+                          description: The first ICD10 code of this diagnosis.
+                        snomedicd10codes:
+                          type: array
+                          description: Array of the ICD10 codes associated with this
+                            diagnosis.
+                        includedbydefault:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: Whether this item is included by default when
+                            selecting this order set.
+                        diagnosisdescription:
+                          type: string
+                          description: Description of the diagnosis. If an IMO is
+                            associated with the diagnosis, will be be IMO description
+                            (or the concatenated IMO descriptions if more than one
+                            IMO term is associated with the diagnosis)
+                    description: An array of diagnosis objects attached to this order
+                      set.
+                  ordersetid:
+                    type: integer
+                    description: ID of the order set.
+                  ordersetname:
+                    type: string
+                    description: Name of the order set.  This is set by the practice/user.
+          description: Success
+      operationId: getPracticeidConfigurationOrdersets
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Sets
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

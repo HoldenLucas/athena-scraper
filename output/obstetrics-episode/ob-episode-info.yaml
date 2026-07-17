@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/obepisodeinfo:
+    put:
+      summary: Update OB Episode information
+      description: 'BETA: Modifies information about a patient''s specified OB episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if the put was successful, otherwise false.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidObepisodeinfo
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                rhtype:
+                  enum:
+                  - ''
+                  - Positive
+                  - Negative
+                  type: string
+                  description: Populated automatically from a lab result if the OB
+                    tab field was not already populated. If the Rh type is populated
+                    from a lab result, a link to that lab result appears in athenaNet.
+                    If the Rh type is updated directly, the link to the lab result
+                    disappears. Updates made directly do not affect the original lab
+                    result data. The Rh type on the lab result remains the same.
+                bloodtype:
+                  enum:
+                  - ''
+                  - A
+                  - B
+                  - AB
+                  - O
+                  type: string
+                  description: Populated automatically from a lab result if the OB
+                    tab field was not already populated. If the blood type is populated
+                    from a lab result, a link to that lab result appears in athenaNet.
+                    If the blood type is updated directly, the link to the lab result
+                    disappears. Updates made directly do not affect the original lab
+                    result data. The blood type on the lab result remains the same.
+                fathername:
+                  type: string
+                  description: Name of the child's father.
+                pediatrician:
+                  type: string
+                  description: The pediatrician can be entered predelivery. Only one
+                    pediatrician can be entered per OB episode (even if there is more
+                    than one fetus). After delivery, however, the field is available
+                    for each fetus, with the original pediatrician as the default.
+                numberoffetuses:
+                  enum:
+                  - ''
+                  - 1
+                  - 2
+                  - 3
+                  - 4
+                  - 5
+                  - 6
+                  - 7
+                  - 8
+                  type: integer
+                  description: 'Used to track multiple gestation pregnancies. If more
+                    than one fetus is present, additional columns are inserted into
+                    the flowsheet to track findings specific to each fetus: presentation,
+                    fetal heart rate, and fetal movement.'
+                fatherphonenumber:
+                  type: string
+                  description: The phone number of the child's father.
+                prepregnancyweightlbs:
+                  type: integer
+                  description: The patient's pre pregnancy weight (lbs)
+                husbanddomesticpartner:
+                  type: string
+                  description: Name of the patient's husband or domestic partner
+                husbanddomesticpartnerphonenumber:
+                  type: string
+                  description: The phone number of the patient's husband or domestic
+                    partner.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

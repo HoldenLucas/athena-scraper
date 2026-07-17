@@ -1,0 +1,3133 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/claim:
+    post:
+      summary: Create claim for an appointment
+      description: Create a new claim record for an appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  claimids:
+                    type: array
+                    items:
+                      type: integer
+                    description: If the operation succeeded, this will contain the
+                      IDs of any claims that were created.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidClaim
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                claimcharges:
+                  description: List of charges for this claim. This should be a JSON
+                    string representing an array of charge objects. A primary ICD-10
+                    code (e.g. ICD10CODE1) is required.  ICD-9 codes may also be passed,
+                    in the rare case that the payer for the claim still needs that
+                    information. The /feeschedules/checkprocedure call may be used
+                    to verify a particular PROCEDURECODE is valid for a practice before
+                    attempting claim creation.  Claims can only be created for appointments
+                    that do not already have a claim, are not already in status 4,
+                    and have already been checked in.
+                  items:
+                    properties:
+                      allowableamount:
+                        description: The total expected allowable amount for this
+                          charge.  If passed, will override the amount that would
+                          be calculated from the usual practice allowable schedule.
+                        type: number
+                      allowablemax:
+                        description: The total maximum allowable amount for this charge.  If
+                          passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule.
+                        type: number
+                      allowablemin:
+                        description: The total minimum allowable amount for this charge.  If
+                          passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule.
+                        type: number
+                      allowablescheduleid:
+                        description: The ID of the athenaNet allowable schedule to
+                          associated with this charge.  If passed, will override the
+                          usual practice allowable schedule.
+                        type: integer
+                      fromdate:
+                        description: 'A date string that corresponds with the first
+                          date of this charge. The date must be today or in the past
+                          and must be on or before the to date. Either all charges
+                          must have an explicit from date and to date, or no charges
+                          have any from dates or to dates. By default we will use
+                          the service date. This field is available starting 24.11
+                          release. Note: certain fields are not supported in conjunction
+                          with fromdate (allowableamount overrides, unitamount overrides,
+                          servicetypeaddons).'
+                        type: string
+                      icd10code1:
+                        description: Primary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code2:
+                        description: Secondary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code3:
+                        description: Tertiary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code4:
+                        description: Quaternary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd9code1:
+                        description: Primary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code2:
+                        description: Secondary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code3:
+                        description: Tertiary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code4:
+                        description: Quaternary ICD-9 diagnosis for this charge.
+                        type: string
+                      linenote:
+                        description: Optional line note for this charge.  Any value
+                          for this field will be truncated to 80 characters.
+                        type: string
+                      placeofserviceoverride:
+                        description: Override for the default Place of Service code
+                          for this charge. Value must be either 0 or exactly 2 characters
+                          long.
+                        type: string
+                      procedurecode:
+                        description: CPT code for this procedure, including any modifiers
+                          (e.g. 99213,26,59).
+                        type: string
+                      servicetypeaddons:
+                        description: Array of service type add-ons (STAOs) for the
+                          charge. Charge level STAOs only support multiple values
+                          for non-numeric fields. Passing in multiple values for a
+                          numeric charge level STAO field will result in the charge
+                          level STAOs not being saved at all, but the claim will be
+                          still be created.
+                        items:
+                          properties:
+                            fields:
+                              items:
+                                properties:
+                                  fieldname:
+                                    description: Service type add-on field name.
+                                    type: string
+                                  fieldvalues:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              type: array
+                            identifier:
+                              description: Service type add-on identifier.
+                              type: string
+                          type: object
+                        type: array
+                      todate:
+                        description: 'A date string that corresponds with the last
+                          date of this charge. The date must be today or in the past
+                          and must be on or after the from date. Either all charges
+                          must have an explicit from date and to date, or no charges
+                          have any from dates or to dates. By default we will use
+                          the service date. This field is available starting 24.11
+                          release. Note: certain fields are not supported in conjunction
+                          with todate (allowableamount overrides, unitamount overrides,
+                          servicetypeaddons).'
+                        type: string
+                      unitamount:
+                        description: The per-unit amount for this charge.  If passed,
+                          will overwrite the amount defined in the practice fee schedule.
+                        type: number
+                      units:
+                        description: The number of units to bill for this charge.  If
+                          not specified, defaults to 1.
+                        type: integer
+                    type: object
+                  required:
+                  - procedurecode
+                  type: array
+                servicetypeaddons:
+                  description: Array of service type add-ons (STAOs) for the claim.
+                    Some claim level STAO fields do not support multiple values. These
+                    fields will save only the first value if more than one is passed
+                    in.
+                  items:
+                    properties:
+                      fields:
+                        items:
+                          properties:
+                            fieldname:
+                              description: Service type add-on field name.
+                              type: string
+                            fieldvalues:
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        type: array
+                      identifier:
+                        description: Service type add-on identifier.
+                        type: string
+                    type: object
+                  type: array
+                supervisingproviderid:
+                  description: The supervising provider ID.  Defaults to the supervising
+                    provider of the appointment.
+                  type: integer
+              required:
+              - claimcharges
+              type: object
+        required: true
+      tags:
+      - Insurance/Financial
+      - Appointment Claims
+  /v1/{practiceid}/claims:
+    post:
+      summary: Create new financial claim
+      description: Create a new claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  claimids:
+                    type: array
+                    items:
+                      type: integer
+                    description: If the operation succeeded, this will contain the
+                      IDs of any claims that were created.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: postPracticeidClaims
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                claimcharges:
+                  description: List of charges for this claim. This should be a JSON
+                    string representing an array of charge objects. A primary ICD-10
+                    code (e.g. ICD10CODE1) is required.  ICD-9 codes may also be passed,
+                    in the rare case that the payer for the claim still needs that
+                    information. The /feeschedules/checkprocedure call may be used
+                    to verify a particular PROCEDURECODE is valid for a practice before
+                    attempting claim creation.
+                  items:
+                    properties:
+                      allowableamount:
+                        description: The total expected allowable amount for this
+                          charge.  If passed, will override the amount that would
+                          be calculated from the usual practice allowable schedule.
+                        type: number
+                      allowablemax:
+                        description: The total maximum allowable amount for this charge.  If
+                          passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule.
+                        type: number
+                      allowablemin:
+                        description: The total minimum allowable amount for this charge.  If
+                          passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule.
+                        type: number
+                      allowablescheduleid:
+                        description: The ID of the athenaNet allowable schedule to
+                          associated with this charge.  If passed, will override the
+                          usual practice allowable schedule.
+                        type: integer
+                      fromdate:
+                        description: 'A date string that corresponds with the first
+                          date of this charge. The date must be today or in the past
+                          and must be on or before the to date. Either all charges
+                          must have an explicit from date and to date, or no charges
+                          have any from dates or to dates. By default we will use
+                          the service date. This field is available starting 24.11
+                          release. Note: certain fields are not supported in conjunction
+                          with fromdate (allowableamount overrides, unitamount overrides,
+                          servicetypeaddons).'
+                        type: string
+                      icd10code1:
+                        description: Primary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code2:
+                        description: Secondary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code3:
+                        description: Tertiary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd10code4:
+                        description: Quaternary ICD-10 diagnosis for this charge.
+                        type: string
+                      icd9code1:
+                        description: Primary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code2:
+                        description: Secondary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code3:
+                        description: Tertiary ICD-9 diagnosis for this charge.
+                        type: string
+                      icd9code4:
+                        description: Quaternary ICD-9 diagnosis for this charge.
+                        type: string
+                      linenote:
+                        description: Optional line note for this charge.  Any value
+                          for this field will be truncated to 80 characters.
+                        type: string
+                      placeofserviceoverride:
+                        description: Override for the default Place of Service code
+                          for this charge. Value must be either 0 or exactly 2 characters
+                          long.
+                        type: string
+                      procedurecode:
+                        description: CPT code for this procedure, including any modifiers
+                          (e.g. 99213,26,59).
+                        type: string
+                      servicetypeaddons:
+                        description: Array of service type add-ons (STAOs) for the
+                          charge. Charge level STAOs only support multiple values
+                          for non-numeric fields. Passing in multiple values for a
+                          numeric charge level STAO field will result in the charge
+                          level STAOs not being saved at all, but the claim will be
+                          still be created.
+                        items:
+                          properties:
+                            fields:
+                              items:
+                                properties:
+                                  fieldname:
+                                    description: Service type add-on field name.
+                                    type: string
+                                  fieldvalues:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              type: array
+                            identifier:
+                              description: Service type add-on identifier.
+                              type: string
+                          type: object
+                        type: array
+                      todate:
+                        description: 'A date string that corresponds with the last
+                          date of this charge. The date must be today or in the past
+                          and must be on or after the from date. Either all charges
+                          must have an explicit from date and to date, or no charges
+                          have any from dates or to dates. By default we will use
+                          the service date. This field is available starting 24.11
+                          release. Note: certain fields are not supported in conjunction
+                          with todate (allowableamount overrides, unitamount overrides,
+                          servicetypeaddons).'
+                        type: string
+                      unitamount:
+                        description: The per-unit amount for this charge.  If passed,
+                          will overwrite the amount defined in the practice fee schedule.
+                        type: number
+                      units:
+                        description: The number of units to bill for this charge.  If
+                          not specified, defaults to 1.
+                        type: integer
+                    type: object
+                  required:
+                  - procedurecode
+                  type: array
+                customfields:
+                  description: A list of custom field JSON objects to populate on
+                    creation of a claim.
+                  items:
+                    properties:
+                      customfieldid:
+                        description: Claim custom field ID
+                        type: integer
+                      customfieldvalue:
+                        description: Claim custom field Value
+                        type: string
+                      optionid:
+                        description: Claim custom field Option ID
+                        type: integer
+                    type: object
+                  required:
+                  - customfieldid
+                  type: array
+                departmentid:
+                  description: The department ID.
+                  type: integer
+                orderingproviderid:
+                  description: The ordering provider ID. 'Ordering Provider' service
+                    type add-on must be enabled. Default is no ordering provider ID.
+                    Any entry in this field will override any ordering provider ID
+                    in the service type add-ons field.
+                  type: integer
+                patientid:
+                  description: The patient ID.
+                  type: integer
+                primarypatientinsuranceid:
+                  description: The athena primary patient insurance ID.  Defaults
+                    to the patient's active primary insurance.
+                  type: integer
+                referralauthid:
+                  description: The referral authorization ID.
+                  type: integer
+                referringproviderid:
+                  description: The referring provider id. Default is no referring
+                    provider ID.
+                  type: integer
+                renderingproviderid:
+                  description: The rendering provider ID.  Defaults to value passed
+                    for supervising provider ID.
+                  type: integer
+                reserved19:
+                  description: Text to include in the Reserved 19 field. Limited to
+                    48 characters. Default is an empty string.
+                  type: string
+                secondarypatientinsuranceid:
+                  description: The athena secondary patient insurance ID.  Defaults
+                    to the patient's active secondary insurance.
+                  type: integer
+                servicedate:
+                  description: A date string that corresponds with when the patient
+                    was seen. The date must be today or in the past. By default we
+                    will use today's date.
+                  type: string
+                servicetypeaddons:
+                  description: Array of service type add-ons (STAOs) for the claim.
+                    Some claim level STAO fields do not support multiple values. These
+                    fields will save only the first value if more than one is passed
+                    in.
+                  items:
+                    properties:
+                      fields:
+                        items:
+                          properties:
+                            fieldname:
+                              description: Service type add-on field name.
+                              type: string
+                            fieldvalues:
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        type: array
+                      identifier:
+                        description: Service type add-on identifier.
+                        type: string
+                    type: object
+                  type: array
+                supervisingproviderid:
+                  description: The supervising provider ID.
+                  type: integer
+              required:
+              - departmentid
+              - patientid
+              - claimcharges
+              - supervisingproviderid
+              type: object
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+    get:
+      summary: Get list of claim details
+      description: Retrieves a list of claims filtered by combination of date range,
+        appointmentID ProviderID, and DepartmentID
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: appointmentid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more appointment IDs.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID of the service department for the claims being
+          searched for.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: Will match either the provider or the supervising provider.
+      - in: query
+        name: claimfilters
+        schema:
+          type: array
+          items:
+            enum:
+            - OPEN
+            - INSURANCEBALANCE
+            - PATIENTBALANCE
+            type: string
+            x-enumDescriptions:
+            - Open
+            - InsuranceBalance
+            - PatientBalance
+        required: false
+        description: Array, pass one or more options to filter claims.
+      - in: query
+        name: servicedatesort
+        schema:
+          enum:
+          - ASC
+          - DESC
+          type: string
+          x-enumDescriptions:
+          - ASC
+          - DESC
+        required: false
+        description: sort for service date.
+      - in: query
+        name: payerid
+        schema:
+          type: integer
+        required: false
+        description: The Payer ID associated with the claims to search for
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: The patient ID associated with the claims to search for
+      - in: query
+        name: providerids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more provider IDs.
+      - in: query
+        name: showlocalpatientid
+        schema:
+          type: boolean
+        required: false
+        description: Include local patient ID for the claim if set to 1 in request.
+      - in: query
+        name: procedurecodes
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: One or more procedure codes
+      - in: query
+        name: servicestartdate
+        schema:
+          type: string
+        required: false
+        description: The service date, start of range, inclusive.
+      - in: query
+        name: createdenddate
+        schema:
+          type: string
+        required: false
+        description: The claim creation date, end of range, inclusive.
+      - in: query
+        name: createdstartdate
+        schema:
+          type: string
+        required: false
+        description: The claim creation date, start of range, inclusive.
+      - in: query
+        name: showsupervisingprovider
+        schema:
+          type: boolean
+        required: false
+        description: Include supervising provider ID and name for the claim.
+      - in: query
+        name: serviceenddate
+        schema:
+          type: string
+        required: false
+        description: The service date, end of range, inclusive.
+      - in: query
+        name: showcustomfields
+        schema:
+          type: boolean
+        required: false
+        description: Include custom fields for the claims.
+      - in: query
+        name: showservicetypeaddons
+        schema:
+          type: boolean
+        required: false
+        description: Include service type add-ons for the claim.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptassignmentyn1:
+                    description: Primary accepts assignment.
+                    type: string
+                  acceptassignmentyn2:
+                    description: Secondary accepts assignment.
+                    type: string
+                  appointmentid:
+                    description: The appointment ID associated with this claim.
+                    type: string
+                  billedproviderid:
+                    description: The provider ID of the billing provider for this
+                      claim.
+                    type: integer
+                  billedservicedate:
+                    description: The billed date of service.
+                    type: string
+                  chargeamount:
+                    description: The total amount billed for all services from this
+                      claim.
+                    type: string
+                  claimcreateddate:
+                    description: The date the claim was created.
+                    type: string
+                  claimid:
+                    description: athenaNet's internal ID for this claim, specific
+                      to the practice.
+                    type: string
+                  currentillnessdate:
+                    description: Current illness date.
+                    type: string
+                  customfields:
+                    description: 'The claim custom field values may or may not be
+                      the same between departments. '
+                    items:
+                      properties:
+                        customfieldid:
+                          description: Corresponds to the /customfields customfieldid.
+                          type: string
+                        customfieldvalue:
+                          description: For a non-select custom field, the value.
+                          type: string
+                        optionid:
+                          description: For a select custom field, the selectid value
+                            (from /customfield's selectlist).
+                          type: string
+                      type: object
+                    type: array
+                  departmentid:
+                    description: The department ID associated with this claim.
+                    type: integer
+                  diagnoses:
+                    description: '<p>Diagnoses is an array of all diagnoses.   Each
+                      entry in the array is a hash with several fields.  /ccda is
+                      a better clinical representation.  These fields are:</p>
+
+                      '
+                    properties:
+                      deleteddiagnosis:
+                        description: In certain cases, diagnoses may be added and
+                          then removed from a particular claim.  In normal circumstances,
+                          this will be false.  However, if a diagnosis was removed,
+                          this will be true.
+                        type: string
+                      diagnosiscategory:
+                        description: The category for this diagnosis.
+                        type: string
+                      diagnosiscodeset:
+                        description: Either ICD9 or ICD10.
+                        type: string
+                      diagnosisdescription:
+                        description: A description of this diagnosis.
+                        type: string
+                      diagnosisid:
+                        description: A unique ID related to this diagnosis.
+                        type: string
+                      diagnosisrawcode:
+                        description: The raw ICD-9 code.  This will migrate to ICD-10
+                          in the future.
+                        type: string
+                    type: object
+                  fromunabletoworkdate:
+                    description: Patient unable to work from date.
+                    type: string
+                  lastmodified:
+                    description: Last modified date.
+                    type: string
+                  lastmodifiedby:
+                    description: Last modified by user.
+                    type: string
+                  localpatientid:
+                    description: The local patient ID associated with this claim.
+                    type: integer
+                  medicaidresubmissioncode:
+                    description: Resubmission, Code.
+                    type: string
+                  medicaidresubmissionorigrefno:
+                    description: Resubmission Original Ref No.
+                    type: string
+                  medicaresecondaryqualifier:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      name.
+                    type: string
+                  medicaresecondaryqualifierid:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      Id.
+                    type: string
+                  patientid:
+                    description: The patient ID associated with this claim.
+                    type: integer
+                  patientpayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the patient.
+                    properties:
+                      balance:
+                        description: Outstanding balance from patient for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  primaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the primary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from primary insurance for
+                          this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      primaryinsurancepackageid:
+                        description: The primary insurance Package id associated with
+                          this claim.
+                        type: integer
+                      primarypatientinsuranceid:
+                        description: The primary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  procedures:
+                    description: '<p>Procedures is an array of all procedures.  /ccda
+                      is a better clinical representation.   These fields are:</p>
+
+                      '
+                    properties:
+                      allowableamount:
+                        description: The total amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemax:
+                        description: The maximum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemin:
+                        description: The minimum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      chargeamount:
+                        description: The amount charged for this procedure.
+                        type: string
+                      procedurecategory:
+                        description: The category name associated with this procedure.
+                        type: string
+                      procedurecode:
+                        description: The CPT code associated with this procedure.
+                        type: string
+                      proceduredescription:
+                        description: A description of this procedure.
+                        type: string
+                      servicetypeaddons:
+                        description: Array of service type add-ons (STAOs) for the
+                          charge.
+                        items:
+                          properties:
+                            fields:
+                              items:
+                                properties:
+                                  fieldname:
+                                    description: Service type add-on field name.
+                                    type: string
+                                  fieldvalues:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              type: array
+                            identifier:
+                              description: Service type add-on identifier.
+                              type: string
+                          type: object
+                        type: array
+                      transactionid:
+                        description: The ID of the last transaction associated with
+                          the claim.
+                        type: string
+                    type: object
+                  referralauthid:
+                    description: The referral authorization ID for this claim.
+                    type: integer
+                  referringproviderid:
+                    description: The referring provider ID for this claim.  See /referringproviders.  This
+                      is not the same as the ID from the /providers call.
+                    type: integer
+                  relatedtoautoaccidentyn:
+                    description: Patient's condition related to accident.
+                    type: string
+                  relatedtoemploymentyn:
+                    description: Patient's condition related to employment.
+                    type: string
+                  relatedtootheraccidentyn:
+                    description: Patient's condition related to other accident.
+                    type: string
+                  renderingproviderid:
+                    description: Rendering provider.
+                    type: string
+                  reserved10d:
+                    description: Reserved (10d) (remarks).
+                    type: string
+                  reserved19:
+                    description: The text in the Reserved 19 field.
+                    type: string
+                  schedulingproviderid:
+                    description: Scheduling provider.
+                    type: string
+                  secondaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the secondary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from secondary insurance
+                          for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      secondaryinsurancepackageid:
+                        description: The secondary insurance package id associated
+                          with this claim.
+                        type: integer
+                      secondarypatientinsuranceid:
+                        description: The secondary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  servicetypeaddons:
+                    description: Array of service type add-ons (STAOs) for the claim.
+                    items:
+                      properties:
+                        fields:
+                          items:
+                            properties:
+                              fieldname:
+                                description: Service type add-on field name.
+                                type: string
+                              fieldvalues:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                        identifier:
+                          description: Service type add-on identifier.
+                          type: string
+                      type: object
+                    type: array
+                  signatureonfileassignmentbenefits:
+                    description: Status of signature on file for assignment of benefits.
+                    type: string
+                  signatureonfilereleaseinformation:
+                    description: Status of signature on file for release of billing
+                      information.
+                    type: string
+                  signaturesourcecode:
+                    description: Signature source.
+                    type: string
+                  similarillnessdate:
+                    description: Same or similar illness date.
+                    type: string
+                  supervisingproviderid:
+                    description: The supervising provider ID for this claim.
+                    type: integer
+                  supervisingprovidername:
+                    description: The supervising provider name for this claim.
+                    type: string
+                  tounabletoworkdate:
+                    description: Patient unable to work to date.
+                    type: string
+                  transactiondetails:
+                    description: A hash of ids ("transactionid") to amounts; these
+                      should sum to the chargeamount.
+                    type: object
+                  transactionid:
+                    description: A unique ID for the primary transaction this claim
+                      represents.  May be useful for debugging.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaims
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/claims/{claimid}:
+    get:
+      summary: Get individual claim details
+      description: Retrieves information for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: query
+        name: showcustomfields
+        schema:
+          type: boolean
+        required: false
+        description: Include custom fields for the claim.
+      - in: query
+        name: showservicetypeaddons
+        schema:
+          type: boolean
+        required: false
+        description: Include service type add-ons for the claim.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptassignmentyn1:
+                    description: Primary accepts assignment.
+                    type: string
+                  acceptassignmentyn2:
+                    description: Secondary accepts assignment.
+                    type: string
+                  appointmentid:
+                    description: The appointment ID associated with this claim.
+                    type: string
+                  billedproviderid:
+                    description: The provider ID of the billing provider for this
+                      claim.
+                    type: integer
+                  billedservicedate:
+                    description: The billed date of service.
+                    type: string
+                  chargeamount:
+                    description: The total amount billed for all services from this
+                      claim.
+                    type: string
+                  claimcreateddate:
+                    description: The date the claim was created.
+                    type: string
+                  claimid:
+                    description: athenaNet's internal ID for this claim, specific
+                      to the practice.
+                    type: string
+                  currentillnessdate:
+                    description: Current illness date.
+                    type: string
+                  customfields:
+                    description: 'The claim custom field values may or may not be
+                      the same between departments. '
+                    items:
+                      properties:
+                        customfieldid:
+                          description: Corresponds to the /customfields customfieldid.
+                          type: string
+                        customfieldvalue:
+                          description: For a non-select custom field, the value.
+                          type: string
+                        optionid:
+                          description: For a select custom field, the selectid value
+                            (from /customfield's selectlist).
+                          type: string
+                      type: object
+                    type: array
+                  departmentid:
+                    description: The department ID associated with this claim.
+                    type: integer
+                  diagnoses:
+                    description: '<p>Diagnoses is an array of all diagnoses.   Each
+                      entry in the array is a hash with several fields.  /ccda is
+                      a better clinical representation.  These fields are:</p>
+
+                      '
+                    properties:
+                      deleteddiagnosis:
+                        description: In certain cases, diagnoses may be added and
+                          then removed from a particular claim.  In normal circumstances,
+                          this will be false.  However, if a diagnosis was removed,
+                          this will be true.
+                        type: string
+                      diagnosiscategory:
+                        description: The category for this diagnosis.
+                        type: string
+                      diagnosiscodeset:
+                        description: Either ICD9 or ICD10.
+                        type: string
+                      diagnosisdescription:
+                        description: A description of this diagnosis.
+                        type: string
+                      diagnosisid:
+                        description: A unique ID related to this diagnosis.
+                        type: string
+                      diagnosisrawcode:
+                        description: The raw ICD-9 code.  This will migrate to ICD-10
+                          in the future.
+                        type: string
+                    type: object
+                  fromunabletoworkdate:
+                    description: Patient unable to work from date.
+                    type: string
+                  lastmodified:
+                    description: Last modified date.
+                    type: string
+                  lastmodifiedby:
+                    description: Last modified by user.
+                    type: string
+                  localpatientid:
+                    description: The local patient ID associated with this claim.
+                    type: integer
+                  medicaidresubmissioncode:
+                    description: Resubmission, Code.
+                    type: string
+                  medicaidresubmissionorigrefno:
+                    description: Resubmission Original Ref No.
+                    type: string
+                  medicaresecondaryqualifier:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      name.
+                    type: string
+                  medicaresecondaryqualifierid:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      Id.
+                    type: string
+                  patientid:
+                    description: The patient ID associated with this claim.
+                    type: integer
+                  patientpayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the patient.
+                    properties:
+                      balance:
+                        description: Outstanding balance from patient for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  primaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the primary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from primary insurance for
+                          this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      primaryinsurancepackageid:
+                        description: The primary insurance Package id associated with
+                          this claim.
+                        type: integer
+                      primarypatientinsuranceid:
+                        description: The primary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  procedures:
+                    description: '<p>Procedures is an array of all procedures.  /ccda
+                      is a better clinical representation.   These fields are:</p>
+
+                      '
+                    properties:
+                      allowableamount:
+                        description: The total amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemax:
+                        description: The maximum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemin:
+                        description: The minimum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      chargeamount:
+                        description: The amount charged for this procedure.
+                        type: string
+                      procedurecategory:
+                        description: The category name associated with this procedure.
+                        type: string
+                      procedurecode:
+                        description: The CPT code associated with this procedure.
+                        type: string
+                      proceduredescription:
+                        description: A description of this procedure.
+                        type: string
+                      servicetypeaddons:
+                        description: Array of service type add-ons (STAOs) for the
+                          charge.
+                        items:
+                          properties:
+                            fields:
+                              items:
+                                properties:
+                                  fieldname:
+                                    description: Service type add-on field name.
+                                    type: string
+                                  fieldvalues:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              type: array
+                            identifier:
+                              description: Service type add-on identifier.
+                              type: string
+                          type: object
+                        type: array
+                      transactionid:
+                        description: The ID of the last transaction associated with
+                          the claim.
+                        type: string
+                    type: object
+                  referralauthid:
+                    description: The referral authorization ID for this claim.
+                    type: integer
+                  referringproviderid:
+                    description: The referring provider ID for this claim.  See /referringproviders.  This
+                      is not the same as the ID from the /providers call.
+                    type: integer
+                  relatedtoautoaccidentyn:
+                    description: Patient's condition related to accident.
+                    type: string
+                  relatedtoemploymentyn:
+                    description: Patient's condition related to employment.
+                    type: string
+                  relatedtootheraccidentyn:
+                    description: Patient's condition related to other accident.
+                    type: string
+                  renderingproviderid:
+                    description: Rendering provider.
+                    type: string
+                  reserved10d:
+                    description: Reserved (10d) (remarks).
+                    type: string
+                  reserved19:
+                    description: The text in the Reserved 19 field.
+                    type: string
+                  schedulingproviderid:
+                    description: Scheduling provider.
+                    type: string
+                  secondaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the secondary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from secondary insurance
+                          for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      secondaryinsurancepackageid:
+                        description: The secondary insurance package id associated
+                          with this claim.
+                        type: integer
+                      secondarypatientinsuranceid:
+                        description: The secondary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  servicetypeaddons:
+                    description: Array of service type add-ons (STAOs) for the claim.
+                    items:
+                      properties:
+                        fields:
+                          items:
+                            properties:
+                              fieldname:
+                                description: Service type add-on field name.
+                                type: string
+                              fieldvalues:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                        identifier:
+                          description: Service type add-on identifier.
+                          type: string
+                      type: object
+                    type: array
+                  signatureonfileassignmentbenefits:
+                    description: Status of signature on file for assignment of benefits.
+                    type: string
+                  signatureonfilereleaseinformation:
+                    description: Status of signature on file for release of billing
+                      information.
+                    type: string
+                  signaturesourcecode:
+                    description: Signature source.
+                    type: string
+                  similarillnessdate:
+                    description: Same or similar illness date.
+                    type: string
+                  supervisingproviderid:
+                    description: The supervising provider ID for this claim.
+                    type: integer
+                  supervisingprovidername:
+                    description: The supervising provider name for this claim.
+                    type: string
+                  tounabletoworkdate:
+                    description: Patient unable to work to date.
+                    type: string
+                  transactiondetails:
+                    description: A hash of ids ("transactionid") to amounts; these
+                      should sum to the chargeamount.
+                    type: object
+                  transactionid:
+                    description: A unique ID for the primary transaction this claim
+                      represents.  May be useful for debugging.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsClaimid
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+    put:
+      summary: Update individual claim details
+      description: Modifies information for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  customfields:
+                    description: Number of custom fields updated.
+                    type: integer
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  transactions:
+                    description: Number of transactions with allowables information
+                      updated. Note that this does not include transactions that had
+                      Service type add-on information updated.
+                    type: integer
+                type: object
+          description: Success
+      operationId: putPracticeidClaimsClaimid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                claimcharges:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      allowablemax:
+                        type: number
+                        description: The total maximum allowable amount for this charge.
+                          If passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule. Will default
+                          to 105% of the ALLOWABLEAMOUNT.
+                      allowablemin:
+                        type: number
+                        description: The total minimum allowable amount for this charge.
+                          If passed, will override the amount that would be calculated
+                          from the usual practice allowable schedule. Will default
+                          to 95% of the ALLOWABLEAMOUNT
+                      transactionid:
+                        type: integer
+                        description: The athena transaction ID for this charge.
+                      allowableamount:
+                        type: number
+                        description: The total expected allowable amount for this
+                          charge.  If passed, will override the amount that would
+                          be calculated from the usual practice allowable schedule.
+                      servicetypeaddons:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            fields:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  fieldname:
+                                    type: string
+                                    description: Service type add-on field name.
+                                  fieldvalues:
+                                    type: array
+                                    items:
+                                      type: string
+                            identifier:
+                              type: string
+                              description: Service type add-on identifier.
+                        description: Array of service type add-ons (STAOs) for the
+                          charge. Charge level STAOs only support multiple values
+                          for non-numeric fields. Passing in multiple values for a
+                          numeric charge level STAO field will result in the charge
+                          level STAOs not being saved at all, but the claim will be
+                          still be created.
+                  required:
+                  - transactionid
+                  description: List of charges for this claim whose allowable values
+                    should be updated. This should be a JSON string representing an
+                    array of charge objects.
+                customfields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      optionid:
+                        type: integer
+                        description: Claim custom field Option ID
+                      customfieldid:
+                        type: integer
+                        description: Claim custom field ID
+                      customfieldvalue:
+                        type: string
+                        description: Claim custom field Value
+                  required:
+                  - customfieldid
+                  description: A list of custom field JSON objects to populate on
+                    creation of a claim.
+                referralauthid:
+                  type: integer
+                  description: The referral authorization ID to associate with this
+                    claim.
+                claimsimplefields:
+                  type: object
+                  properties:
+                    manualdropyn:
+                      type: string
+                      description: Flag to decide if force drop to paper for primary
+                        payor is available
+                    manualdropyn2:
+                      type: string
+                      description: Flag to decide if force drop to paper for secondary
+                        payor is available
+                    manualdropreasonid:
+                      type: string
+                      description: Force Drop to Paper reason for primary payor
+                    manualdropreasonid2:
+                      type: string
+                      description: Force Drop to Paper reason for secondary payor
+                    printzerodollarchargesyn1:
+                      type: string
+                      description: Flag to decide if zero dollar charges for primary
+                        payor needs to be displayed
+                  description: Simple fields that are specific to claim
+                servicetypeaddons:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            fieldname:
+                              type: string
+                              description: Service type add-on field name.
+                            fieldvalues:
+                              type: array
+                              items:
+                                type: string
+                      identifier:
+                        type: string
+                        description: Service type add-on identifier.
+                  description: Array of service type add-ons (STAOs) for the claim.
+                    Some claim level STAO fields do not support multiple values. These
+                    fields will save only the first value if more than one is passed
+                    in.
+                orderingproviderid:
+                  type: integer
+                  description: The ordering provider ID. 'Ordering Provider' service
+                    type add-on must be enabled. Default is no ordering provider ID.
+                    Any entry in this field will override any ordering provider ID
+                    in the service type add-ons field.
+                referringproviderid:
+                  type: integer
+                  description: The referring provider ID (not the same from /providers)
+                    associated with this claim.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/patients/{patientid}/claims/patientclosed:
+    get:
+      summary: Get list of patient's closed claims
+      description: Retrieves a list of claims for a specific patient whose claim status
+        is "Closed"
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID of the service department for the claims being
+          searched for
+      - in: query
+        name: procedurecodes
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: One or more procedure codes
+      - in: query
+        name: ignorerestrictions
+        schema:
+          type: boolean
+        required: false
+        description: When showing patient detail for patientoutstanding, the patient
+          information for patients with record restrictions and blocked patients will
+          not be shown.  Setting this flag to true will show that information for
+          those patients.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  closedclaims:
+                    description: All the closed claims held by the patient, grouped
+                      by provider group.
+                    items:
+                      properties:
+                        claims:
+                          description: The closed claims held by the patient in this
+                            provider group.
+                          items:
+                            properties:
+                              chargeleveldetails:
+                                description: Detailed information on charges associated
+                                  with the claim.
+                                items:
+                                  properties:
+                                    amount:
+                                      description: The billed amount for the charge.
+                                      type: number
+                                    chargeid:
+                                      description: The athenaNet ID of the charge.
+                                      type: number
+                                    departmentid:
+                                      description: The department ID for the claim.
+                                      type: number
+                                    description:
+                                      description: Description of the service.
+                                      type: string
+                                    servicedate:
+                                      description: Date of service for the charge.
+                                      type: string
+                                    transactions:
+                                      description: Detailed information on transactions
+                                        associated with the charge.
+                                      items:
+                                        properties:
+                                          amount:
+                                            description: The amount associated with
+                                              the transaction.
+                                            type: number
+                                          date:
+                                            description: The date of the transaction.
+                                            type: string
+                                          description:
+                                            description: Information related to the
+                                              type of transaction.  (For example,
+                                              a co-pay.).
+                                            type: string
+                                          epaymentid:
+                                            description: The epayment ID of the payment
+                                              receipt associated with this payment
+                                              transaction. Applicable only for e-payments.
+                                            type: number
+                                          transactionid:
+                                            description: The athenaNet ID of the transaction.
+                                            type: number
+                                          transfertype:
+                                            description: The party responsible for
+                                              the parent charge of this transaction.
+                                              For example, '1' (primary), '2' (secondary),
+                                              or 'p' (patient).
+                                            type: string
+                                          type:
+                                            description: The type of the transaction.  For
+                                              charge, payment, adjustment, etc.
+                                            type: string
+                                        type: object
+                                      type: array
+                                  type: object
+                                type: array
+                              claimid:
+                                description: The claim ID.
+                                type: integer
+                              closeddate:
+                                description: The date the claim closed.
+                                type: string
+                              departmentid:
+                                description: The department ID for the claim.
+                                type: integer
+                              patientid:
+                                description: The patient ID.
+                                type: integer
+                              servicedate:
+                                description: The date the service was rendered.
+                                type: string
+                              supervisingproviderid:
+                                description: The ID of the supervising provider who
+                                  rendered the service.
+                                type: number
+                            type: object
+                          type: array
+                        providergroupid:
+                          description: The provider group ID for the claims.
+                          type: number
+                      type: object
+                    type: array
+                  totalcount:
+                    description: The total number of closed claims for the patient.
+                    type: number
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidClaimsPatientclosed
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Patient-Facing Claims
+  /v1/{practiceid}/patients/{patientid}/claims/patientoutstanding:
+    get:
+      summary: Get list of patient's outstanding claims
+      description: Retrieves outstanding claims for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID of the service department for the claims being
+          searched for
+      - in: query
+        name: procedurecodes
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: One or more procedure codes
+      - in: query
+        name: ignorerestrictions
+        schema:
+          type: boolean
+        required: false
+        description: When showing patient detail for patientoutstanding, the patient
+          information for patients with record restrictions and blocked patients will
+          not be shown.  Setting this flag to true will show that information for
+          those patients.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  openclaims:
+                    description: All the open claims held by the patient, grouped
+                      by provider group.
+                    items:
+                      properties:
+                        claims:
+                          description: The open claims held by the patient in this
+                            provider group.
+                          items:
+                            properties:
+                              chargeleveldetails:
+                                description: Detailed information on charges associated
+                                  with the claim.
+                                items:
+                                  properties:
+                                    amount:
+                                      description: The billed amount for the charge.
+                                      type: number
+                                    chargeid:
+                                      description: The athenaNet ID of the charge.
+                                      type: number
+                                    departmentid:
+                                      description: The department ID for the claim.
+                                      type: number
+                                    description:
+                                      description: Description of the service.
+                                      type: string
+                                    servicedate:
+                                      description: Date of service for the charge.
+                                      type: string
+                                    transactions:
+                                      description: Detailed information on transactions
+                                        associated with the charge.
+                                      items:
+                                        properties:
+                                          amount:
+                                            description: The amount associated with
+                                              the transaction.
+                                            type: number
+                                          date:
+                                            description: The date of the transaction.
+                                            type: string
+                                          description:
+                                            description: Information related to the
+                                              type of transaction.  (For example,
+                                              a co-pay.).
+                                            type: string
+                                          epaymentid:
+                                            description: The epayment ID of the payment
+                                              receipt associated with this payment
+                                              transaction. Applicable only for e-payments.
+                                            type: number
+                                          transactionid:
+                                            description: The athenaNet ID of the transaction.
+                                            type: number
+                                          transfertype:
+                                            description: The party responsible for
+                                              the parent charge of this transaction.
+                                              For example, '1' (primary), '2' (secondary),
+                                              or 'p' (patient).
+                                            type: string
+                                          type:
+                                            description: The type of the transaction.  For
+                                              charge, payment, adjustment, etc.
+                                            type: string
+                                        type: object
+                                      type: array
+                                  type: object
+                                type: array
+                              claimid:
+                                description: The claim ID.
+                                type: integer
+                              collectionyn:
+                                description: Whether the claim is in collection.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              departmentid:
+                                description: The department ID for the claim.
+                                type: integer
+                              outstanding:
+                                description: The outstanding balance.
+                                type: number
+                              patientid:
+                                description: The patient ID.
+                                type: integer
+                              patientpayable:
+                                description: Whether the balance is patient payable.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              servicedate:
+                                description: The date the service was rendered.
+                                type: string
+                              supervisingproviderid:
+                                description: The ID of the supervising provider who
+                                  rendered the service.
+                                type: number
+                            type: object
+                          type: array
+                        providergroupid:
+                          description: The provider group ID for the claims.
+                          type: number
+                      type: object
+                    type: array
+                  totalcount:
+                    description: The total number of open claims for the patient.
+                    type: number
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidClaimsPatientoutstanding
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Patient-Facing Claims
+  /v1/{practiceid}/claims/{claimid}/claimtransactions:
+    get:
+      summary: View all claim transactions
+      description: Retrieves a list of claims transactions for a specific claim
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: claimid
+        schema:
+          type: integer
+        required: true
+        description: claimid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  adjustments:
+                    description: Adjustments to the original value of this claim
+                    type: integer
+                  amount:
+                    description: The original value of this transaction before adjustments
+                      or transfers
+                    type: integer
+                  customtransactioncode:
+                    description: The Custom Transaction Code for the transaction,
+                      which is only present for Adjustments
+                    type: string
+                  lastbilleddate:
+                    description: The date this transaction was last billed to a payer
+                    type: string
+                  outstandingamount:
+                    description: The oustanding amount requiring payment for this
+                      charge line
+                    type: integer
+                  parenttransactionid:
+                    description: The ID of the parent transaction
+                    type: integer
+                  payer:
+                    description: The payer associated with this transaction
+                    type: string
+                  payments:
+                    description: Payments made on this transaction
+                    type: integer
+                  procedurecode:
+                    description: The procedure code for this transaction
+                    type: string
+                  transactiondate:
+                    description: The date this transaction was created
+                    type: string
+                  transactionid:
+                    description: The ID of this transaction
+                    type: integer
+                  transactiontype:
+                    description: The type associated with this transaction
+                    type: string
+                  units:
+                    description: The number of appropriate units associated with this
+                      transaction
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsClaimidClaimtransactions
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims
+  /v1/{practiceid}/patients/{patientid}/claims/patientoutstandingdetailed:
+    get:
+      summary: Full view of patient's open claims
+      description: Get patient-facing open claims with additional detail
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: showfamily
+        schema:
+          type: boolean
+        required: false
+        description: When true also get open claims associated through family.
+      - in: query
+        name: communicatorbrandid
+        schema:
+          type: integer
+        required: false
+        description: Filters the open claims within the brand. For a branded practice,
+          it is expected to be passed.
+      - in: query
+        name: claimids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: Filters the open claims to those with these IDs.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  claims:
+                    description: The open claims held by the patient in this provider
+                      group.
+                    items:
+                      properties:
+                        chargeleveldetails:
+                          description: Detailed information on charges associated
+                            with the claim.
+                          items:
+                            properties:
+                              amount:
+                                description: The billed amount for the charge.
+                                type: paymentamount
+                              chargeid:
+                                description: The athenaNet ID of the charge.
+                                type: integer
+                              description:
+                                description: Description of the service.
+                                type: string
+                              primaryinsurancepackagename:
+                                description: The primary insurance of the patient
+                                  used for the claim.
+                                type: string
+                              primaryselfpayyn:
+                                description: Whether the primary insurance is self
+                                  pay
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              procedurecode:
+                                description: Procedure code (CPT code) for the service
+                                type: string
+                              procedurecodeothermodifier:
+                                description: Modifiers for the procedure code
+                                type: string
+                              providername:
+                                description: The name of the provider who rendered
+                                  the service.
+                                type: string
+                              secondaryinsurancepackagename:
+                                description: The secondary insurance of the patient
+                                  used for the claim.
+                                type: string
+                              secondaryselfpayyn:
+                                description: Whether the secondary insurance is self
+                                  pay
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              servicedate:
+                                description: Date of service for the charge.
+                                type: string
+                              statementdescription:
+                                description: Description of the service as it appears
+                                  on a statement
+                                type: string
+                              supervisingprovidername:
+                                description: The name of the supervising provider
+                                  who rendered the service.
+                                type: string
+                              transactions:
+                                description: Detailed information on transactions
+                                  associated with the charge.
+                                items:
+                                  properties:
+                                    amount:
+                                      description: The amount associated with the
+                                        transaction.
+                                      type: paymentamount
+                                    date:
+                                      description: The date of the transaction.
+                                      type: string
+                                    description:
+                                      description: Information related to the type
+                                        of transaction.  (For example, a co-pay.).
+                                      type: string
+                                    epaymentid:
+                                      description: The epayment ID of the payment
+                                        receipt associated with this payment transaction.
+                                        Applicable only for e-payments.
+                                      type: integer
+                                    epaymentpatientid:
+                                      description: The athenaNet ID of the patient
+                                        that made the payment
+                                      type: integer
+                                    transactionid:
+                                      description: The athenaNet ID of the transaction.
+                                      type: integer
+                                    transfertype:
+                                      description: The party responsible for the parent
+                                        charge of this transaction. For example, '1'
+                                        (primary), '2' (secondary), or 'p' (patient).
+                                      type: string
+                                    type:
+                                      description: The type of the transaction.  For
+                                        charge, payment, adjustment, etc.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        claimid:
+                          description: The claim ID.
+                          type: integer
+                        claimnotes:
+                          description: Claim notes
+                          items:
+                            properties:
+                              action:
+                                description: Action type for this note.
+                                type: string
+                              claimstatus:
+                                description: Claim status as of this note.
+                                type: string
+                              created:
+                                description: Creation date for the note.
+                                type: string
+                              note:
+                                description: Note text. May include basic HTML formatting.
+                                type: string
+                              transfertype:
+                                description: Transfer type for this note (1, 2, or
+                                  p).
+                                type: string
+                            type: object
+                          type: array
+                        collectionyn:
+                          description: Whether the claim is in collection.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        departmentid:
+                          description: The department ID for the claim.
+                          type: integer
+                        outstanding:
+                          description: The outstanding balance.
+                          type: paymentamount
+                        patientfirstname:
+                          description: The patient name.
+                          type: string
+                        patientid:
+                          description: The patient ID.
+                          type: integer
+                        patientlastname:
+                          description: The patient name.
+                          type: string
+                        patientpayable:
+                          description: Whether the balance is patient payable.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        paymentplanid:
+                          description: The ID of the payment plan that the claim is
+                            in, if any.
+                          type: integer
+                        servicedate:
+                          description: The date the service was rendered.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidClaimsPatientoutstandingdetailed
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Patient-Facing Claims
+  /v1/{practiceid}/visits:
+    get:
+      summary: Get list of hospital visits (with filters)
+      description: This endpoint retrieves visits based on a variety of filters.
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: Boolean flag to only return visits where the registration has
+          not been completed.
+        in: query
+        name: unregistered
+        required: false
+        schema:
+          type: boolean
+      - description: Department ID to filter on.
+        in: query
+        name: departmentid
+        required: false
+        schema:
+          type: integer
+      - description: Boolean flag to include visits where department ID is null.
+        in: query
+        name: nodepartment
+        required: false
+        schema:
+          type: boolean
+      - description: Boolean flag to also return visit charges in the output.
+        in: query
+        name: showvisitcharges
+        required: false
+        schema:
+          type: boolean
+      - description: Patient ID to find visits for.
+        in: query
+        name: patientid
+        required: false
+        schema:
+          type: integer
+      - description: Encounter IDs to filter on.
+        in: query
+        name: encounterids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Only return these visit IDs.
+        in: query
+        name: visitids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Boolean flag to include deleted visits in the output.
+        in: query
+        name: showdeleted
+        required: false
+        schema:
+          type: boolean
+      - description: Array of VisitCase IDs to filter on.
+        in: query
+        name: visitcaseids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Only return visits that match one of these statuses
+        in: query
+        name: statusids
+        required: false
+        schema:
+          items:
+            enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 21
+            type: integer
+            x-enumDescriptions:
+            - Visit created
+            - Checked in
+            - Discharged
+            - Claim created
+            - Charges transferred
+          type: array
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  visitid:
+                    type: integer
+                    description: ID of this visit.
+                  statusid:
+                    type: integer
+                    description: Status ID of the visit.
+                  allergies:
+                    type: string
+                    description: String of allergies.
+                  patientid:
+                    type: integer
+                    description: Patient ID.
+                  razoriser:
+                    type: integer
+                    description: Indicates if the razor encounter is an ER encounter.
+                  statusname:
+                    type: string
+                    description: Status Name.
+                  checkindate:
+                    type: string
+                    description: Date checked in.
+                  createddate:
+                    type: string
+                    description: Date created.
+                  deleteddate:
+                    type: string
+                    description: Date the visit was deleted.
+                  deletednote:
+                    type: string
+                    description: Note recording the reason for deletion of the visit.
+                  problemlist:
+                    type: string
+                    description: String of problems for the patient for this visit.
+                  visitcaseid:
+                    type: integer
+                    description: Visit Case ID.
+                  departmentid:
+                    type: integer
+                    description: Department ID of this visit.
+                  visitbillids:
+                    type: array
+                    items:
+                      type: integer
+                    description: Visit Bill IDs.
+                  visitcharges:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ndc:
+                          type: string
+                          description: NDC.
+                        type:
+                          type: string
+                          description: Type of charge.
+                        units:
+                          type: string
+                          description: Units.
+                        amount:
+                          type: string
+                          description: Amount of the charge.
+                        postdate:
+                          type: string
+                          description: The date this charge posted.
+                        softcode:
+                          type: string
+                          description: Soft code.
+                        voidedby:
+                          type: string
+                          description: Username of the person that voided this charge.
+                        createdby:
+                          type: string
+                          description: Username that created this charge.
+                        deletedby:
+                          type: string
+                          description: Username that deleted this charge.
+                        modifiers:
+                          type: string
+                          description: Modifiers.
+                        chargedate:
+                          type: string
+                          description: Date of the charge.
+                        drugdosage:
+                          type: string
+                          description: Dosage of the drug.
+                        hcpcsunits:
+                          type: string
+                          description: HCPCS unit.
+                        providerid:
+                          type: integer
+                          description: ID of the provider associated with this charge.
+                        unitamount:
+                          type: string
+                          description: Unit amount.
+                        voideddate:
+                          type: string
+                          description: Date this charge was voided.
+                        createddate:
+                          type: string
+                          description: Date this charge was created.
+                        deleteddate:
+                          type: string
+                          description: Date this charge was deleted.
+                        description:
+                          type: string
+                          description: Description of this charge.
+                        revenuecode:
+                          type: integer
+                          description: Revenue code.
+                        visitbillid:
+                          type: integer
+                          description: ID of the visit bill.
+                        voidparentid:
+                          type: integer
+                          description: ID for the void parent.
+                        levelofcareid:
+                          type: integer
+                          description: Level of care ID.
+                        procedurecode:
+                          type: string
+                          description: Procedure code.
+                        visitchargeid:
+                          type: integer
+                          description: ID of the visit charge.
+                        claimcreatedyn:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: Boolean indication claim creation.
+                        lastmodifiedby:
+                          type: string
+                          description: The username of the person to last modify this
+                            charge.
+                        visitsegmentid:
+                          type: integer
+                          description: ID of the visit segment.
+                        chargecodeunits:
+                          type: string
+                          description: Units of the charge code.
+                        foreignsystemid:
+                          type: string
+                          description: ID of the foreign system.
+                        originalvisitid:
+                          type: integer
+                          description: ID of the original visit.
+                        lastmodifieddate:
+                          type: string
+                          description: The date this charge was last modified on.
+                        drugunitqualifier:
+                          type: string
+                          description: Drug unit qualifier.
+                        dynamicunitamount:
+                          type: string
+                          description: Dynamic unit amount.
+                        visitdepartmentid:
+                          type: integer
+                          description: ID of the visit department.
+                        chargedepartmentid:
+                          type: integer
+                          description: Charges department ID.
+                        parentvisitchargeid:
+                          type: integer
+                          description: The parent visit charge ID.
+                        servicedepartmentid:
+                          type: integer
+                          description: Service department ID.
+                        chargemasterchargeid:
+                          type: integer
+                          description: Charges master charge ID.
+                        primarypatientinsuranceid:
+                          type: integer
+                          description: Primary patient ID.
+                    description: Visit Charges.
+                  dischargedate:
+                    type: string
+                    description: Date discharged.
+                  hospitalbedid:
+                    type: integer
+                    description: Hospital Bed ID.
+                  levelofcareid:
+                    type: integer
+                    description: Level Of Care ID.
+                  maincomplaint:
+                    type: string
+                    description: Main Complaint.
+                  departmentname:
+                    type: string
+                    description: Department name for this visit.
+                  hospitalroomid:
+                    type: integer
+                    description: Hospital Room ID.
+                  registereddate:
+                    type: string
+                    description: Date registered.
+                  accommodationid:
+                    type: integer
+                    description: Accommodation ID attached to this visit.
+                  admissiontypeid:
+                    type: integer
+                    description: Admission Type ID attached to this visit.
+                  levelofcarename:
+                    type: string
+                    description: Level Of Care Name.
+                  statusshortname:
+                    type: string
+                    description: Status Short Name.
+                  transfervisitid:
+                    type: integer
+                    description: Transfer Visit ID.
+                  lastmodifieddate:
+                    type: string
+                    description: Date the visit was modified last.
+                  razorencounterid:
+                    type: integer
+                    description: Razor Encounter ID.
+                  admissionsourceid:
+                    type: integer
+                    description: Admission Source ID attached to this visit.
+                  admissiontypecode:
+                    type: string
+                    description: Admission Type Code attached to this visit.
+                  admissiontypename:
+                    type: string
+                    description: Admission Type Name attached to this visit.
+                  mspinsurancetypeid:
+                    type: integer
+                    description: MSP Insurance Type ID.
+                  admissionsourcecode:
+                    type: string
+                    description: Admission Source Code attached to this visit.
+                  admissionsourcename:
+                    type: string
+                    description: Admission Source Name attached to this visit.
+                  admittingproviderid:
+                    type: integer
+                    description: Admitting Provider ID attached to this visit.
+                  attendingproviderid:
+                    type: integer
+                    description: Attending Provider ID for this visit.
+                  dischargeproviderid:
+                    type: integer
+                    description: Discharge Provider ID for this visit.
+                  firstvisitsegmentid:
+                    type: integer
+                    description: First Visit Segment ID.
+                  operatingproviderid:
+                    type: integer
+                    description: Operating Provider ID.
+                  currentvisitsegmentid:
+                    type: integer
+                    description: Current Visit Segment ID.
+                  mspinsurancetypesetyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: MSP Insurance Type Set.
+                  dischargedispositionid:
+                    type: integer
+                    description: Discharge Disposition ID for this visit.
+                  registrationcompleteyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Indicates whether or not registration is complete
+                      for this visit.
+                  dischargedispositioncode:
+                    type: string
+                    description: Discharge Disposition Code of this visit.
+                  dischargedispositionname:
+                    type: string
+                    description: Discharge Disposition Name for this visit.
+                  otheroperatingproviderid:
+                    type: integer
+                    description: Other Operating Provider ID.
+                  primarypatientinsuranceid:
+                    type: integer
+                    description: Primary Patient Insurance ID.
+                  secondarypatientinsuranceid:
+                    type: integer
+                    description: Secondary Patient Insurance ID.
+          description: Success
+      operationId: getPracticeidVisits
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Visits
+  /v1/{practiceid}/claims/changed/subscription/events:
+    get:
+      summary: Get list of change events for claims
+      description: Retrieve list of all events that can be input for this subscription
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showadditionalevents
+        schema:
+          type: boolean
+        required: false
+        description: Include non-default events
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims Changed Subscription
+  /v1/{practiceid}/claims/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for claims
+      description: Subscribes for changed claims events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      claim was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidClaimsChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+                showadditionalevents:
+                  type: boolean
+                  description: If this is set, we will include additional events that
+                    aren't normally included in the default list of events.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Claims Changed Subscription
+    get:
+      summary: Get list of subscribed events for changes in claims
+      description: Retrieves list of events applicable for claims
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showadditionalevents
+        schema:
+          type: boolean
+        required: false
+        description: If this is set, we will include additional events that aren't
+          normally included in the default list of events.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsChangedSubscription
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims Changed Subscription
+    delete:
+      summary: Unsubscribe to all/specific events for changes in claims
+      description: Deletes a specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      - in: query
+        name: showadditionalevents
+        schema:
+          type: boolean
+        required: false
+        description: If this is set, we will include additional events that aren't
+          normally included in the default list of events.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      claim was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidClaimsChangedSubscription
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims Changed Subscription
+  /v1/{practiceid}/claims/changed:
+    get:
+      summary: Get list of changes in claims
+      description: Retrieves list of modified claims records
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: Department ID. Multiple departments are allowed, either comma
+          separated or with multiple values.
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showservicetypeaddons
+        schema:
+          type: boolean
+        required: false
+        description: Include service type add ons for the claim.
+      - in: query
+        name: patientid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: Patient ID. Multiple Patient IDs are allowed, either comma separated
+          or with multiple values.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptassignmentyn1:
+                    description: Primary accepts assignment.
+                    type: string
+                  acceptassignmentyn2:
+                    description: Secondary accepts assignment.
+                    type: string
+                  appointmentid:
+                    description: The appointment ID associated with this claim.
+                    type: string
+                  billedproviderid:
+                    description: The provider ID of the billing provider for this
+                      claim.
+                    type: integer
+                  billedservicedate:
+                    description: The billed date of service.
+                    type: string
+                  chargeamount:
+                    description: The total amount billed for all services from this
+                      claim.
+                    type: string
+                  claimcreateddate:
+                    description: The date the claim was created.
+                    type: string
+                  claimid:
+                    description: athenaNet's internal ID for this claim, specific
+                      to the practice.
+                    type: string
+                  currentillnessdate:
+                    description: Current illness date.
+                    type: string
+                  customfields:
+                    description: 'The claim custom field values may or may not be
+                      the same between departments. '
+                    items:
+                      properties:
+                        customfieldid:
+                          description: Corresponds to the /customfields customfieldid.
+                          type: string
+                        customfieldvalue:
+                          description: For a non-select custom field, the value.
+                          type: string
+                        optionid:
+                          description: For a select custom field, the selectid value
+                            (from /customfield's selectlist).
+                          type: string
+                      type: object
+                    type: array
+                  departmentid:
+                    description: The department ID associated with this claim.
+                    type: integer
+                  diagnoses:
+                    description: '<p>Diagnoses is an array of all diagnoses.   Each
+                      entry in the array is a hash with several fields.  /ccda is
+                      a better clinical representation.  These fields are:</p>
+
+                      '
+                    properties:
+                      deleteddiagnosis:
+                        description: In certain cases, diagnoses may be added and
+                          then removed from a particular claim.  In normal circumstances,
+                          this will be false.  However, if a diagnosis was removed,
+                          this will be true.
+                        type: string
+                      diagnosiscategory:
+                        description: The category for this diagnosis.
+                        type: string
+                      diagnosiscodeset:
+                        description: Either ICD9 or ICD10.
+                        type: string
+                      diagnosisdescription:
+                        description: A description of this diagnosis.
+                        type: string
+                      diagnosisid:
+                        description: A unique ID related to this diagnosis.
+                        type: string
+                      diagnosisrawcode:
+                        description: The raw ICD-9 code.  This will migrate to ICD-10
+                          in the future.
+                        type: string
+                    type: object
+                  fromunabletoworkdate:
+                    description: Patient unable to work from date.
+                    type: string
+                  lastmodified:
+                    description: Last modified date.
+                    type: string
+                  lastmodifiedby:
+                    description: Last modified by user.
+                    type: string
+                  localpatientid:
+                    description: The local patient ID associated with this claim.
+                    type: integer
+                  medicaidresubmissioncode:
+                    description: Resubmission, Code.
+                    type: string
+                  medicaidresubmissionorigrefno:
+                    description: Resubmission Original Ref No.
+                    type: string
+                  medicaresecondaryqualifier:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      name.
+                    type: string
+                  medicaresecondaryqualifierid:
+                    description: Medicare as a Secondary Payer qualifier selection
+                      Id.
+                    type: string
+                  patientid:
+                    description: The patient ID associated with this claim.
+                    type: integer
+                  patientpayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the patient.
+                    properties:
+                      balance:
+                        description: Outstanding balance from patient for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  primaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the primary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from primary insurance for
+                          this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      primaryinsurancepackageid:
+                        description: The primary insurance Package id associated with
+                          this claim.
+                        type: integer
+                      primarypatientinsuranceid:
+                        description: The primary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  procedures:
+                    description: '<p>Procedures is an array of all procedures.  /ccda
+                      is a better clinical representation.   These fields are:</p>
+
+                      '
+                    properties:
+                      allowableamount:
+                        description: The total amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemax:
+                        description: The maximum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      allowablemin:
+                        description: The minimum amount expected from payer for all
+                          services from this procedure.
+                        type: string
+                      chargeamount:
+                        description: The amount charged for this procedure.
+                        type: string
+                      procedurecategory:
+                        description: The category name associated with this procedure.
+                        type: string
+                      procedurecode:
+                        description: The CPT code associated with this procedure.
+                        type: string
+                      proceduredescription:
+                        description: A description of this procedure.
+                        type: string
+                      servicetypeaddons:
+                        description: Array of service type add-ons (STAOs) for the
+                          charge.
+                        items:
+                          properties:
+                            fields:
+                              items:
+                                properties:
+                                  fieldname:
+                                    description: Service type add-on field name.
+                                    type: string
+                                  fieldvalues:
+                                    items:
+                                      type: string
+                                    type: array
+                                type: object
+                              type: array
+                            identifier:
+                              description: Service type add-on identifier.
+                              type: string
+                          type: object
+                        type: array
+                      transactionid:
+                        description: The ID of the last transaction associated with
+                          the claim.
+                        type: string
+                    type: object
+                  referralauthid:
+                    description: The referral authorization ID for this claim.
+                    type: integer
+                  referringproviderid:
+                    description: The referring provider ID for this claim.  See /referringproviders.  This
+                      is not the same as the ID from the /providers call.
+                    type: integer
+                  relatedtoautoaccidentyn:
+                    description: Patient's condition related to accident.
+                    type: string
+                  relatedtoemploymentyn:
+                    description: Patient's condition related to employment.
+                    type: string
+                  relatedtootheraccidentyn:
+                    description: Patient's condition related to other accident.
+                    type: string
+                  renderingproviderid:
+                    description: Rendering provider.
+                    type: string
+                  reserved10d:
+                    description: Reserved (10d) (remarks).
+                    type: string
+                  reserved19:
+                    description: The text in the Reserved 19 field.
+                    type: string
+                  schedulingproviderid:
+                    description: Scheduling provider.
+                    type: string
+                  secondaryinsurancepayer:
+                    description: The status and notes of a responsible payer.  This
+                      payer is the secondary insurace.
+                    properties:
+                      balance:
+                        description: Outstanding balance from secondary insurance
+                          for this claim.
+                        type: paymentamount
+                      note:
+                        description: The note that is attached to this status.
+                        type: string
+                      secondaryinsurancepackageid:
+                        description: The secondary insurance package id associated
+                          with this claim.
+                        type: integer
+                      secondarypatientinsuranceid:
+                        description: The secondary insurance id associated with this
+                          claim.
+                        type: integer
+                      status:
+                        description: The status associated with this responsible payer.
+                        type: string
+                    type: object
+                  servicetypeaddons:
+                    description: Array of service type add-ons (STAOs) for the claim.
+                    items:
+                      properties:
+                        fields:
+                          items:
+                            properties:
+                              fieldname:
+                                description: Service type add-on field name.
+                                type: string
+                              fieldvalues:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                        identifier:
+                          description: Service type add-on identifier.
+                          type: string
+                      type: object
+                    type: array
+                  signatureonfileassignmentbenefits:
+                    description: Status of signature on file for assignment of benefits.
+                    type: string
+                  signatureonfilereleaseinformation:
+                    description: Status of signature on file for release of billing
+                      information.
+                    type: string
+                  signaturesourcecode:
+                    description: Signature source.
+                    type: string
+                  similarillnessdate:
+                    description: Same or similar illness date.
+                    type: string
+                  supervisingproviderid:
+                    description: The supervising provider ID for this claim.
+                    type: integer
+                  supervisingprovidername:
+                    description: The supervising provider name for this claim.
+                    type: string
+                  tounabletoworkdate:
+                    description: Patient unable to work to date.
+                    type: string
+                  transactiondetails:
+                    description: A hash of ids ("transactionid") to amounts; these
+                      should sum to the chargeamount.
+                    type: object
+                  transactionid:
+                    description: A unique ID for the primary transaction this claim
+                      represents.  May be useful for debugging.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsChanged
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claims Changed Subscription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

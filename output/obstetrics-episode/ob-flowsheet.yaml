@@ -1,0 +1,1129 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/flowsheets:
+    post:
+      summary: Add prenatal flowsheet to OB episode
+      description: 'BETA: Adds a prenatal flowsheet for a given OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: The error message if the transaction failed
+                    type: string
+                  success:
+                    description: Flag representing if the transaction was successful
+                      or not
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  visit:
+                    properties:
+                      albumin:
+                        description: 'Observations of patient''s albumin.  Options
+                          for albumin values are: None, Trace, 1+,2+,3+,4+'
+                        type: string
+                      bishopscore:
+                        description: Observations of a score that assists in predicting
+                          the likelihood that labor will need to be induced.
+                        type: string
+                      blood:
+                        description: Observations of patient's blood values (neg,Trace,1+,2+,3+)
+                        type: string
+                      bloodpressure:
+                        description: Information about the patient's blood pressure
+                        items:
+                          properties:
+                            diastolic:
+                              description: Diastolic component of the patient's blood
+                                pressure
+                              type: string
+                            locationtested:
+                              description: Location where patient's blood pressure
+                                was measured
+                              type: string
+                            refused:
+                              description: If patient refused to have their blood
+                                pressure measured
+                              type: string
+                            refusedreason:
+                              description: 'Reason for refusal of patient''s blood
+                                pressure. Options include: not indicated, not tolerated,
+                                patient refused'
+                              type: string
+                            systolic:
+                              description: Systolic component of the patient's blood
+                                pressure
+                              type: string
+                            type:
+                              description: 'Type of observation of patient''s blood
+                                pressure. Options include: sitting, standing, supine,
+                                lying on side, prone'
+                              type: string
+                          type: object
+                        type: array
+                      cervixexam:
+                        description: Information about cervix exams.
+                        properties:
+                          dilation:
+                            description: Options range from 0 to 10 cms
+                            type: string
+                          effacement:
+                            description: Options range from 0% to 100% with increments
+                              of 10%
+                            type: string
+                          station:
+                            description: Options range from -4 to +4 with increments
+                              of 1
+                            type: string
+                        type: object
+                      comments:
+                        description: Comments for the encounter
+                        type: string
+                      edema:
+                        description: Options for patient's edema values (none, trace,
+                          1+,2+,3+,4+)
+                        type: string
+                      estimatedfetalweight:
+                        description: Observations of the estimated weight of fetus.
+                        type: string
+                      fetalheartrate:
+                        description: Observations of information about the fetal heart
+                          rate.
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            present:
+                              description: Options are 'Present' or 'Absent'
+                              type: string
+                            rate:
+                              description: The fetal heart rate in beats per minute
+                              type: string
+                          type: object
+                        type: array
+                      fetalmovement:
+                        description: 'Observations of fetal movement. Options include:
+                          Yes,No,Decreased,Increased'
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            value:
+                              description: Observation
+                              type: string
+                          type: object
+                        type: array
+                      flowsheetdate:
+                        description: Date for this entry in the prenatal flowsheet
+                        type: string
+                      flowsheetid:
+                        description: ID for this prenatal flowsheet.
+                        type: string
+                      fundus:
+                        description: Observations of information about the fundus.  Units
+                          are 'wks' or 'cm'.
+                        properties:
+                          height:
+                            description: Fundal height.
+                            type: string
+                          units:
+                            description: Units are 'wks' or 'cm'
+                            type: string
+                        type: object
+                      gestationage:
+                        description: This is a string that includes the number of
+                          weeks from the beginning of the gestation followed by a
+                          period, followed by the number of days of the gestation.  For
+                          example, a string that says 2.3 means 2 weeks and 3 days,
+                          or a total of 17 days.  There can be multiple observations
+                          of this field.
+                        type: string
+                      glucose:
+                        description: 'Observations of patient''s glucose.  Options
+                          include: none, trace, 1+,2+,3+,4+.'
+                        type: string
+                      ketones:
+                        description: 'Observations of ketones.  Options include: neg,small,moderate,large,trace'
+                        type: string
+                      leukocytes:
+                        description: 'Observations of Patient''s leukocytes.  Options
+                          include: none, trace, 1+,2+,3+'
+                        type: string
+                      modifiedbishopscore:
+                        description: Observations of a score that assists in predicting
+                          the likelihood that labor will need to be induced, but weights
+                          the solution for a number of other factors (such as the
+                          existence of pre-eclampsia) that aren't captured by the
+                          Bishop Score.
+                        type: string
+                      nitrite:
+                        description: Observations of patient's nitrites.  Options
+                          are Positive or Negative for each observation.
+                        type: string
+                      patientreportofpain:
+                        description: Patient report of pain.  This is a string, but
+                          it's typically reported on a scale from 1 to 10
+                        type: string
+                      phofurine:
+                        description: Observations of PH of patient's urine.
+                        type: string
+                      presentation:
+                        description: 'Observations of presentation.  Options include:
+                          Vertex, Breach,Transverse,Cephalic,Oblique'
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            value:
+                              description: Observation
+                              type: string
+                          type: object
+                        type: array
+                      pretermlaborsigns:
+                        description: 'Options for preterm labor signs are: None,backpain,bleeding,
+                          cramping,uterine contractions,other,pressure,braxton hicks'
+                        type: string
+                      protein:
+                        description: 'Observations of patient''s protein.  Options
+                          include: neg,trace,1+,2+,3+,4+'
+                        type: string
+                      providerid:
+                        description: Provider id.
+                        type: string
+                      specificgravityofurine:
+                        description: Observations of the specific gravity of patient's
+                          urine.
+                        type: string
+                      weight:
+                        description: Observations of patient's weight.
+                        items:
+                          properties:
+                            outofrange:
+                              description: Whether the patient's weight is out of
+                                range
+                              type: string
+                            prepostdialysis:
+                              description: Whether the patient's weight was taken
+                                pre or post dialysis
+                              type: string
+                            refused:
+                              description: If patient refused to have their weight
+                                measured
+                              type: string
+                            type:
+                              description: 'Type of observation of patient''s weight.
+                                Options include: stated, dry, preoperative, with clothes,
+                                without clothes, first'
+                              type: string
+                            weight:
+                              description: Patient weight in lbs
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidObepisodesObepisodeidFlowsheets
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - encounterdate
+              - departmentid
+              properties:
+                blood:
+                  type: integer
+                  description: Observations of patient's blood values. Options can
+                    be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                edema:
+                  type: string
+                  description: Patient's edema values. Options can be found via GET
+                    /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                fundus:
+                  type: object
+                  properties:
+                    units:
+                      type: string
+                      description: The fundal height units.  Options can be found
+                        via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    height:
+                      type: string
+                      description: Fundal height.
+                  description: Observations of information about the fundus.
+                weight:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of observation of patient's weight. Options
+                          can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      units:
+                        type: string
+                        description: The units that the patient's weight measurement
+                          was made in. The currently configured units can be determined
+                          using the units of the weight field returned by GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      weight:
+                        type: integer
+                        description: Patient weight in the units passed in.
+                      refused:
+                        type: string
+                        description: If patient refused to have their weight measured.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      outofrange:
+                        type: string
+                        description: Whether the patient's weight is out of range.  Options
+                          can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      prepostdialysis:
+                        type: string
+                        description: Whether the patient's weight was taken pre or
+                          post dialysis. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of observations of patient's weight.
+                albumin:
+                  type: integer
+                  description: Observations of patient's albumin.  Options for albumin
+                    values can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                glucose:
+                  type: string
+                  description: Observations of patient's glucose. Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                ketones:
+                  type: string
+                  description: Observations of ketones. Options can be found via GET
+                    /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                nitrite:
+                  type: string
+                  description: Observations of patient's nitrites. Options can be
+                    found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                protein:
+                  type: integer
+                  description: Observations of patient's protein. Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                comments:
+                  type: string
+                  description: Comments for the encounter
+                provider:
+                  type: string
+                  description: Name of the rendering provider. If not supplied, this
+                    will default to the username of the providerid supplied.
+                phofurine:
+                  type: string
+                  description: Observations of PH of patient's urine.
+                cervixexam:
+                  type: object
+                  properties:
+                    station:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    dilation:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    effacement:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: Information about cervix exams.
+                leukocytes:
+                  type: string
+                  description: Observations of Patient's leukocytes. Options can be
+                    found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                providerid:
+                  type: integer
+                  description: ID of the rendering provider
+                bishopscore:
+                  type: integer
+                  description: Observations of a score that assists in predicting
+                    the likelihood that labor will need to be induced.
+                departmentid:
+                  type: integer
+                  description: ID of the department the patient was seen in.
+                gestationage:
+                  type: string
+                  description: This is a string that includes the number of weeks
+                    from the beginning of the gestation followed by a period, followed
+                    by the number of days of the gestation.  For example, a string
+                    that says 2.3 means 2 weeks and 3 days, or a total of 17 days.  There
+                    can be multiple observations of this field.
+                presentation:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      value:
+                        type: string
+                        description: Observation
+                  description: Observations of presentation.  Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                bloodpressure:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of observation of patient's blood pressure.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      refused:
+                        type: string
+                        description: If patient refused to have their blood pressure
+                          measured. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      systolic:
+                        type: integer
+                        description: Systolic component of the patient's blood pressure
+                      diastolic:
+                        type: integer
+                        description: Diastolic component of the patient's blood pressure
+                      refusedreason:
+                        type: string
+                        description: Reason for patient having refused to have their
+                          blood pressure measured. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      locationtested:
+                        type: string
+                        description: Location where patient's blood pressure was measured.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      systolicrefused:
+                        type: string
+                        description: If patient refused to have the systolic component
+                          of their blood pressure measured. Options can be found via
+                          GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      diastolicrefused:
+                        type: string
+                        description: If patient refused to have the diastolic component
+                          of their blood pressure measured. Options can be found via
+                          GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of information about the patient's blood
+                    pressure
+                encounterdate:
+                  type: string
+                  description: Date in which the patient was seen.
+                fetalmovement:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      value:
+                        type: string
+                        description: Observation
+                  description: A JSON array of observations of fetal movement. Options
+                    can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                fetalheartrate:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      rate:
+                        type: string
+                        description: The fetal heart rate in beats per minute
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      present:
+                        type: string
+                        description: Indicates presence of a heart beat. Options can
+                          be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of observations of information about the
+                    fetal heart rate.
+                pretermlaborsigns:
+                  type: string
+                  description: Options for preterm labor can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                modifiedbishopscore:
+                  type: integer
+                  description: Observations of a score that assists in predicting
+                    the likelihood that labor will need to be induced, but weights
+                    the solution for a number of other factors (such as the existence
+                    of pre-eclampsia) that aren't captured by the Bishop Score.
+                patientreportofpain:
+                  type: integer
+                  description: Patient report of pain.  This is a string, but it's
+                    typically reported on a scale from 1 to 10
+                estimatedfetalweight:
+                  type: string
+                  description: Observations of the estimated weight of fetus. Options
+                    can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                specificgravityofurine:
+                  type: string
+                  description: Observations of the specific gravity of patient's urine.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/flowsheets/{flowsheetid}:
+    put:
+      summary: Update flowsheet of OB episode
+      description: 'BETA: Modifies a specified prenatal flowsheet for a given OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: flowsheetid
+        schema:
+          type: integer
+        required: true
+        description: flowsheetid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: The error message if the transaction failed
+                    type: string
+                  success:
+                    description: Flag representing if the transaction was successful
+                      or not
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  visit:
+                    properties:
+                      albumin:
+                        description: 'Observations of patient''s albumin.  Options
+                          for albumin values are: None, Trace, 1+,2+,3+,4+'
+                        type: string
+                      bishopscore:
+                        description: Observations of a score that assists in predicting
+                          the likelihood that labor will need to be induced.
+                        type: string
+                      blood:
+                        description: Observations of patient's blood values (neg,Trace,1+,2+,3+)
+                        type: string
+                      bloodpressure:
+                        description: Information about the patient's blood pressure
+                        items:
+                          properties:
+                            diastolic:
+                              description: Diastolic component of the patient's blood
+                                pressure
+                              type: string
+                            locationtested:
+                              description: Location where patient's blood pressure
+                                was measured
+                              type: string
+                            refused:
+                              description: If patient refused to have their blood
+                                pressure measured
+                              type: string
+                            refusedreason:
+                              description: 'Reason for refusal of patient''s blood
+                                pressure. Options include: not indicated, not tolerated,
+                                patient refused'
+                              type: string
+                            systolic:
+                              description: Systolic component of the patient's blood
+                                pressure
+                              type: string
+                            type:
+                              description: 'Type of observation of patient''s blood
+                                pressure. Options include: sitting, standing, supine,
+                                lying on side, prone'
+                              type: string
+                          type: object
+                        type: array
+                      cervixexam:
+                        description: Information about cervix exams.
+                        properties:
+                          dilation:
+                            description: Options range from 0 to 10 cms
+                            type: string
+                          effacement:
+                            description: Options range from 0% to 100% with increments
+                              of 10%
+                            type: string
+                          station:
+                            description: Options range from -4 to +4 with increments
+                              of 1
+                            type: string
+                        type: object
+                      comments:
+                        description: Comments for the encounter
+                        type: string
+                      edema:
+                        description: Options for patient's edema values (none, trace,
+                          1+,2+,3+,4+)
+                        type: string
+                      estimatedfetalweight:
+                        description: Observations of the estimated weight of fetus.
+                        type: string
+                      fetalheartrate:
+                        description: Observations of information about the fetal heart
+                          rate.
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            present:
+                              description: Options are 'Present' or 'Absent'
+                              type: string
+                            rate:
+                              description: The fetal heart rate in beats per minute
+                              type: string
+                          type: object
+                        type: array
+                      fetalmovement:
+                        description: 'Observations of fetal movement. Options include:
+                          Yes,No,Decreased,Increased'
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            value:
+                              description: Observation
+                              type: string
+                          type: object
+                        type: array
+                      flowsheetdate:
+                        description: Date for this entry in the prenatal flowsheet
+                        type: string
+                      flowsheetid:
+                        description: ID for this prenatal flowsheet.
+                        type: string
+                      fundus:
+                        description: Observations of information about the fundus.  Units
+                          are 'wks' or 'cm'.
+                        properties:
+                          height:
+                            description: Fundal height.
+                            type: string
+                          units:
+                            description: Units are 'wks' or 'cm'
+                            type: string
+                        type: object
+                      gestationage:
+                        description: This is a string that includes the number of
+                          weeks from the beginning of the gestation followed by a
+                          period, followed by the number of days of the gestation.  For
+                          example, a string that says 2.3 means 2 weeks and 3 days,
+                          or a total of 17 days.  There can be multiple observations
+                          of this field.
+                        type: string
+                      glucose:
+                        description: 'Observations of patient''s glucose.  Options
+                          include: none, trace, 1+,2+,3+,4+.'
+                        type: string
+                      ketones:
+                        description: 'Observations of ketones.  Options include: neg,small,moderate,large,trace'
+                        type: string
+                      leukocytes:
+                        description: 'Observations of Patient''s leukocytes.  Options
+                          include: none, trace, 1+,2+,3+'
+                        type: string
+                      modifiedbishopscore:
+                        description: Observations of a score that assists in predicting
+                          the likelihood that labor will need to be induced, but weights
+                          the solution for a number of other factors (such as the
+                          existence of pre-eclampsia) that aren't captured by the
+                          Bishop Score.
+                        type: string
+                      nitrite:
+                        description: Observations of patient's nitrites.  Options
+                          are Positive or Negative for each observation.
+                        type: string
+                      patientreportofpain:
+                        description: Patient report of pain.  This is a string, but
+                          it's typically reported on a scale from 1 to 10
+                        type: string
+                      phofurine:
+                        description: Observations of PH of patient's urine.
+                        type: string
+                      presentation:
+                        description: 'Observations of presentation.  Options include:
+                          Vertex, Breach,Transverse,Cephalic,Oblique'
+                        items:
+                          properties:
+                            fetus:
+                              description: In a multiple fetus pregnancy, this will
+                                be unique to a specific fetus.
+                              type: string
+                            value:
+                              description: Observation
+                              type: string
+                          type: object
+                        type: array
+                      pretermlaborsigns:
+                        description: 'Options for preterm labor signs are: None,backpain,bleeding,
+                          cramping,uterine contractions,other,pressure,braxton hicks'
+                        type: string
+                      protein:
+                        description: 'Observations of patient''s protein.  Options
+                          include: neg,trace,1+,2+,3+,4+'
+                        type: string
+                      providerid:
+                        description: Provider id.
+                        type: string
+                      specificgravityofurine:
+                        description: Observations of the specific gravity of patient's
+                          urine.
+                        type: string
+                      weight:
+                        description: Observations of patient's weight.
+                        items:
+                          properties:
+                            outofrange:
+                              description: Whether the patient's weight is out of
+                                range
+                              type: string
+                            prepostdialysis:
+                              description: Whether the patient's weight was taken
+                                pre or post dialysis
+                              type: string
+                            refused:
+                              description: If patient refused to have their weight
+                                measured
+                              type: string
+                            type:
+                              description: 'Type of observation of patient''s weight.
+                                Options include: stated, dry, preoperative, with clothes,
+                                without clothes, first'
+                              type: string
+                            weight:
+                              description: Patient weight in lbs
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidObepisodesObepisodeidFlowsheetsFlowsheetid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                blood:
+                  type: integer
+                  description: Observations of patient's blood values. Options can
+                    be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                edema:
+                  type: string
+                  description: Patient's edema values. Options can be found via GET
+                    /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                fundus:
+                  type: object
+                  properties:
+                    units:
+                      type: string
+                      description: The fundal height units.  Options can be found
+                        via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    height:
+                      type: string
+                      description: Fundal height.
+                  description: Observations of information about the fundus.
+                weight:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of observation of patient's weight. Options
+                          can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      units:
+                        type: string
+                        description: The units that the patient's weight measurement
+                          was made in. The currently configured units can be determined
+                          using the units of the weight field returned by GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      weight:
+                        type: integer
+                        description: Patient weight in the units passed in.
+                      refused:
+                        type: string
+                        description: If patient refused to have their weight measured.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      outofrange:
+                        type: string
+                        description: Whether the patient's weight is out of range.  Options
+                          can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      prepostdialysis:
+                        type: string
+                        description: Whether the patient's weight was taken pre or
+                          post dialysis. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of observations of patient's weight.
+                albumin:
+                  type: integer
+                  description: Observations of patient's albumin.  Options for albumin
+                    values can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                glucose:
+                  type: string
+                  description: Observations of patient's glucose. Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                ketones:
+                  type: string
+                  description: Observations of ketones. Options can be found via GET
+                    /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                nitrite:
+                  type: string
+                  description: Observations of patient's nitrites. Options can be
+                    found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                protein:
+                  type: integer
+                  description: Observations of patient's protein. Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                comments:
+                  type: string
+                  description: Comments for the encounter
+                phofurine:
+                  type: string
+                  description: Observations of PH of patient's urine.
+                cervixexam:
+                  type: object
+                  properties:
+                    station:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    dilation:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                    effacement:
+                      type: string
+                      description: Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: Information about cervix exams.
+                leukocytes:
+                  type: string
+                  description: Observations of Patient's leukocytes. Options can be
+                    found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                bishopscore:
+                  type: integer
+                  description: Observations of a score that assists in predicting
+                    the likelihood that labor will need to be induced.
+                gestationage:
+                  type: string
+                  description: This is a string that includes the number of weeks
+                    from the beginning of the gestation followed by a period, followed
+                    by the number of days of the gestation.  For example, a string
+                    that says 2.3 means 2 weeks and 3 days, or a total of 17 days.  There
+                    can be multiple observations of this field.
+                presentation:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      value:
+                        type: string
+                        description: Observation
+                  description: Observations of presentation.  Options can be found
+                    via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                bloodpressure:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Type of observation of patient's blood pressure.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      refused:
+                        type: string
+                        description: If patient refused to have their blood pressure
+                          measured. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      systolic:
+                        type: integer
+                        description: Systolic component of the patient's blood pressure
+                      diastolic:
+                        type: integer
+                        description: Diastolic component of the patient's blood pressure
+                      refusedreason:
+                        type: string
+                        description: Reason for patient having refused to have their
+                          blood pressure measured. Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      locationtested:
+                        type: string
+                        description: Location where patient's blood pressure was measured.
+                          Options can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      systolicrefused:
+                        type: string
+                        description: If patient refused to have the systolic component
+                          of their blood pressure measured. Options can be found via
+                          GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                      diastolicrefused:
+                        type: string
+                        description: If patient refused to have the diastolic component
+                          of their blood pressure measured. Options can be found via
+                          GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of information about the patient's blood
+                    pressure
+                fetalmovement:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      value:
+                        type: string
+                        description: Observation
+                  description: A JSON array of observations of fetal movement. Options
+                    can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                fetalheartrate:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      rate:
+                        type: string
+                        description: The fetal heart rate in beats per minute
+                      fetus:
+                        type: string
+                        description: In a multiple fetus pregnancy, this will be unique
+                          to a specific fetus.
+                      present:
+                        type: string
+                        description: Indicates presence of a heart beat. Options can
+                          be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                  description: A JSON array of observations of information about the
+                    fetal heart rate.
+                pretermlaborsigns:
+                  type: string
+                  description: Options for preterm labor can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                modifiedbishopscore:
+                  type: integer
+                  description: Observations of a score that assists in predicting
+                    the likelihood that labor will need to be induced, but weights
+                    the solution for a number of other factors (such as the existence
+                    of pre-eclampsia) that aren't captured by the Bishop Score.
+                patientreportofpain:
+                  type: integer
+                  description: Patient report of pain.  This is a string, but it's
+                    typically reported on a scale from 1 to 10
+                estimatedfetalweight:
+                  type: string
+                  description: Observations of the estimated weight of fetus. Options
+                    can be found via GET /chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration
+                specificgravityofurine:
+                  type: string
+                  description: Observations of the specific gravity of patient's urine.
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+    delete:
+      summary: Delete flowsheet of OB episode
+      description: 'BETA: Deletes a specified prenatal flowsheet for a given OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: flowsheetid
+        schema:
+          type: integer
+        required: true
+        description: flowsheetid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns a boolean true if successfully deleted the
+                      prenatal flowsheet.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidObepisodesObepisodeidFlowsheetsFlowsheetid
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}/flowsheet/configuration:
+    get:
+      summary: Get reference field-list for prenatal flowsheet
+      description: 'BETA: Retrieves the valid fields for a prenatal flowsheet in an
+        OB Episode'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the field.
+                    type: string
+                  parentfield:
+                    description: The name of the field that this field is nested under,
+                      if this field should be nested in an object.
+                    type: string
+                  units:
+                    description: Contains which units are currently configured if
+                      the field can be configured to use specific units.
+                    type: string
+                  validoptions:
+                    description: The list of valid inputs if this field only accepts
+                      certain values.
+                    items:
+                      properties:
+                        description:
+                          description: The displayed description of the value.
+                          type: string
+                        value:
+                          description: The underlying value for the option.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidObepisodesObepisodeidFlowsheetConfiguration
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

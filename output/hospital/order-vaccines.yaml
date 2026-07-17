@@ -1,0 +1,444 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/orders/vaccine:
+    get:
+      summary: Get list of vaccine orders for a stay
+      description: 'BETA: Retrieves a list of vaccine orders for a specific patient''s
+        stay in the hospital.'
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: statusgroup
+        schema:
+          enum:
+          - active
+          - signed
+          - unsigned
+          type: string
+          x-enumDescriptions:
+          - ACTIVE
+          - SIGNED
+          - UNSIGNED
+        required: false
+        description: 'Active: Orders that are not yet completed. Signed orders: Orders
+          that are signed by a doctor. Unsigned orders: Orders that have not yet been
+          signed.'
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  activateddate:
+                    description: The date the order was entered. Returned in mm/dd/yyyy
+                      hh24:mi:ss format.
+                    type: string
+                  activateduser:
+                    description: The user who placed the order.
+                    type: string
+                  approveddate:
+                    description: The date the order was signed by a doctor. Returned
+                      in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  approveduser:
+                    description: The user who signed the placed order.
+                    type: string
+                  completeddate:
+                    description: The date the order was completed. Returned in mm/dd/yyyy
+                      hh24:mi:ss format.
+                    type: string
+                  completeduser:
+                    description: The user who marked the order as completed via OrderView
+                      (means no work left).
+                    type: string
+                  createddate:
+                    description: The date the order was queued up to be placed in
+                      order entry. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  createduser:
+                    description: The user who queued up the order to be placed.
+                    type: string
+                  departmentid:
+                    description: The ID of the department from where the order was
+                      placed.
+                    type: integer
+                  discontinueddate:
+                    description: The date the order was discontinued. Returned in
+                      mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  discontinuedreason:
+                    description: The reason a user entered for why the order was discontinued.
+                    type: string
+                  discontinueduser:
+                    description: The user who discontinued the order.
+                    type: string
+                  discontinueorderingmethodname:
+                    description: The method through which the doctor instructed the
+                      order to be discontinued (Verbal, Written, Fax, Phone).
+                    type: string
+                  discontinueorderingproviderid:
+                    description: The ID of the doctor who instructed the order to
+                      be discontinued.
+                    type: integer
+                  discontinueorderingprovidername:
+                    description: The name of the doctor who instructed the order to
+                      be discontinued.
+                    type: string
+                  discontinuesigneddate:
+                    description: The date the discontinue order was signed by a doctor.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  discontinuesigneduser:
+                    description: The doctor who signed the discontinue order.
+                    type: string
+                  doseamount:
+                    description: The quantity of the vaccine ordered.
+                    type: integer
+                  doseunit:
+                    description: The unit attribution of the dose amount. E.g., ml,
+                      mg, grams.
+                    type: string
+                  name:
+                    description: The name of the order.
+                    type: string
+                  note:
+                    description: Free text comments field.
+                    type: string
+                  ordercreateddate:
+                    description: The date the order was originally placed if order
+                      was generated outside athena. Returned in mm/dd/yyyy hh24:mi:ss
+                      format.
+                    type: string
+                  orderid:
+                    description: The unique athena ID of this instance of the order.
+                    type: integer
+                  orderingmethodname:
+                    description: The method through which the doctor instructed the
+                      order to be placed (Verbal, Written, Fax, Phone).
+                    type: string
+                  orderingproviderid:
+                    description: The ID of the ordering doctor, which could be different
+                      than the user who placed the order (for example, an intake nurse).
+                    type: integer
+                  orderingprovidername:
+                    description: The name of the doctor who is placing the order.
+                    type: string
+                  orderingproviderphone:
+                    description: The phone number for the ordering doctor.
+                    type: string
+                  ordertypeid:
+                    description: The athena ID for the type of order being placed.
+                    type: integer
+                  priority:
+                    description: The urgency of the order to be performed. For instance
+                      does the vaccine need to be performed immediately or can it
+                      wait for a routine rounding time. Options are STAT/Now/Routine/Scheduled.
+                    type: string
+                  referringproviderid:
+                    description: The ID of the referring doctor, which may be a doctor
+                      outside of the practice who placed an order getting fulfilled
+                      in the hospital.
+                    type: integer
+                  startdate:
+                    description: 'The date the order is scheduled to begin. Returned
+                      in mm/dd/yyyy hh24:mi:ss format. '
+                    type: string
+                  status:
+                    description: The status the order is in.
+                    type: string
+                  stayid:
+                    description: The ID of the hospital stay where the order was placed
+                      from.
+                    type: integer
+                  unstructuredsig:
+                    description: Order details entered through a free text, rather
+                      than structured, order workflow.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidOrdersVaccine
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Vaccine Orders
+  /v1/{practiceid}/stays/active/orders/vaccine:
+    get:
+      summary: Get list of vaccine orders for all patients currently in hospital
+      description: 'BETA: Retrieves a list of vaccine orders of a particular type
+        for all patients currently in the hospital.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: ordertypeid
+        schema:
+          type: integer
+        required: true
+        description: The athena ID for the type of order being placed. Get the IDs
+          using /stays/configuration/orders/vaccine.
+      - in: query
+        name: statusgroup
+        schema:
+          enum:
+          - active
+          - signed
+          - unsigned
+          type: string
+          x-enumDescriptions:
+          - ACTIVE
+          - SIGNED
+          - UNSIGNED
+        required: false
+        description: 'Active: Orders that are not yet completed. Signed orders: Orders
+          that are signed by a doctor. Unsigned orders: Orders that have not yet been
+          signed.'
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  activateddate:
+                    description: The date the order was entered. Returned in mm/dd/yyyy
+                      hh24:mi:ss format.
+                    type: string
+                  activateduser:
+                    description: The user who placed the order.
+                    type: string
+                  approveddate:
+                    description: The date the order was signed by a doctor. Returned
+                      in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  approveduser:
+                    description: The user who signed the placed order.
+                    type: string
+                  completeddate:
+                    description: The date the order was completed. Returned in mm/dd/yyyy
+                      hh24:mi:ss format.
+                    type: string
+                  completeduser:
+                    description: The user who marked the order as completed via OrderView
+                      (means no work left).
+                    type: string
+                  createddate:
+                    description: The date the order was queued up to be placed in
+                      order entry. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  createduser:
+                    description: The user who queued up the order to be placed.
+                    type: string
+                  departmentid:
+                    description: The ID of the department from where the order was
+                      placed.
+                    type: integer
+                  discontinueddate:
+                    description: The date the order was discontinued. Returned in
+                      mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  discontinuedreason:
+                    description: The reason a user entered for why the order was discontinued.
+                    type: string
+                  discontinueduser:
+                    description: The user who discontinued the order.
+                    type: string
+                  discontinueorderingmethodname:
+                    description: The method through which the doctor instructed the
+                      order to be discontinued (Verbal, Written, Fax, Phone).
+                    type: string
+                  discontinueorderingproviderid:
+                    description: The ID of the doctor who instructed the order to
+                      be discontinued.
+                    type: integer
+                  discontinueorderingprovidername:
+                    description: The name of the doctor who instructed the order to
+                      be discontinued.
+                    type: string
+                  discontinuesigneddate:
+                    description: The date the discontinue order was signed by a doctor.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  discontinuesigneduser:
+                    description: The doctor who signed the discontinue order.
+                    type: string
+                  doseamount:
+                    description: The quantity of the vaccine ordered.
+                    type: integer
+                  doseunit:
+                    description: The unit attribution of the dose amount. E.g., ml,
+                      mg, grams.
+                    type: string
+                  name:
+                    description: The name of the order.
+                    type: string
+                  note:
+                    description: Free text comments field.
+                    type: string
+                  ordercreateddate:
+                    description: The date the order was originally placed if order
+                      was generated outside athena. Returned in mm/dd/yyyy hh24:mi:ss
+                      format.
+                    type: string
+                  orderid:
+                    description: The unique athena ID of this instance of the order.
+                    type: integer
+                  orderingmethodname:
+                    description: The method through which the doctor instructed the
+                      order to be placed (Verbal, Written, Fax, Phone).
+                    type: string
+                  orderingproviderid:
+                    description: The ID of the ordering doctor, which could be different
+                      than the user who placed the order (for example, an intake nurse).
+                    type: integer
+                  orderingprovidername:
+                    description: The name of the doctor who is placing the order.
+                    type: string
+                  orderingproviderphone:
+                    description: The phone number for the ordering doctor.
+                    type: string
+                  ordertypeid:
+                    description: The athena ID for the type of order being placed.
+                    type: integer
+                  priority:
+                    description: The urgency of the order to be performed. For instance
+                      does the vaccine need to be performed immediately or can it
+                      wait for a routine rounding time. Options are STAT/Now/Routine/Scheduled.
+                    type: string
+                  referringproviderid:
+                    description: The ID of the referring doctor, which may be a doctor
+                      outside of the practice who placed an order getting fulfilled
+                      in the hospital.
+                    type: integer
+                  startdate:
+                    description: 'The date the order is scheduled to begin. Returned
+                      in mm/dd/yyyy hh24:mi:ss format. '
+                    type: string
+                  status:
+                    description: The status the order is in.
+                    type: string
+                  stayid:
+                    description: The ID of the hospital stay where the order was placed
+                      from.
+                    type: integer
+                  unstructuredsig:
+                    description: Order details entered through a free text, rather
+                      than structured, order workflow.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysActiveOrdersVaccine
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Vaccine Orders
+  /v1/{practiceid}/stays/configuration/orders/vaccine:
+    get:
+      summary: Get reference list of orderable vaccines
+      description: 'BETA: Retrieves a list of vaccines configured in the system'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysConfigurationOrdersVaccine
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Vaccine Orders
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

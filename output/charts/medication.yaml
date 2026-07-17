@@ -1,0 +1,778 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/medications:
+    post:
+      summary: Add medication to patient's medication list
+      description: Add a new medication to the patient's medication list
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  medicationentryid:
+                    description: If successful, the athena ID of the newly created
+                      historical medication
+                    type: string
+                  success:
+                    description: Whether the operation was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidMedications
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - medicationid
+              properties:
+                hidden:
+                  type: boolean
+                  description: Set whether the medication is hidden in the UI.
+                stopdate:
+                  type: string
+                  description: Stop date for this medication
+                startdate:
+                  type: string
+                  description: Start date for this medication
+                stopreason:
+                  type: string
+                  description: The reason the medication was stopped. If set, it it
+                    recommended but not required that a stop date is also set.
+                patientnote:
+                  type: string
+                  description: A patient-facing note
+                departmentid:
+                  type: integer
+                  description: The athenanet department ID
+                medicationid:
+                  type: integer
+                  description: The athena medication ID
+                providernote:
+                  type: string
+                  description: An internal note
+                unstructuredsig:
+                  type: string
+                  description: Can only be used to update historical (entered, downloaded,
+                    etc) medications. Will override a structured sig if there is one.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+        required: true
+      tags:
+      - Chart
+      - Medications
+    get:
+      summary: Get patient's medication list
+      description: Retrieves list of patient's medication and medication details
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: patientid
+        in: path
+        name: patientid
+        required: true
+        schema:
+          type: integer
+      - description: The athenanet department ID
+        in: query
+        name: departmentid
+        required: true
+        schema:
+          type: integer
+      - description: Shows the list of NDC numbers related to the medication.
+        in: query
+        name: showndc
+        required: false
+        schema:
+          type: boolean
+      - description: 'Shows the list of RxNorm Identifiers related to the medication.
+          The list may contain both branded and generic identifiers. Note: Not All
+          medications would include RX Norm.'
+        in: query
+        name: showrxnorm
+        required: false
+        schema:
+          type: boolean
+      - description: Historical or Active or Denied. Will return a list of a patient's
+          active or historical or denied medications.
+        in: query
+        name: medicationtype
+        required: false
+        schema:
+          enum:
+          - ACTIVE
+          - DENIED
+          - HISTORICAL
+          type: string
+          x-enumDescriptions:
+          - Active
+          - Denied
+          - Historical
+      - description: Include pending medications associated with approved future orders.
+          These medications have not yet been submitted.
+        in: query
+        name: showpend
+        required: false
+        schema:
+          type: boolean
+      - description: User name of the patient in the third party application.
+        in: query
+        name: THIRDPARTYUSERNAME
+        required: false
+        schema:
+          type: string
+      - description: When 'true' is passed we will collect relevant data and store
+          in our database.
+        in: query
+        name: PATIENTFACINGCALL
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lastupdated:
+                    type: string
+                    description: The last time any of the medications were updated
+                  medications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        route:
+                          type: string
+                          description: The route for the prescription.
+                        events:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                type: string
+                                description: The event type. Can be START, END, ORDER,
+                                  ENTER, FILL, or HIDE.
+                              eventdate:
+                                type: string
+                                description: The date this event occurred
+                              userdisplayname:
+                                type: string
+                                description: The display name for the user most relevant
+                                  for this event.  May be null.
+                          description: The list of events for this medication. Can
+                            be START, END, ORDER, ENTER, FILL, or HIDE.
+                        rxnorm:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              rxnormidentifier:
+                                type: string
+                                description: An RxNorm Identifier that corresponds
+                                  to this medication
+                          description: 'The list of RxNorm Identifiers that correspond
+                            to this medication. This list may contain both branded
+                            and generic identifiers. Note: Not All medications would
+                            include RX Norm.'
+                        source:
+                          type: string
+                          description: How this medication was entered. This can be
+                            the ordering provider, "surescripts" or "Med Fill History"
+                            (which means it was from med history download), "ATHENA"
+                            (which means it was entered manually), etc.
+                        status:
+                          type: string
+                          description: The status of this medication. Medications
+                            in PEND status are associated with approved future orders
+                            and have not yet been submitted.
+                        filldate:
+                          type: string
+                          description: The date of the fill event if the most recent
+                            event was a fill event. Otherwise this field will not
+                            be populated
+                        pharmacy:
+                          type: string
+                          description: The name of the pharmacy where this medication
+                            was filled.
+                        quantity:
+                          type: number
+                          description: The total quantity prescribed, dispensed, administered.
+                            This is not currently available for historical (downloaded)
+                            medications.
+                        createdby:
+                          type: string
+                          description: The athenaNet username of the person who entered
+                            or ordered the medication. Downloaded medications have
+                            INTERFACE for this field.
+                        approvedby:
+                          type: string
+                          description: For clinical prescriptions, the athenaNet username
+                            of the person who approved this prescription.
+                        billingndc:
+                          type: string
+                          description: The billing NDC code for this medication.
+                        medication:
+                          type: string
+                          description: The name of the medication.
+                        ndcoptions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ndcoption:
+                                type: string
+                                description: An NDC number that corresponds to this
+                                  medication
+                          description: The list of NDC numbers that correspond to
+                            this medication.
+                        organclass:
+                          type: string
+                          description: The organ class for this medication. This is
+                            equivalent to a medication class.
+                        stopreason:
+                          type: string
+                          description: The reason why this medication was stopped.
+                        encounterid:
+                          type: integer
+                          description: If this was a prescription, this contains the
+                            ID of the encounter where it was ordered or administered
+                        patientnote:
+                          type: string
+                          description: Patient-facing note for this prescription.
+                            Labeled "note" in the UI.
+                        medicationid:
+                          type: integer
+                          description: Athena ID for this medication.
+                        newindicator:
+                          type: string
+                          description: Whether a medication is new since the last
+                            encounter close date for the provided department (added/stopped
+                            automatically by the system or entered by a user ["AUTOADD"
+                            | "AUTOSTOP" | "MANUALADD"]) or "NOTNEW".
+                        orderingmode:
+                          type: string
+                          description: The ordering mode for prescriptions. Can be
+                            PRESCRIBE, DISPENSE, or ADMINISTER.
+                        prescribedby:
+                          type: string
+                          description: The user who prescribed this medication.
+                        providernote:
+                          type: string
+                          description: Non-patient facing note for ths prescription.
+                            Labeled "internal note" in the UI.
+                        quantityunit:
+                          type: string
+                          description: 'The unit of the quantity. Example: tablets,
+                            sprays, etc.'
+                        issafetorenew:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        structuredsig:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              dosageroute:
+                                type: string
+                                description: 'How this medication is taken. Example:
+                                  oral, inhalation, intranasal, etc.'
+                              dosageaction:
+                                type: string
+                                description: How the medication is taken. Examples
+                                  are Chew, Take, Inhale, etc.
+                              dosagedurationunit:
+                                type: string
+                                description: 'The unit of the duration. Example: days.
+                                  So take this for <duration> days.'
+                              dosagequantityunit:
+                                type: string
+                                description: 'The unit of the quantity. Example: tablets,
+                                  sprays, etc.'
+                              dosagedurationvalue:
+                                type: integer
+                                description: How many duration time units this medication
+                                  should be taken for.
+                              dosagefrequencyunit:
+                                type: string
+                                description: 'The unit of the frequency. Example:
+                                  per day, per week.'
+                              dosagequantityvalue:
+                                type: number
+                                description: How many of this med is taken.
+                              dosagefrequencyvalue:
+                                type: number
+                                description: How many times (in the given time unit)
+                                  this should be taken.
+                              dosagefrequencydescription:
+                                type: string
+                                description: 'A standardized patient-friendly frequency.
+                                  Example: 6 per day becomes "every 4 hours".'
+                              dosageadditionalinstructions:
+                                type: string
+                                description: 'Additional instructions. Example: with
+                                  meals'
+                          description: Components of the structured sig.
+                        isdiscontinued:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: Whether or not the given medication is discontinued
+                            and cannot be ordered anymore
+                        refillsallowed:
+                          type: integer
+                          description: The number of refills allowed when this medication
+                            was ordered.
+                        isstructuredsig:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: Whether the sig for this entry is structured.
+                        pharmacyncpdpid:
+                          type: string
+                          description: The NCPDP ID of the pharmacy for this medication..  See
+                            http://www.ncpdp.org/ for details.
+                        unstructuredsig:
+                          type: string
+                          description: The unstructured sig for this medication, if
+                            any. If there is a structured sig, this will contain the
+                            formatted version of that sig.
+                        earliestfilldate:
+                          type: string
+                          description: The earliest date a prescription may be filled,
+                            in the format mm/dd/yyyy.
+                        futuresubmitdate:
+                          type: string
+                          description: The date a medication will be submitted. Included
+                            if the medication is in PEND status and attached to a
+                            approved future order.
+                        therapeuticclass:
+                          type: string
+                          description: The therapeutic class for this medication.
+                            This is equivalent to a medication subclass.
+                        medicationentryid:
+                          type: string
+                          description: Primary ID for this medication entry. Those
+                            starting with C are clinical prescriptions, and those
+                            starting with H are historical (entered, downloaded, etc).
+                    description: The list of medications
+                  sectionnote:
+                    type: string
+                    description: A section-wide note
+                  lastdownloaddenied:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether or not the last medication history download
+                      was denied.
+                  lastdownloadeddate:
+                    type: string
+                    description: The time of the last attempted medication history
+                      download from SureScripts.
+                  nomedicationsreported:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the patient explicitly has no reported medications
+                  patientdownloadconsent:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether or not the patient has consented to have
+                      their medication history downloaded. There are plans to deprecate
+                      this field.
+                  lastdownloaddenialreason:
+                    type: string
+                    description: The reason the last medication history download was
+                      denied.
+                  patientneedsdownloadconsent:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether or not the patient needs to consent to have
+                      medication history downloaded. This will be true if either the
+                      patient has not currently consented, or the practice is not
+                      enabled for these downloads.  This field is typically used when
+                      determining whether to message to the patient that they have
+                      not consented to these downloads. Note that regardless of this
+                      setting, medication history that has already been downloaded
+                      will remain available.
+          description: Success
+      operationId: getPracticeidChartPatientidMedications
+      x-scopes: []
+      tags:
+      - Chart
+      - Medications
+    put:
+      summary: Update patient's medication list
+      description: Modifies the patient 's existing medication
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidMedications
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                sectionnote:
+                  type: string
+                  description: The section-wide note for medications.
+                departmentid:
+                  type: integer
+                  description: The athenanet department ID
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+                nomedicationsreported:
+                  type: boolean
+                  description: Set the "None Reported" checkbox indicating that no
+                    medications were reported for this patient.
+        required: true
+      tags:
+      - Chart
+      - Medications
+  /v1/{practiceid}/chart/{patientid}/medications/{medicationentryid}:
+    put:
+      summary: Update patient's medication list
+      description: Modifies the properties of a given medication. E.g. reason to stop
+        having the medication, etc.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: medicationentryid
+        schema:
+          type: string
+        required: true
+        description: medicationentryid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidMedicationsMedicationentryid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                hidden:
+                  type: boolean
+                  description: Set whether the medication is hidden in the UI.
+                stopdate:
+                  type: string
+                  description: Stop date for this medication
+                startdate:
+                  type: string
+                  description: Start date for this medication
+                stopreason:
+                  type: string
+                  description: The reason the medication was stopped. If set, it it
+                    recommended but not required that a stop date is also set.
+                patientnote:
+                  type: string
+                  description: A patient-facing note
+                departmentid:
+                  type: integer
+                  description: The athenanet department ID
+                providernote:
+                  type: string
+                  description: An internal note
+                unstructuredsig:
+                  type: string
+                  description: Can only be used to update historical (entered, downloaded,
+                    etc) medications. Will override a structured sig if there is one.
+        required: true
+      tags:
+      - Chart
+      - Medications
+    delete:
+      summary: Hide medication on patient's medication list (mark as hidden)
+      description: 'BETA: Deletes the record of the medication'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: medicationentryid
+        schema:
+          type: string
+        required: true
+        description: medicationentryid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenanet department ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidMedicationsMedicationentryid
+      x-scopes: []
+      tags:
+      - Chart
+      - Medications
+  /v1/{practiceid}/reference/medications/stopreasons:
+    get:
+      summary: Get list of mediation stop reasons
+      description: Retrieves a list of medication stop reason configured  in the system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  stopreason:
+                    description: The stop reason. Used when adding or updating medications.
+                    type: string
+                  stopreasonid:
+                    description: The athena ID of this stop reason
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceMedicationsStopreasons
+      x-scopes: []
+      tags:
+      - Chart
+      - Medications
+  /v1/{practiceid}/reference/medications:
+    get:
+      summary: Search for available medications
+      description: Retrieves a list of medications for a given search parameters
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  medication:
+                    description: The name of the medication
+                    type: string
+                  medicationid:
+                    description: The athena ID of the medication
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceMedications
+      x-scopes: []
+      tags:
+      - Chart
+      - Medications
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

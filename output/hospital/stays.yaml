@@ -1,0 +1,786 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/all:
+    get:
+      summary: Get list of hospital stays
+      description: 'BETA: Retrieves a list of patient stays in all statuses and may
+        be filtered by date. If no date range is provided then all stays with an "OPEN"
+        or "DISCHARGED" status at the time of the call will be returned.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: Include stays which were in "OPEN" or "DISCHARGED" status on
+          or before this date.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default it will be false. If set to true, stays with "DELETED"
+          status will also be returned
+      - in: query
+        name: showclosed
+        schema:
+          type: boolean
+        required: false
+        description: By default it will be false. If set to true, stays with "CLOSED"
+          status will also be returned.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: Please remember to never disclose this ID to patients since it
+          may result in inadvertent disclosure that a patient exists in a practice
+          already.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: Include stays which were in "OPEN" or "DISCHARGED" status on
+          or after this date.
+      - in: query
+        name: showpending
+        schema:
+          type: boolean
+        required: false
+        description: By default it will be false. If set to true, stays with "PENDING"
+          status will also be returned
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admitdate:
+                    description: The date that the patient was admitted to the stay.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  caseids:
+                    description: The surgery case IDs associated with the stay.
+                    items:
+                      type: integer
+                    type: array
+                  dischargedate:
+                    description: The date that the patient was discharged from the
+                      stay. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  lastmodified:
+                    description: The date that the stay's data was last modified.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  lastmodifiedby:
+                    description: The username of the person who last modified the
+                      stay's data.
+                    type: string
+                  patientid:
+                    description: Please remember to never disclose this ID to patients
+                      since it may result in inadvertent disclosure that a patient
+                      exists in a practice already.
+                    type: integer
+                  status:
+                    description: The status of the stay.
+                    type: string
+                  stayid:
+                    description: The stay ID
+                    type: integer
+                  stayurl:
+                    description: A URL that links to the patient's chart in athenaNet.
+                      If the stay is open, the chart will contain information and
+                      documentation pertaining to that particular stay at the hospital.
+                      If the stay is closed, the URL will direct to the patient's
+                      chart outside the context of a stay.
+                    type: string
+                  visitid:
+                    description: The visit ID associated with the stay.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysAll
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+  /v1/{practiceid}/stays/{stayid}:
+    get:
+      summary: Get specific hospital stay details
+      description: 'BETA: Retrieves detail information of a specific patient stay
+        in the hospital including a list of department(s) that the patient was in.'
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admitdate:
+                    description: The date that the patient was admitted to the stay.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  admittingproviderid:
+                    description: The ID of the admitting provider.
+                    type: integer
+                  attendingproviderid:
+                    description: The ID of the attending provider. The attending provider
+                      can change during the duration of the stay.
+                    type: integer
+                  caseids:
+                    description: The surgery case IDs associated with the stay.
+                    items:
+                      type: integer
+                    type: array
+                  departments:
+                    items:
+                      properties:
+                        departmentid:
+                          description: The ID of the department that the patient's
+                            stay was associated with.
+                          type: integer
+                        enddate:
+                          description: The date when the patient stopped being associated
+                            with the department. Returned in mm/dd/yyyy hh24:mi:ss
+                            format.
+                          type: string
+                        startdate:
+                          description: The date when the patient was first associated
+                            with that department. Returned in mm/dd/yyyy hh24:mi:ss
+                            format.
+                          type: string
+                      type: object
+                    type: array
+                  dischargedate:
+                    description: The date that the patient was discharged from the
+                      stay. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  dischargeproviderid:
+                    description: The ID of the discharging provider.
+                    type: integer
+                  lastmodified:
+                    description: The date that the stay's data was last modified.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  lastmodifiedby:
+                    description: The username of the person who last modified the
+                      stay's data.
+                    type: string
+                  patientid:
+                    description: Please remember to never disclose this ID to patients
+                      since it may result in inadvertent disclosure that a patient
+                      exists in a practice already.
+                    type: integer
+                  patientlocation:
+                    items:
+                      properties:
+                        accommodation:
+                          description: The description of the room and board resource,
+                            used for determining room and board charge. Semi-private,
+                            etc.
+                          type: string
+                        bedid:
+                          description: The ID of the bed.
+                          type: integer
+                        bedname:
+                          description: The name of the bed.
+                          type: string
+                        enddate:
+                          description: The date when the patient left the bed. Returned
+                            in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        roomid:
+                          description: The ID of the room.
+                          type: integer
+                        roomname:
+                          description: The name of the room.
+                          type: string
+                        startdate:
+                          description: The date when the patient was first in the
+                            bed. Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        unitid:
+                          description: The ID of the unit.
+                          type: integer
+                        unitname:
+                          description: The name of the unit.
+                          type: string
+                      type: object
+                    type: array
+                  status:
+                    description: The status of the stay.
+                    type: string
+                  stayurl:
+                    description: A URL that links to the patient's chart in athenaNet.
+                      If the stay is open, the chart will contain information and
+                      documentation pertaining to that particular stay at the hospital.
+                      If the stay is closed, the URL will direct to the patient's
+                      chart outside the context of a stay.
+                    type: string
+                  visitid:
+                    description: The visit ID associated with the stay.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayid
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+  /v1/{practiceid}/stays/active:
+    get:
+      summary: Get list of active hospital stays
+      description: 'BETA: Retrieves alist of all the active patient stays in the hospital.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: hospitalbedid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the bed where the patient's stay is currently located.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the department where the patient's stay is currently
+          located.
+      - in: query
+        name: hospitalunitid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the unit where the patient's stay is currently located.
+      - in: query
+        name: hospitalroomid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the room where the patient's stay is currently located.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: Please remember to never disclose this ID to patients since it
+          may result in inadvertent disclosure that a patient exists in a practice
+          already.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admitdate:
+                    description: The date that the patient was admitted to the stay.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  admittingproviderid:
+                    description: The ID of the admitting provider.
+                    type: integer
+                  attendingproviderid:
+                    description: The ID of the attending provider. The attending provider
+                      can change during the duration of the stay.
+                    type: integer
+                  caseids:
+                    description: The surgery case IDs associated with the stay.
+                    items:
+                      type: integer
+                    type: array
+                  departmentid:
+                    description: The ID of the department where the patient's stay
+                      is currently located.
+                    type: integer
+                  dischargedate:
+                    description: The date that the patient was discharged from the
+                      stay. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  dischargeproviderid:
+                    description: The ID of the discharging provider.
+                    type: integer
+                  hospitalbedid:
+                    description: The ID of the bed the stay is currently located in.
+                    type: integer
+                  hospitalbedname:
+                    description: The name of the bed the stay is currently located
+                      in.
+                    type: string
+                  hospitalroomid:
+                    description: The ID of the room the stay is currently located
+                      in.
+                    type: integer
+                  hospitalroomname:
+                    description: The name of the room the stay is currently located
+                      in.
+                    type: string
+                  hospitalunitid:
+                    description: The ID of the unit the stay is currently located
+                      in.
+                    type: integer
+                  hospitalunitname:
+                    description: The name of the unit the stay is currently located
+                      in.
+                    type: string
+                  lastmodified:
+                    description: The date that the stay's data was last modified.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  lastmodifiedby:
+                    description: The username of the person who last modified the
+                      stay's data.
+                    type: string
+                  patientid:
+                    description: Please remember to never disclose this ID to patients
+                      since it may result in inadvertent disclosure that a patient
+                      exists in a practice already.
+                    type: integer
+                  status:
+                    description: Whether the stay is open or discharged. Returns "OPEN"
+                      or "DISCHARGED" depending on the status.
+                    type: string
+                  stayid:
+                    description: The stay ID.
+                    type: integer
+                  stayurl:
+                    description: A URL that links to the patient's chart in athenaNet.
+                      If the stay is open, the chart will contain information and
+                      documentation pertaining to that particular stay at the hospital.
+                      If the stay is closed, the URL will direct to the patient's
+                      chart outside the context of a stay.
+                    type: string
+                  visitid:
+                    description: The visit ID associated with the stay.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysActive
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+  /v1/{practiceid}/stays/changed:
+    get:
+      summary: Get list of changes in hospital stays based on subscribed events
+      description: 'BETA: Retrieves the list of changes in hospital stays'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed.
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admitdate:
+                    description: The date that the patient was admitted to the stay.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  admittingproviderid:
+                    description: The ID of the admitting provider.
+                    type: integer
+                  attendingproviderid:
+                    description: The ID of the attending provider. The attending provider
+                      can change during the duration of the stay.
+                    type: integer
+                  caseids:
+                    description: The surgery case IDs associated with the stay.
+                    items:
+                      type: integer
+                    type: array
+                  departmentid:
+                    description: The ID of the department that the stay was most recently
+                      associated with.
+                    type: integer
+                  dischargedate:
+                    description: The date that the patient was discharged from the
+                      stay. Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  dischargeproviderid:
+                    description: The ID of the discharging provider.
+                    type: integer
+                  hospitalbedid:
+                    description: The ID of the Hospital bed that the stay was most
+                      recently associated with.
+                    type: integer
+                  hospitalbedname:
+                    description: The name of the Hospital bed that the stay was most
+                      recently associated with.
+                    type: string
+                  hospitalroomid:
+                    description: The ID of the Hospital room that the stay was most
+                      recently associated with.
+                    type: integer
+                  hospitalroomname:
+                    description: The name of the Hospital room that the stay was most
+                      recently associated with.
+                    type: string
+                  hospitalunitid:
+                    description: The ID of the Hospital unit that the stay was most
+                      recently associated with.
+                    type: integer
+                  hospitalunitname:
+                    description: The name of the Hospital unit that the stay was most
+                      recently associated with.
+                    type: string
+                  lastmodified:
+                    description: The date that the stay's data was last modified.
+                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                    type: string
+                  lastmodifiedby:
+                    description: The username of the person who last modified the
+                      stay's data.
+                    type: string
+                  patientid:
+                    description: The ID of the patient associated with the stay.
+                    type: integer
+                  status:
+                    description: The status of the stay.
+                    type: string
+                  stayid:
+                    description: The stay ID.
+                    type: integer
+                  stayurl:
+                    description: A URL that links to the patient's chart in athenaNet.
+                      If the stay is open, the chart will contain information and
+                      documentation pertaining to that particular stay at the hospital.
+                      If the stay is closed, the URL will direct to the patient's
+                      chart outside the context of a stay.
+                    type: string
+                  visitid:
+                    description: The visit ID associated with the stay.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidStaysChanged
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+  /v1/{practiceid}/stays/changed/subscription/events:
+    get:
+      summary: Get list of hospital stays change events to which you can subscribe
+      description: 'BETA: Retrieves the list of events you can subscribe to for when
+        stays requests are worked.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidStaysChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+  /v1/{practiceid}/stays/changed/subscription:
+    get:
+      summary: Get list of subscribed events for changes in hospital stays
+      description: 'BETA: Retrieves list of events applicable for hospital stays changes'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidStaysChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+    post:
+      summary: Subscribe to all/specific change events for hospital stays
+      description: 'BETA: Subscribes for change events for single inpatient hospital
+        stays'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      stays was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidStaysChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+        required: true
+      tags:
+      - Inpatient
+      - Stays
+    delete:
+      summary: Unsubscribe to all/specific change events for hospital stays
+      description: 'BETA: Delete a specific event which is no longer required'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      stays was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidStaysChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Stays
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

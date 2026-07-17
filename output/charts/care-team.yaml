@@ -1,0 +1,529 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/careteam:
+    get:
+      summary: Get patient's care team members
+      description: Retrieve the current list of care team members for a given patient
+        in a particular department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  members:
+                    description: The list of care team members.
+                    items:
+                      properties:
+                        address1:
+                          description: The primary address field for this care team
+                            member.
+                          type: string
+                        address2:
+                          description: The secondary address filed for this care team
+                            member.
+                          type: string
+                        ansispecialtyname:
+                          description: The specialty of this care team member.
+                          type: string
+                        city:
+                          description: The city for this care team member.
+                          type: string
+                        clinicalproviderid:
+                          description: The clinical provider ID for this care team
+                            member.
+                          type: integer
+                        country:
+                          description: The country for this care team member.
+                          type: string
+                        facilityid:
+                          description: The facility ID for this care team member entry.
+                          type: integer
+                        fax:
+                          description: The fax number for this care team member.
+                          type: string
+                        firstname:
+                          description: The first name of this care team member.
+                          type: string
+                        lastname:
+                          description: The last name of this care team member.
+                          type: string
+                        memberid:
+                          description: The member ID for this care team member.
+                          type: string
+                        middlename:
+                          description: The middle name of this care team member.
+                          type: string
+                        name:
+                          description: The name of the care team member.
+                          type: string
+                        npi:
+                          description: The NPI of this care team member.
+                          type: string
+                        phonenumber:
+                          description: The phone number for this care team member.
+                          type: string
+                        preferredname:
+                          description: The preferred name of this care team member.
+                          type: string
+                        providerid:
+                          description: The local provider ID of this care team member.
+                          type: integer
+                        recipientclass:
+                          description: Information about the care team member's organization.
+                          items:
+                            properties:
+                              code:
+                                description: The recipient class ID code.
+                                type: number
+                              description:
+                                description: A string describing the care team member's
+                                  organization.
+                                type: string
+                            type: object
+                          type: array
+                        state:
+                          description: The state of this care team member.
+                          type: string
+                        suffix:
+                          description: The suffix of this care team member.
+                          type: string
+                        taxonomycode:
+                          description: The ansicode/taxonomy code of this care team
+                            member.
+                          type: string
+                        zip:
+                          description: The zipcode of this care team member.
+                          type: string
+                      type: object
+                    type: array
+                  note:
+                    description: Note for this care team.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidCareteam
+      x-scopes: []
+      tags:
+      - Chart
+      - Care Team
+    put:
+      summary: Update patient's care team members
+      description: Modify the details of the care team members for a given patient
+        in a particular department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidCareteam
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - clinicalproviderid
+              - departmentid
+              - recipientclassid
+              properties:
+                departmentid:
+                  type: integer
+                  description: The athenaNet department ID.
+                recipientclassid:
+                  enum:
+                  - ''
+                  - 173
+                  - 255
+                  - 246
+                  - 251
+                  - 130
+                  - 257
+                  - 192
+                  - 155
+                  - 301
+                  - 146
+                  - 174
+                  - 157
+                  - 230
+                  - 151
+                  - 227
+                  - 221
+                  - 244
+                  - 143
+                  - 225
+                  - 121
+                  - 127
+                  - 125
+                  - 176
+                  - 243
+                  - 144
+                  - 82
+                  - 240
+                  - 122
+                  - 222
+                  - 236
+                  - 195
+                  - 152
+                  - 168
+                  - 233
+                  - 169
+                  - 191
+                  - 197
+                  - 234
+                  - 252
+                  - 170
+                  - 3
+                  - 186
+                  - 116
+                  - 129
+                  - 128
+                  - 229
+                  - 200
+                  - 286
+                  - 216
+                  - 228
+                  - 162
+                  - 158
+                  - 159
+                  - 283
+                  - 213
+                  - 184
+                  - 114
+                  - 258
+                  - 284
+                  - 214
+                  - 183
+                  - 113
+                  - 259
+                  - 180
+                  - 110
+                  - 106
+                  - 261
+                  - 206
+                  - 165
+                  - 210
+                  - 198
+                  - 167
+                  - 199
+                  - 161
+                  - 203
+                  - 104
+                  - 61
+                  - 204
+                  - 103
+                  - 2
+                  - 248
+                  - 102
+                  - 249
+                  - 202
+                  - 148
+                  - 1
+                  - 149
+                  - 160
+                  - 285
+                  - 215
+                  - 281
+                  - 211
+                  - 287
+                  - 217
+                  - 179
+                  - 115
+                  - 185
+                  - 260
+                  - 117
+                  - 187
+                  - 178
+                  - 111
+                  - 181
+                  - 112
+                  - 182
+                  - 164
+                  - 282
+                  - 239
+                  - 212
+                  - 163
+                  - 238
+                  - 205
+                  - 166
+                  - 207
+                  - 201
+                  - 105
+                  - 101
+                  - 107
+                  - 177
+                  - 118
+                  - 188
+                  - 171
+                  - 189
+                  - 4
+                  - 119
+                  - 126
+                  - 175
+                  - 253
+                  - 154
+                  - 288
+                  - 218
+                  - 190
+                  - 254
+                  - 153
+                  - 226
+                  - 289
+                  - 232
+                  - 219
+                  - 223
+                  - 124
+                  - 145
+                  - 156
+                  - 147
+                  - 141
+                  - 256
+                  - 245
+                  - 224
+                  - 123
+                  - 241
+                  - 247
+                  - 108
+                  - 242
+                  - 109
+                  - 120
+                  - 196
+                  - 142
+                  - 208
+                  - 220
+                  - 209
+                  - 231
+                  - 62
+                  - 150
+                  - 237
+                  - 235
+                  - 193
+                  - 250
+                  - 172
+                  - 194
+                  type: string
+                  description: The recipient class ID/code.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+                clinicalproviderid:
+                  type: integer
+                  description: The athenaNet clinical provider ID.
+        required: true
+      tags:
+      - Chart
+      - Care Team
+    delete:
+      summary: Delete member from patient's care team
+      description: Remove care team member for a given patient in a particular department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: memberid
+        schema:
+          type: integer
+        required: true
+        description: The member ID of the care team.
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartPatientidCareteam
+      x-scopes: []
+      tags:
+      - Chart
+      - Care Team
+  /v1/{practiceid}/chart/configuration/recipientclasses:
+    get:
+      summary: Get list of care team recipient classes
+      description: List of recipient specialties accepted for a patient's Care Team
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    description: The recipient class ID code.
+                    type: number
+                  description:
+                    description: A string describing the care team member's organization.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationRecipientclasses
+      x-scopes: []
+      tags:
+      - Chart
+      - Care Team
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

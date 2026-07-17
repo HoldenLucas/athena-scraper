@@ -1,0 +1,282 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/medicalhistory:
+    get:
+      summary: Get patient's medical history data
+      description: Retrieves medical history of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  notelastmodifiedby:
+                    description: Username that last modified Medical History note.
+                    type: string
+                  notelastmodifieddatetime:
+                    description: Date and time Medical History note was last modified.
+                    type: string
+                  questions:
+                    description: List of questions corresponding to patient medical
+                      history
+                    items:
+                      properties:
+                        answer:
+                          description: The answer given by the patient to the question
+                          type: string
+                        codeset:
+                          description: Codeset the diagnosis code belongs to
+                          type: string
+                        createdby:
+                          description: Username to create question.
+                          type: string
+                        createddatetime:
+                          description: The date and time that the question was created.
+                          type: string
+                        description:
+                          description: Description of the code
+                          type: string
+                        diagnosiscode:
+                          description: Diagnosis code
+                          type: string
+                        lastmodifiedby:
+                          description: Last username to modify question.
+                          type: string
+                        lastmodifieddatetime:
+                          description: The date and time that the question was last
+                            modified.
+                          type: string
+                        note:
+                          description: Any special notes
+                          type: string
+                        question:
+                          description: Disease being inquired about
+                          type: string
+                        questionid:
+                          description: Athena ID for the question
+                          type: number
+                      type: object
+                    type: array
+                  sectionnote:
+                    description: Additional notes for the entire medical history section,
+                      if any
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidMedicalhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Medical History
+    put:
+      summary: Update patient's medical history data
+      description: Updates the medical history of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidMedicalhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      note:
+                        type: string
+                        description: Any additional notes
+                      answer:
+                        type: string
+                        description: Answer to this question
+                      delete:
+                        type: boolean
+                        description: Remove the answer to this question
+                      questionid:
+                        type: integer
+                        description: The athenaNet question id.
+                  required:
+                  - questionid
+                  description: A complex JSON object containing the patient medical
+                    history. See the Chart documentation for more details.
+                sectionnote:
+                  type: string
+                  description: Any additional section notes
+                departmentid:
+                  type: integer
+                  description: The athenaNet department ID.
+        required: true
+      tags:
+      - Chart
+      - Medical History
+  /v1/{practiceid}/chart/configuration/medicalhistory:
+    get:
+      summary: Get list of medical history questions used by this practice
+      description: Retrieves the list of medical history questions
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: specialty
+        schema:
+          type: string
+        required: false
+        description: Filter by specialty ID.
+      - in: query
+        name: patientfacing
+        schema:
+          type: boolean
+        required: false
+        description: Only show questions configured for patient self check in.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Include deleted questions
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  deleted:
+                    description: True if this question has been deleted
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  diagnosiscode:
+                    description: Diagnosis code for the disease, if provided
+                    type: string
+                  ordering:
+                    description: Used for re-ordering questions
+                    type: number
+                  question:
+                    description: Disease being inquired about
+                    type: string
+                  questionid:
+                    description: Athena ID for the question
+                    type: number
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationMedicalhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Medical History
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

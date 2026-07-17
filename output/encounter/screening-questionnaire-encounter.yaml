@@ -1,0 +1,850 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/questionnairescreeners:
+    post:
+      summary: Submit questionnaire screener for encounter
+      description: Creates a new questionnaire screener record for the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Flags this request as successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridQuestionnairescreeners
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                templateid:
+                  type: integer
+                  description: The template ID for the screener that will be activated.
+                templateids:
+                  type: array
+                  items:
+                    type: integer
+                  description: The template IDs for the screeners that will be activated.
+        required: true
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+    get:
+      summary: Get questionnaire screeners for given encounter
+      description: Retrieve a list of enabled questionnaire screeners for the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: showfreetextanswers
+        schema:
+          type: boolean
+        required: false
+        description: If true, include the FreetextAnswer field with each question.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 1000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  createdby:
+                    description: The created by of this questionnaire
+                    type: string
+                  createddate:
+                    description: The created date of this questionnaire
+                    type: string
+                  declinedreason:
+                    description: Reason the questionnaire is declined
+                    properties:
+                      declinedreasontext:
+                        description: The text of the reason
+                        type: string
+                    type: object
+                  documentids:
+                    description: The document IDs attached to the questionnaire.
+                    type: string
+                  guidelines:
+                    description: The guidelines recommended by the questionnaire
+                    type: string
+                  lastmodifieddate:
+                    description: The last modified date of this questionnaire
+                    type: string
+                  maximumscore:
+                    description: The maximum amount of points for this questionnaire
+                    type: integer
+                  metaquestions:
+                    description: Any meta questions related to this questionnaire.
+                      E.g., should this be considered generally as positive or negative?
+                    items:
+                      properties:
+                        answertext:
+                          description: The answer to the meta question
+                          type: string
+                        questiontext:
+                          description: The text of the meta question
+                          type: string
+                      type: object
+                    type: array
+                  name:
+                    description: The questionnaire name
+                    type: string
+                  note:
+                    description: The note attached to this questionnaire
+                    type: string
+                  officestatus:
+                    description: Whether the questionnaire can be used in-office and/or
+                      out-out-office for patient facing applications if applicable
+                    type: string
+                  questionnaireid:
+                    description: The questionnaire ID
+                    type: integer
+                  questiontemplatecodes:
+                    description: List of question template code data attached to this
+                      questionnaire
+                    items:
+                      properties:
+                        code:
+                          description: The question template code of this questionnaire
+                          type: string
+                        codeset:
+                          description: The question template codeset of this questionnaire
+                          type: string
+                      type: object
+                    type: array
+                  score:
+                    description: The score for this questionnaire
+                    type: string
+                  scorecode:
+                    description: The score code attached to this questionnaire
+                    properties:
+                      code:
+                        description: The score code of this questionnaire
+                        type: string
+                      codeset:
+                        description: The score codeset of this questionnaire
+                        type: string
+                    type: object
+                  scoredby:
+                    description: The user that scored this questionnaire
+                    type: string
+                  scoreddate:
+                    description: The date this questionnaire was scored
+                    type: string
+                  scoringstatus:
+                    description: The status of the questionnaire
+                    type: string
+                  screenercodes:
+                    description: List of screener codes attached to this questionnaire
+                    items:
+                      properties:
+                        code:
+                          description: The screener code of this questionnaire
+                          type: string
+                        codeset:
+                          description: The screener codeset of this questionnaire
+                          type: string
+                      type: object
+                    type: array
+                  sections:
+                    description: List of the sections for this questionnaire
+                    items:
+                      properties:
+                        headertext:
+                          description: The header text for this section of the questionnaire
+                          type: string
+                        questionlist:
+                          description: List of questions for this section of the questionnaire
+                          items:
+                            properties:
+                              answer:
+                                description: The current answer to the question
+                                type: string
+                              answercode:
+                                description: The code and codeset associated with
+                                  the answer
+                                properties:
+                                  code:
+                                    description: The code of the answer
+                                    type: string
+                                  codeset:
+                                    description: The codeset of the answer
+                                    type: string
+                                type: object
+                              freetextanswer:
+                                description: Freetext answer used for 'Other __' responses,
+                                  etc. Only included if flag SHOWFREETEXTANSWERS is
+                                  set.
+                                type: string
+                              hidden:
+                                description: Flag that represents if the question
+                                  is initially hidden or not
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              key:
+                                description: The key for the question
+                                type: string
+                              possibleanswers:
+                                description: List of possible answers for this question
+                                type: string
+                              question:
+                                description: The text of the question
+                                type: string
+                              questioncodes:
+                                description: The codes associated to the question
+                                items:
+                                  properties:
+                                    code:
+                                      description: The code of the question
+                                      type: string
+                                    codeset:
+                                      description: The codeset of the question
+                                      type: string
+                                  type: object
+                                type: array
+                              questionid:
+                                description: The ID for this specific questionnaire's
+                                  question
+                                type: integer
+                              questionlinkid:
+                                description: The questionID for this specific questionnaire's
+                                  template question. This will be used to map questionId
+                                  to FHIR's QuestionnaireResponse's linkid
+                                type: integer
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  templateid:
+                    description: The template ID of the questionnaire. Required to
+                      activate a questionnaire for a given encounter.
+                    type: integer
+                  templatetype:
+                    description: Boolean to flag whether the questionnaire is score
+                      only or not.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridQuestionnairescreeners
+      x-scopes: []
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+    put:
+      summary: Update questionnaire screener for encounter
+      description: Modifies the questionnaire screeners for the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Flags this request as successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridQuestionnairescreeners
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - documentids
+              - questions
+              - questionnaireid
+              - score
+              properties:
+                note:
+                  type: string
+                  description: The note for the questionnaire screener.
+                score:
+                  type: string
+                  description: The score for the questionnaire screener. This is not
+                    automatically updated based on the questions and answers passed
+                    in.
+                state:
+                  type: string
+                  description: The state of the questionnaire. This is used exclusively
+                    for the PHQ2/9 screeners. If this is not explicitly passed in,
+                    the default behavior will set the state to a PHQ2 on a score lower
+                    than 3, otherwise it will be set to a PHQ9.
+                questions:
+                  type: array
+                  items:
+                    type: object
+                  description: A JSON array of questions that contain a questionid
+                    and answer.
+                guidelines:
+                  type: string
+                  description: The guidelines given by the score and questionnaire.
+                documentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: The document ID to attach to the questionnaire.  Multiple
+                    documents (either as a comma delimited list or multiple body parameters)
+                    are allowed.
+                ignorescore:
+                  type: boolean
+                  description: If true, will ignore the score provided and treat it
+                    as not scored
+                metaquestions:
+                  type: array
+                  items:
+                    type: object
+                  description: Not yet implemented. Any meta questions related to
+                    this questionnaire. E.g., should this be considered generally
+                    as positive or negative?
+                declinedreason:
+                  type: object
+                  description: Not yet implemented. Reason the questionnaire is declined
+                questionnaireid:
+                  type: integer
+                  description: The questionnaire ID to be updated. If the questionnaireid
+                    does not exist in the GET /chart/encounter/{encounterid}/questionnairescreeners
+                    API, please activate it via the POST API.
+        required: true
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+  /v1/{practiceid}/chart/encounter/{encounterid}/questionnairescreeners/scoreonly:
+    put:
+      summary: Update score against encounter's questionnaire screener
+      description: Modifies only the score of the questionnaire screener for the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Flags this request as successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridQuestionnairescreenersScoreonly
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - documentids
+              - questionnaireid
+              properties:
+                note:
+                  type: string
+                  description: The note for the questionnaire screener.
+                score:
+                  type: string
+                  description: The score for the questionnaire screener. Screeners
+                    that have one or more scores should be entered in the NOTE field.
+                documentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'A comma delimited array of document IDs to attach
+                    to the questionnaire. Ex: [4,5]. Currently this is only officially
+                    supported for documents with the subclass ENCOUNTERDOCUMENT_PATIENTHISTORY.'
+                metaquestions:
+                  type: array
+                  items:
+                    type: object
+                  description: Not yet implemented. Any meta questions related to
+                    this questionnaire. E.g., should this be considered generally
+                    as positive or negative?
+                declinedreason:
+                  type: object
+                  description: Not yet implemented. Reason the questionnaire is declined
+                questionnaireid:
+                  type: integer
+                  description: The questionnaire ID to be updated. If the questionnaireid
+                    does not exist in the GET /chart/encounter/{encounterid}/questionnairescreeners
+                    API, please activate it via the POST API.
+        required: true
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+  /v1/{practiceid}/chart/questionnairescreeners:
+    get:
+      summary: Get list of questionnaire screeners
+      description: Retrieves a list of questionnaire screeners
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showoutofoffice
+        schema:
+          type: boolean
+        required: false
+        description: Filters the screeners in the response by their office status
+          to only show screeners that are 'Out of Office'
+      - in: query
+        name: showinoffice
+        schema:
+          type: boolean
+        required: false
+        description: Filters the screeners in the response by their office status
+          to only show screeners that are 'In Office'
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The questionnaire name
+                    type: string
+                  officestatus:
+                    description: Whether the questionnaire can be used in-office and/or
+                      out-out-office for patient facing applications if applicable
+                    type: string
+                  screenercodes:
+                    description: List of screener codes attached to this questionnaire
+                    items:
+                      properties:
+                        code:
+                          description: The screener code of this questionnaire
+                          type: string
+                        codeset:
+                          description: The screener codeset of this questionnaire
+                          type: string
+                      type: object
+                    type: array
+                  templateid:
+                    description: The template ID of the questionnaire. Required to
+                      activate a questionnaire for a given encounter.
+                    type: integer
+                  templatetype:
+                    description: Boolean to flag whether the questionnaire is score
+                      only or not.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartQuestionnairescreeners
+      x-scopes: []
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+  /v1/{practiceid}/chart/configuration/questionnairescreeners:
+    get:
+      summary: Get list of questionnaire screeners given an appointment-ID or encounter-ID
+      description: Retrieve a list of possible questionnaire screeners for a given
+        appointment ID or encounter ID
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showoutofoffice
+        schema:
+          type: boolean
+        required: false
+        description: Filters the screeners in the response by their office status
+          to only show screeners that are 'Out of Office'
+      - in: query
+        name: appointmentid
+        schema:
+          type: integer
+        required: false
+        description: The appointment ID. It is used solely to determine the specialty
+          ID to determine possible questionnaires. If an encounter ID is passed in,
+          it will take priority over the appointment ID.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID.
+      - in: query
+        name: encounterid
+        schema:
+          type: integer
+        required: false
+        description: The encounter ID. It is used solely to determine the specialty
+          ID to determine the possible questionnaires.
+      - in: query
+        name: showonlylatestversion
+        schema:
+          type: boolean
+        required: false
+        description: If true, filters the returned screeners to only retrieve the
+          latest version.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: The patient ID.
+      - in: query
+        name: showinoffice
+        schema:
+          type: boolean
+        required: false
+        description: Filters the screeners in the response by their office status
+          to only show screeners that are 'In Office'
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 100, max 1000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  createdby:
+                    description: The created by of this questionnaire
+                    type: string
+                  createddate:
+                    description: The created date of this questionnaire
+                    type: string
+                  declinedreason:
+                    description: Reason the questionnaire is declined
+                    properties:
+                      declinedreasontext:
+                        description: The text of the reason
+                        type: string
+                    type: object
+                  documentids:
+                    description: The document IDs attached to the questionnaire.
+                    type: string
+                  guidelines:
+                    description: The guidelines recommended by the questionnaire
+                    type: string
+                  lastmodifieddate:
+                    description: The last modified date of this questionnaire
+                    type: string
+                  maximumscore:
+                    description: The maximum amount of points for this questionnaire
+                    type: integer
+                  metaquestions:
+                    description: Any meta questions related to this questionnaire.
+                      E.g., should this be considered generally as positive or negative?
+                    items:
+                      properties:
+                        answertext:
+                          description: The answer to the meta question
+                          type: string
+                        questiontext:
+                          description: The text of the meta question
+                          type: string
+                      type: object
+                    type: array
+                  name:
+                    description: The questionnaire name
+                    type: string
+                  note:
+                    description: The note attached to this questionnaire
+                    type: string
+                  officestatus:
+                    description: Whether the questionnaire can be used in-office and/or
+                      out-out-office for patient facing applications if applicable
+                    type: string
+                  questionnaireid:
+                    description: The questionnaire ID
+                    type: integer
+                  questiontemplatecodes:
+                    description: List of question template code data attached to this
+                      questionnaire
+                    items:
+                      properties:
+                        code:
+                          description: The question template code of this questionnaire
+                          type: string
+                        codeset:
+                          description: The question template codeset of this questionnaire
+                          type: string
+                      type: object
+                    type: array
+                  score:
+                    description: The score for this questionnaire
+                    type: string
+                  scorecode:
+                    description: The score code attached to this questionnaire
+                    properties:
+                      code:
+                        description: The score code of this questionnaire
+                        type: string
+                      codeset:
+                        description: The score codeset of this questionnaire
+                        type: string
+                    type: object
+                  scoredby:
+                    description: The user that scored this questionnaire
+                    type: string
+                  scoreddate:
+                    description: The date this questionnaire was scored
+                    type: string
+                  scoringstatus:
+                    description: The status of the questionnaire
+                    type: string
+                  screenercodes:
+                    description: List of screener codes attached to this questionnaire
+                    items:
+                      properties:
+                        code:
+                          description: The screener code of this questionnaire
+                          type: string
+                        codeset:
+                          description: The screener codeset of this questionnaire
+                          type: string
+                      type: object
+                    type: array
+                  sections:
+                    description: List of the sections for this questionnaire
+                    items:
+                      properties:
+                        headertext:
+                          description: The header text for this section of the questionnaire
+                          type: string
+                        questionlist:
+                          description: List of questions for this section of the questionnaire
+                          items:
+                            properties:
+                              answer:
+                                description: The current answer to the question
+                                type: string
+                              answercode:
+                                description: The code and codeset associated with
+                                  the answer
+                                properties:
+                                  code:
+                                    description: The code of the answer
+                                    type: string
+                                  codeset:
+                                    description: The codeset of the answer
+                                    type: string
+                                type: object
+                              freetextanswer:
+                                description: Freetext answer used for 'Other __' responses,
+                                  etc. Only included if flag SHOWFREETEXTANSWERS is
+                                  set.
+                                type: string
+                              hidden:
+                                description: Flag that represents if the question
+                                  is initially hidden or not
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              key:
+                                description: The key for the question
+                                type: string
+                              possibleanswers:
+                                description: List of possible answers for this question
+                                type: string
+                              question:
+                                description: The text of the question
+                                type: string
+                              questioncodes:
+                                description: The codes associated to the question
+                                items:
+                                  properties:
+                                    code:
+                                      description: The code of the question
+                                      type: string
+                                    codeset:
+                                      description: The codeset of the question
+                                      type: string
+                                  type: object
+                                type: array
+                              questionid:
+                                description: The ID for this specific questionnaire's
+                                  question
+                                type: integer
+                              questionlinkid:
+                                description: The questionID for this specific questionnaire's
+                                  template question. This will be used to map questionId
+                                  to FHIR's QuestionnaireResponse's linkid
+                                type: integer
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  templateid:
+                    description: The template ID of the questionnaire. Required to
+                      activate a questionnaire for a given encounter.
+                    type: integer
+                  templatetype:
+                    description: Boolean to flag whether the questionnaire is score
+                      only or not.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationQuestionnairescreeners
+      x-scopes: []
+      tags:
+      - Encounter
+      - Questionnaire Screeners
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

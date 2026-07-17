@@ -1,0 +1,281 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/notes:
+    post:
+      summary: Create appointment note
+      description: Creates a note for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidNotes
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - notetext
+              properties:
+                notetext:
+                  type: string
+                  description: The note text.
+                displayonschedule:
+                  type: boolean
+                  description: Add appointment note to homepage display (defaults
+                    to false)
+        required: true
+      tags:
+      - Appointments
+      - Appointment Notes
+    get:
+      summary: Get all appointment notes
+      description: Retrieves note details for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, we prevent deleted appointment notes from being returned
+          via the API.   This flag allows you to show deleted notes in the set of
+          results returned.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  created:
+                    description: The time this note was created (mm/dd/yyyy hh24:mi:ss)
+                    type: string
+                  createdby:
+                    description: The user that created this note.
+                    type: string
+                  deleted:
+                    description: The time this note was deleted (mm/dd/yyyy hh24:mi:ss).  Not
+                      present if not deleted.
+                    type: string
+                  deletedby:
+                    description: If deleted, the username who deleted this note.
+                    type: string
+                  displayonschedule:
+                    description: Determines if an appointment note displays on the
+                      homepage schedule view.
+                    type: string
+                  lastmodified:
+                    description: The time this note was updated (mm/dd/yyyy hh24:mi:ss),
+                      if the note has been updated.
+                    type: string
+                  lastmodifiedby:
+                    description: If the note has been modified, the username who last
+                      modified this note.
+                    type: string
+                  noteid:
+                    description: The ID for this note, for use with DELETE and PUT
+                      calls.
+                    type: string
+                  notetext:
+                    description: The text of the note itself.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidNotes
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Notes
+  /v1/{practiceid}/appointments/{appointmentid}/notes/{noteid}:
+    put:
+      summary: Update appointment note
+      description: Modifies the note details for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: path
+        name: noteid
+        schema:
+          type: integer
+        required: true
+        description: noteid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmentsAppointmentidNotesNoteid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - notetext
+              properties:
+                notetext:
+                  type: string
+                  description: The note text.
+                displayonschedule:
+                  type: boolean
+                  description: Add appointment note to homepage display.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Notes
+    delete:
+      summary: Delete appointment note
+      description: Deletes a note for a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: path
+        name: noteid
+        schema:
+          type: integer
+        required: true
+        description: noteid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true/false if the operation was successful
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidAppointmentsAppointmentidNotesNoteid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Notes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

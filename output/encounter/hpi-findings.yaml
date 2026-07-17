@@ -1,0 +1,546 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/hpi:
+    get:
+      summary: Get HPI findings for given encounter
+      description: Retrieves the HPI summary for an encounter
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: If templateids is passed in, it will return only the template
+          data for the array of ids passed in. The SHOWSTRUCTURED flag must be true
+          to use this.
+        in: query
+        name: templateids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: If true, returns history of present illness templates as structured
+          data. If false, returns it via lightly-HTML marked up English text, as displayed
+          in the athenanet encounter summary.
+        in: query
+        name: showstructured
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hpi:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sentences:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              findings:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    freetext:
+                                      type: string
+                                      description: The value of the text field sometimes
+                                        associated with this finding.
+                                    medcinid:
+                                      type: integer
+                                      description: Where available, the matching MEDCIN
+                                        ID for this clinical finding.
+                                    selected:
+                                      enum:
+                                      - ''
+                                      - false
+                                      - true
+                                      type: string
+                                      description: Whether the finding is selected.
+                                        If templateids are not passed in, this field
+                                        will not be returned.
+                                    findingid:
+                                      type: integer
+                                      description: ID of the finding you are updating.
+                                        If you pass in an invalid ID we will simply
+                                        ignore it.
+                                    findingname:
+                                      type: string
+                                      description: The label for this finding. Note
+                                        that this may contain specific answers for
+                                        this finding (e.g. "wakes up 2 hours after
+                                        going to sleep").  See GENERICFINDINGNAME
+                                        for an example that does not contain specific
+                                        answers.
+                                    findingnote:
+                                      type: string
+                                      description: The note for this finding.
+                                    findingtype:
+                                      type: string
+                                      description: Describes the finding -- either
+                                        NORMAL, ABNORMAL, or NEUTRAL.
+                                    optionlists:
+                                      type: string
+                                      description: An array of arrays.  Each inner
+                                        array contains the possible options for a
+                                        dropdown list. The order of the these arrays
+                                        corresponds to the ordering of dropdowns from
+                                        left to right within the finding.
+                                    selectedoptions:
+                                      type: string
+                                      description: The options the user has chosen
+                                        from any dropdowns for this finding.  The
+                                        order of these selections corresponds to the
+                                        order of the dropdowns from left to right
+                                        in the finding name.
+                                    contradictionids:
+                                      type: string
+                                      description: A string representing an array
+                                        of finding IDs that contradict the current
+                                        finding ID. What this means is that if this
+                                        finding is selected, any findings in the CONTRADICTIONIDS
+                                        should not be selected.
+                                    genericfindingname:
+                                      type: string
+                                      description: The general label for this finding.
+                                        It will not contain any specific answers for
+                                        this finding (e.g. "wakes up ___ {{minutes*|hours}}
+                                        after going to sleep").
+                                    findinglastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the value for this finding.
+                                    freetextlastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the value of the text field
+                                        sometimes associated with this finding.
+                                    findingnotelastmodifiedby:
+                                      type: string
+                                      description: The username of the provider that
+                                        last modified the note for this finding.
+                                    findinglastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the value
+                                        for this finding was last modified.
+                                    freetextlastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the value
+                                        of the text field sometimes associated with
+                                        this finding was last modified.
+                                    findingnotelastmodifieddatetime:
+                                      type: string
+                                      description: The date and time that the note
+                                        for this finding was last modified.
+                                description: The list of findings
+                              sentenceid:
+                                type: integer
+                                description: ID of the sentence you are updating.
+                                  If you pass in an invalid ID we will simply ignore
+                                  it.
+                              sentencename:
+                                type: string
+                                description: The label for this sentence
+                              sentencenote:
+                                type: string
+                                description: The note for this sentence
+                              sentencenotelastmodifiedby:
+                                type: string
+                                description: The username of the provider that last
+                                  modified the note for this sentence.
+                              sentencenotelastmodifieddatetime:
+                                type: string
+                                description: The date and time that the note for this
+                                  sentence was last modified.
+                        templateid:
+                          type: string
+                          description: The template ID this paragraph is associated
+                            with.
+                        paragraphid:
+                          type: integer
+                          description: ID of the paragraph you are updating. If you
+                            pass in an invalid ID we will simply ignore it.
+                        templatename:
+                          type: string
+                          description: The template name this paragraph is associated
+                            with.
+                        paragraphname:
+                          type: string
+                          description: The label for this paragraph
+                    description: The structured HPI data. It is structured as a list
+                      of paragraphs, each containing a list of sentences, each containing
+                      a list of findings.
+                  hpitoros:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether ROS is as noted in HPI.
+                  templates:
+                    type: string
+                    description: The comma separated list of selected HPI templates
+                      used
+                  sectionnote:
+                    type: string
+                    description: The structured section-level note for the history
+                      of present illness section.
+                  summarytext:
+                    type: string
+                    description: The unstructured summary
+                  templatedata:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        reportedby:
+                          enum:
+                          - ''
+                          - Patient
+                          - Parent
+                          - Caregiver
+                          - Staff
+                          type: string
+                          description: "\n\t\t\t\t\tThe type of person who reported\
+                            \ information for the history of present illness template.\
+                            \ One of Patient, Parent, Caregiver, or Staff.\n\t\t\t\
+                            \t"
+                        templateid:
+                          type: integer
+                          description: ID of the template.
+                        templatename:
+                          type: string
+                          description: Name of the template.
+                        templatenote:
+                          type: string
+                          description: The note associated with this template.
+                        reportedbylastmodifiedby:
+                          type: string
+                          description: The username of the provider that last modified
+                            the Reported By field.
+                        templatenotelastmodifiedby:
+                          type: string
+                          description: The username of the provider that last modified
+                            the note associated with this template.
+                        reportedbylastmodifieddatetime:
+                          type: string
+                          description: The date and time that the Reported By field
+                            was last modified.
+                        templatenotelastmodifieddatetime:
+                          type: string
+                          description: The date and time that the note associated
+                            with this template was last modified.
+                    description: An array of objects each containing the names, ids
+                      and notes for templates attached to the encounter.
+                  lastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ the user who last modified the history of present illness\
+                      \ section.\n\t\t\t"
+                  lastmodifieddatetime:
+                    type: string
+                    description: The last time any information in the history of present
+                      illness section was modified
+                  hpitoroslastmodifiedby:
+                    type: string
+                    description: The username of the provider that last modified the
+                      hpitoros parameter.
+                  sectionnotelastmodifiedby:
+                    type: string
+                    description: "\n\t\t\t\tA string representing the username of\
+                      \ a the user who last modified the history of present illness\
+                      \ section note.\n\t\t\t"
+                  hpitoroslastmodifieddatetime:
+                    type: string
+                    description: The date and time that the hpitoros field was last
+                      modified.
+                  sectionnotelastmodifieddatetime:
+                    type: string
+                    description: The last time the history of present illness section
+                      note was modified
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridHpi
+      x-scopes: []
+      tags:
+      - Encounter
+      - HPI
+    put:
+      summary: Update HPI findings for given encounter
+      description: Modifies the HPI Summary for an encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridHpi
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                hpi:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sentences:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            findings:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  freetext:
+                                    type: string
+                                    description: Freetext that could be associated
+                                      with this finding.
+                                  findingid:
+                                    type: string
+                                    description: The ID of this finding. Like sentences,
+                                      these are how specific findings are identified
+                                      as part of the new HPI.
+                                  findingnote:
+                                    type: string
+                                    description: A note left on this finding.
+                                  selectedoptions:
+                                    type: array
+                                    description: 'The options the user has chosen
+                                      from any dropdowns for this finding. The order
+                                      of these selections should correspond to the
+                                      order of the dropdowns from left to right in
+                                      the finding name. Note: there must be some value
+                                      specified for every dropdown in OPTIONLISTS.
+                                      To indicate that no option is selected for a
+                                      particular dropdown, set the corresponding value
+                                      in SELECTEDOPTIONS to "" or null (e.g. SELECTEDOPTIONS:
+                                      [""] or SELECTEDOPTIONS: [null]).'
+                              description: A list of findings that are a part of this
+                                sentence.
+                            sentenceid:
+                              type: string
+                              description: ID of the sentence.  These are how sentences
+                                are identified as part of the new HPI.
+                            sentencenote:
+                              type: string
+                              description: A note to go along with this sentence.
+                        description: An array of sentences that are part of this paragraph.
+                      templateid:
+                        type: integer
+                        description: ID of the template this paragraph is a part of.
+                      paragraphid:
+                        type: string
+                        description: ID of a paragraph that is part of the new HPI.
+                  description: This is a JSON structure containing everything you
+                    want the HPI to now contain.  If you call the GET version of this
+                    call you can see some sample output.  It is extremely important
+                    to note that anything you pass in will become the new HPI. Even
+                    if you only wish to make an addition, you will need to pass in
+                    the whole output of the GET plus your addition, otherwise anything
+                    you don't pass in will be removed.
+                hpitoros:
+                  type: boolean
+                  description: Whether ROS is as noted in HPI.
+                sectionnote:
+                  type: string
+                  description: The text to be updated to the history of present illness
+                    section note for this encounter.
+                templatedata:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      reportedby:
+                        enum:
+                        - ''
+                        - Patient
+                        - Parent
+                        - Caregiver
+                        - Staff
+                        type: string
+                        description: "\n\t\t\t\t\tThe type of person who reported\
+                          \ information for the history of present illness template.\
+                          \ One of Patient, Parent, Caregiver, or Staff.\n\t\t\t\t\
+                          \ This will always be set to null if you do not pass any\
+                          \ templateids even if you set this to a non null value in\
+                          \ the API. This is because this field is only valid when\
+                          \ there is an HPI template added to the encounter."
+                      templateid:
+                        type: integer
+                        description: ID of the template the templatenote is associated
+                          with.
+                      templatenote:
+                        type: string
+                        description: The note associated with this template. If defined,
+                          will replace the existing value for this note.
+                  description: An array of objects, each containing the id and note
+                    for a template.
+                replacesectionnote:
+                  type: boolean
+                  description: If true, will replace the existing section note with
+                    the new one. If false, will append to the existing note.
+        required: true
+      tags:
+      - Encounter
+      - HPI
+  /v1/{practiceid}/chart/encounter/{encounterid}/hpi/templates:
+    get:
+      summary: Get reference template for HPI findings
+      description: 'BETA: Retrieves the configured HPI templates for this encounter'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ageunits:
+                    description: The units for measuring age. (Y=years, M=months,
+                      W=weeks, D=days)
+                    type: string
+                  goals:
+                    description: If true, this template contains findings that can
+                      be used as goals in the Assessment and Plan.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  maxage:
+                    description: The minimum age filtered by this template
+                    type: integer
+                  minage:
+                    description: The minimum age filtered by this template
+                    type: integer
+                  name:
+                    description: The name of the template
+                    type: string
+                  note:
+                    description: The note attached to this template
+                    type: string
+                  sex:
+                    description: The sex filtered by this template
+                    type: string
+                  templateid:
+                    description: The template ID.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridHpiTemplates
+      x-scopes: []
+      tags:
+      - Encounter
+      - HPI
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

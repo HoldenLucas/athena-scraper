@@ -1,0 +1,1060 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/eyecare/visualacuity:
+    get:
+      summary: Retrieves visual acuity measurements associated with the given encounter
+        id.
+      description: Retrieves visual acuity measurements associated with the given
+        encounter id.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  glare:
+                    description: Eye measurements that used the glare method.
+                    properties:
+                      methods:
+                        description: Array of glare method measurements based on correction
+                          type
+                        items:
+                          properties:
+                            correctionlabel:
+                              description: The correction label associated with the
+                                glare measurement
+                              type: string
+                            measurements:
+                              description: Array of measurements associated with this
+                                correction type and method. Contains one entry for
+                                each brightness level (low/medium/bright)
+                              items:
+                                properties:
+                                  binocular:
+                                    description: List of the reading information including
+                                      the measurement reading values
+                                    items:
+                                      properties:
+                                        lastmodifiedby:
+                                          description: The username of whoever last
+                                            modified this field.
+                                          type: string
+                                        lastmodifieddatetime:
+                                          description: 'The latest date and time that
+                                            this field got modified; Provided in the
+                                            format: MM/DD/YYYY HH24::MM::SS in Eastern
+                                            time.'
+                                          type: string
+                                        readinglabel:
+                                          type: string
+                                        value:
+                                          type: string
+                                      type: object
+                                    type: array
+                                  brightnesslevel:
+                                    description: The brightness level of the glare
+                                      measurement
+                                    type: string
+                                  left:
+                                    description: List of the reading information including
+                                      the measurement reading values
+                                    items:
+                                      properties:
+                                        lastmodifiedby:
+                                          description: The username of whoever last
+                                            modified this field.
+                                          type: string
+                                        lastmodifieddatetime:
+                                          description: 'The latest date and time that
+                                            this field got modified; Provided in the
+                                            format: MM/DD/YYYY HH24::MM::SS in Eastern
+                                            time.'
+                                          type: string
+                                        readinglabel:
+                                          type: string
+                                        value:
+                                          type: string
+                                      type: object
+                                    type: array
+                                  right:
+                                    description: List of the reading information including
+                                      the measurement reading values
+                                    items:
+                                      properties:
+                                        lastmodifiedby:
+                                          description: The username of whoever last
+                                            modified this field.
+                                          type: string
+                                        lastmodifieddatetime:
+                                          description: 'The latest date and time that
+                                            this field got modified; Provided in the
+                                            format: MM/DD/YYYY HH24::MM::SS in Eastern
+                                            time.'
+                                          type: string
+                                        readinglabel:
+                                          type: string
+                                        value:
+                                          type: string
+                                      type: object
+                                    type: array
+                                type: object
+                              type: array
+                            method:
+                              description: Type of method used for the measurement
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  nearvision:
+                    description: An array of near vision eye measurement objects
+                    items:
+                      properties:
+                        measurements:
+                          description: Array of measurements
+                          items:
+                            properties:
+                              binocular:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              left:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              right:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        method:
+                          description: The method used to perform the eye measurement
+                          type: string
+                      type: object
+                    type: array
+                  sectionnote:
+                    description: Free text note associated with Visual Acuity
+                    type: string
+                  sectionnotelastmodifiedby:
+                    description: The username of whoever last modified this field.
+                    type: string
+                  sectionnotelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  standardmethods:
+                    description: An array of eye measurement objects for standard
+                      methods
+                    items:
+                      properties:
+                        measurements:
+                          description: Array of measurements
+                          items:
+                            properties:
+                              binocular:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              left:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              right:
+                                description: List of the reading information including
+                                  the measurement reading values
+                                items:
+                                  properties:
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    readinglabel:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        method:
+                          description: The method used to perform the eye measurement
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridEyecareVisualacuity
+      x-scopes: []
+      tags:
+      - Encounter
+      - Visual Acuity
+  /v1/{practiceid}/chart/encounter/{encounterid}/eyecare/intraocularpressure:
+    get:
+      summary: Intraocular Pressure measurements entered for a specific encounter.
+      description: Retrieves intraocular pressure measurements associated with a given
+        encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  measurements:
+                    description: an array of right and left intraocular pressure measurements
+                    items:
+                      properties:
+                        leftintraocularpressure:
+                          description: A JSON hash of Measurements
+                          properties:
+                            lastmodifiedby:
+                              description: The username of whoever last modified this
+                                field.
+                              type: string
+                            lastmodifieddatetime:
+                              description: 'The latest date and time that this field
+                                got modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                                in Eastern time.'
+                              type: string
+                            method:
+                              description: The method used to take the measurements
+                                ("Goldmann", "TonoPen", "ICare", "Non-contact", or
+                                "Palpation").
+                              type: string
+                            value:
+                              description: The findings of the measurements.
+                              type: string
+                          type: object
+                        rightintraocularpressure:
+                          description: A JSON hash of Measurements
+                          properties:
+                            lastmodifiedby:
+                              description: The username of whoever last modified this
+                                field.
+                              type: string
+                            lastmodifieddatetime:
+                              description: 'The latest date and time that this field
+                                got modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                                in Eastern time.'
+                              type: string
+                            method:
+                              description: The method used to take the measurements
+                                ("Goldmann", "TonoPen", "ICare", "Non-contact", or
+                                "Palpation").
+                              type: string
+                            value:
+                              description: The findings of the measurements.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  note:
+                    description: The note associated with Intraocular Pressure.
+                    type: string
+                  notelastmodifiedby:
+                    description: The username of whoever last modified this field.
+                    type: string
+                  notelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridEyecareIntraocularpressure
+      x-scopes: []
+      tags:
+      - Encounter
+      - Intraocular Pressure
+  /v1/{practiceid}/chart/encounter/{encounterid}/eyecare/visioncorrection:
+    get:
+      summary: Vision correction measurements entered during an encounter.
+      description: Retrieves vision correction measurements entered during a given
+        encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  current:
+                    description: Vision corrections documented for a current prescription.
+                    items:
+                      properties:
+                        glasses:
+                          description: Vision corrections for glasses. Except for
+                            the Note, the glasses attributes are categorized by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for glasses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        rigidcontacts:
+                          description: Vision corrections for rigid contact lenses.
+                            Except for the Note, the rigidcontacts attributes are
+                            categorized by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for rigid contact lenses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        softcontacts:
+                          description: Vision corrections for soft contact lenses.
+                            Except for the Note, the softcontacts attributes are categorized
+                            by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for soft contact lenses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  exam:
+                    description: Vision corrections documented for a new prescription.
+                    items:
+                      properties:
+                        glasses:
+                          description: Vision corrections for glasses. Except for
+                            the Note, the glasses attributes are categorized by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for glasses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        rigidcontacts:
+                          description: Vision corrections for rigid contact lenses.
+                            Except for the Note, the rigidcontacts attributes are
+                            categorized by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              leftvisionoverrefraction:
+                                description: Overrefraction correction readings for
+                                  left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisionoverrefraction:
+                                description: Overrefraction correction readings for
+                                  right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for rigid contact lenses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        softcontacts:
+                          description: Vision corrections for soft contact lenses.
+                            Except for the Note, the softcontacts attributes are categorized
+                            by laterality.
+                          items:
+                            properties:
+                              leftvisioncorrection:
+                                description: Correction readings for left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              leftvisionoverrefraction:
+                                description: Overrefraction correction readings for
+                                  left vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisioncorrection:
+                                description: Correction readings for right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              rightvisionoverrefraction:
+                                description: Overrefraction correction readings for
+                                  right vision.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                              sectionnote:
+                                description: Notes for a set of vision correction
+                                  readings for soft contact lenses.
+                                items:
+                                  properties:
+                                    attributelabel:
+                                      description: The correction attribute name.
+                                      type: string
+                                    lastmodifiedby:
+                                      description: The username of whoever last modified
+                                        this field.
+                                      type: string
+                                    lastmodifieddatetime:
+                                      description: 'The latest date and time that
+                                        this field got modified; Provided in the format:
+                                        MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                                      type: string
+                                    value:
+                                      description: The correction attribute value.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridEyecareVisioncorrection
+      x-scopes: []
+      tags:
+      - Encounter
+      - Vision Correction
+  /v1/{practiceid}/chart/encounter/{encounterid}/eyecare/eyedilation:
+    get:
+      summary: Retrieve the eye dilation readings associated with the given encounter
+        id.
+      description: Retrieve the eye dilation readings associated with the given encounter
+        id.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  readingrows:
+                    description: 'Eye Dilation readings. '
+                    items:
+                      properties:
+                        administered:
+                          description: The time the medication was administered.
+                          type: string
+                        administeredlastmodifiedby:
+                          description: The username of whoever last modified this
+                            field.
+                          type: string
+                        administeredlastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                        laterality:
+                          description: The eye (left/right) to which the medication
+                            was administered.
+                          type: string
+                        lateralitylastmodifiedby:
+                          description: The username of whoever last modified this
+                            field.
+                          type: string
+                        lateralitylastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                        medicationname:
+                          description: The name of the medication administered.
+                          type: string
+                        medicationnamelastmodifiedby:
+                          description: The username of whoever last modified this
+                            field.
+                          type: string
+                        medicationnamelastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                      type: object
+                    type: array
+                  sectionnote:
+                    description: Note for a set of dilation readings.
+                    type: string
+                  sectionnotelastmodifiedby:
+                    description: The username of whoever last modified this field.
+                    type: string
+                  sectionnotelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridEyecareEyedilation
+      x-scopes: []
+      tags:
+      - Encounter
+      - Eye Dilation
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

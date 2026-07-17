@@ -1,0 +1,266 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/checkin:
+    post:
+      summary: Check in this appointment.
+      description: ' Check in this appointment. '
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: Shows which section caused the check-in to fail.
+                    type: string
+                  success:
+                    description: Indicates whether the check-in was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidCheckin
+      x-scopes: []
+      tags:
+      - Appointments
+      - Check-In
+    get:
+      summary: Returns the list of conditions required before check-in.
+      description: Shows what is required before an appointment can be checked in.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  complete:
+                    description: Whether the requirements for this section have been
+                      successfully completed.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  fields:
+                    description: Detailed information about the requirements for each
+                      section and their status.
+                    items:
+                      properties:
+                        error:
+                          description: If the demographic field failed validate, this
+                            contains the error why (empty or failed validation).
+                          type: string
+                        field:
+                          description: Name of the required or validated demographic
+                            field
+                          type: string
+                        formname:
+                          description: Name of the health history or privacy form
+                          type: string
+                        status:
+                          description: Check in status (Before or During Check In),
+                            the Privacy Form status (Complete or Incomplete), or the
+                            percent complete of the health history form.
+                          type: string
+                        valid:
+                          description: Whether the required demographic field was
+                            valid.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                      type: object
+                    type: array
+                  name:
+                    description: Name of the group of requirements. Can be Demographics,
+                      Insurance, Privacy Forms, Check In, and Health History Forms.
+                      The Check In section just gives you the current status.
+                    type: string
+                  required:
+                    description: Whether this section is required to be completed
+                      before check in will be allowed.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsAppointmentidCheckin
+      x-scopes: []
+      tags:
+      - Appointments
+      - Check-In
+  /v1/{practiceid}/appointments/{appointmentid}/startcheckin:
+    post:
+      summary: Initiate appointment check-in process
+      description: Notifies that the appointment check-in process has started
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: Debugging text in case of failure.
+                    type: string
+                  success:
+                    description: Indicates that this call was successful.  Processing
+                      should still continue even if there was an error with this call.  Generally,
+                      this will only be false if the appointment is in a good state
+                      to start the process, but the startcheckin call was already
+                      used.  Other errors may occur, similar to potential errors with
+                      /appointments/{appointmentid}/checkin.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidStartcheckin
+      x-scopes: []
+      tags:
+      - Appointments
+      - Check-In
+  /v1/{practiceid}/appointments/{appointmentid}/cancelcheckin:
+    post:
+      summary: Cancel appointment check-in process
+      description: Cancel appointment check-in process. It cannot be called if the
+        check-in process has been completed.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: Debugging in case of failure.
+                    type: string
+                  success:
+                    description: See documentation for /appointments/{appointmentid}/startcheckin.
+                      This is very similar, except this endpoint is used for canceling
+                      the check-in process rather than starting it.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidCancelcheckin
+      x-scopes: []
+      tags:
+      - Appointments
+      - Check-In
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

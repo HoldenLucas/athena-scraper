@@ -1,0 +1,964 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/proceduredocumentation:
+    get:
+      summary: Get procedure documentation for given encounter
+      description: Retrieves the procedure documentation associated with a specific
+        encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: showhtml
+        schema:
+          type: boolean
+        required: false
+        description: Procedure documentation is stored as HTML templates filled in
+          by the practice.  By default, we strip out all HTML when returning the data
+          back through the API.  However, there are times when preserving the HTML
+          formatting may be useful. If SHOWHTML is set to true, the original HTML
+          from the template is preserved when returning data back through the API.
+      - in: query
+        name: showoutcomes
+        schema:
+          type: boolean
+        required: false
+        description: Some practices utilize encounters with procedure workflows to
+          document additional information about the procedure, such as outcomes associated
+          with the proceduredocumentation. If SHOWOUTCOMES is set to true, returns
+          additional information about outcomes, if it exists.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  complications:
+                    description: If showoutcomes is passed and the encounter includes
+                      procedure workflows, a JSON array indicating the complications
+                      with the procedure
+                    items:
+                      properties:
+                        complication:
+                          description: The name of the complication
+                          type: string
+                        grade:
+                          description: The documented grade of the complication
+                          type: string
+                        lastmodifiedby:
+                          description: The user that last modified this complication
+                          type: string
+                        lastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                      type: object
+                    type: array
+                  lastmodifiedby:
+                    description: The last user who updated this form.
+                    type: string
+                  lastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  outcome:
+                    description: If showoutcomes is passed and the encounter includes
+                      procedure workflows, a JSON object indicating the result of
+                      the procedure
+                    properties:
+                      lastmodifiedby:
+                        description: The user that last modified this outcome
+                        type: string
+                      lastmodifieddatetime:
+                        description: 'The latest date and time that this field got
+                          modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                          in Eastern time.'
+                        type: string
+                      note:
+                        description: The note associated with the outcome
+                        type: string
+                      result:
+                        description: The result of the procedure
+                        type: string
+                    type: object
+                  proceduredocumentationtext:
+                    description: The text of the Procedure Documentation section.
+                      Not all practices use this. Some use it extensively with HTML
+                      templates.
+                    type: string
+                  proceduretemplatename:
+                    description: The name of the template from which this document
+                      originates
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridProceduredocumentation
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Documentation
+  /v1/{practiceid}/chart/encounter/{encounterid}/ambulatorysurgicalcontent:
+    get:
+      summary: Get surgical case content in given clinical-note/procedure encounter
+        and encounter location.
+      description: Retrieves surgical case content associated with the given clinical-note/procedure
+        encounter id and encounter location.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: location
+        schema:
+          type: string
+        required: true
+        description: Location of the forms in an encounter workflow.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ambulatorysurgicalcontent:
+                    description: Array of Ambulatory Surgical Content forms.
+                    items:
+                      properties:
+                        clinicalencounterid:
+                          description: The clinical note/procedure encounter id.
+                          type: integer
+                        formid:
+                          description: FORMID of the form or from the AmbSurgFormResponse
+                            table.
+                          type: string
+                        lastmodifiedby:
+                          description: The last user who updated this form.
+                          type: string
+                        lastmodifieddatetime:
+                          description: 'The latest date and time that this form got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                        location:
+                          description: Location of the forms in an encounter workflow
+                          type: string
+                        questions:
+                          description: Arrayref of questions on the form.
+                          items:
+                            properties:
+                              answer:
+                                description: Answer to the question
+                                type: string
+                              answercodes:
+                                description: Hashrefs with CODE and CODESET keys.
+                                items:
+                                  properties:
+                                    code:
+                                      type: integer
+                                    codeset:
+                                      type: string
+                                    value:
+                                      type: string
+                                  type: object
+                                type: array
+                              declined:
+                                description: If user declined to answer the question.
+                                type: string
+                              deleted:
+                                description: Indicates that this is a deleted question.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              inputtype:
+                                description: Type of input used to answer this question.
+                                type: string
+                              key:
+                                description: Uniquely describes this question.
+                                type: string
+                              lastmodifieddatetime:
+                                description: 'The latest date and time that this field
+                                  got modified; Provided in the format: MM/DD/YYYY
+                                  HH24::MM::SS in Eastern time.'
+                                type: string
+                              lastmodifieduser:
+                                description: The last user who updated this field.
+                                type: string
+                              note:
+                                description: Notes associated with this question.
+                                type: string
+                              ordering:
+                                description: Question ordering.
+                                type: integer
+                              plcquestion:
+                                description: PLC version of the questions.
+                                type: string
+                              question:
+                                description: Question text.
+                                type: string
+                              questioncodes:
+                                description: Each hashref represents a code backing,
+                                  with CODE and CODESET keys.
+                                items:
+                                  properties:
+                                    code:
+                                      type: integer
+                                    codeset:
+                                      type: string
+                                  type: object
+                                type: array
+                              required:
+                                description: If the question is required to answer.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              socialhistorystatus:
+                                description: Social history status.
+                                type: string
+                              sticky:
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              templatedeleted:
+                                description: Indicates that this question comes from
+                                  a deleted template.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              templateid:
+                                description: 'Question Template id '
+                                type: string|integer
+                              templateidsource:
+                                description: Where the template come from.
+                                type: string
+                            type: object
+                          type: array
+                        templateid:
+                          description: MASTERFORMID of the form or from the AmbSurgFormResponse
+                            table.
+                          type: string
+                        templatename:
+                          description: The name of the form that is used to display
+                            name of the template inside the widget.
+                          type: string
+                      type: object
+                    type: array
+                  ambulatorysurgicalphonecalls:
+                    description: Array of Ambulatory Surgical Phone Call data.
+                    items:
+                      properties:
+                        ambulatorysurgicalphonecallid:
+                          description: The id of the call attempt.
+                          type: integer
+                        callstatus:
+                          description: The status of the call attempt
+                          type: string
+                        callstatusnote:
+                          description: The note added if the call attempt status is
+                            Other
+                          type: string
+                        clinicalencounterid:
+                          description: The clinical note/procedure encounter id.
+                          type: integer
+                        versiontoken:
+                          description: The version token of the call attempt
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridAmbulatorysurgicalcontent
+      x-scopes: []
+      tags:
+      - Encounter
+      - Ambulatory Surgical Content
+  /v1/{practiceid}/chart/encounter/{encounterid}/presedationassessment:
+    get:
+      summary: Get Pre-Sedation Assessment for given encounter
+      description: Retrieves the Pre-Sedation Assessment associated with a specific
+        encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  anesthesiareaction:
+                    description: The prior anesthesia reaction of the patient noted
+                      on the Pre-Sedation Assessment.
+                    type: string
+                  anesthesiareactionlastmodifiedby:
+                    description: The user who most recently edited the prior anesthesia
+                      reaction of the patient noted on the Pre-Sedation Assessment.
+                    type: string
+                  anesthesiareactionlastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  asascore:
+                    description: The ASA score of the Pre-Sedation Assessment.
+                    type: string
+                  asascorelastmodifiedby:
+                    description: The user who most recently edited the ASA score of
+                      the Pre-Sedation Assessment.
+                    type: string
+                  asascorelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  assessmenttime:
+                    description: 'The time at which the Pre-Sedation Assessment was
+                      completed. In the format: HH12::MM AM/PM in Local time.'
+                    type: string
+                  clinicalencounterid:
+                    description: The ID of the encounter associated with this Pre-Sedation
+                      Assessment.
+                    type: integer
+                  freetext:
+                    description: Freetext notes associated with the Pre-Sedation Assessment.
+                    type: string
+                  freetextlastmodifiedby:
+                    description: The user who most recently edited the freetext notes
+                      associated with the Pre-Sedation Assessment.
+                    type: string
+                  freetextlastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  patientconsent:
+                    description: Whether or not the patient consented to anesthesia.
+                    type: string
+                  patientconsentlastmodifiedby:
+                    description: The user who most recently edited whether or not
+                      the patient consented to anesthesia.
+                    type: string
+                  patientconsentlastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  planofcare:
+                    description: The plan of care of the Pre-Sedation Assessment.
+                    type: string
+                  planofcarelastmodifiedby:
+                    description: The user who most recently edited the plan of care
+                      of the Pre-Sedation Assessment.
+                    type: string
+                  planofcarelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  timelastmodifiedby:
+                    description: The user who most recently edited the time at which
+                      the Pre-Sedation Assessment was completed.
+                    type: string
+                  timelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridPresedationassessment
+      x-scopes: []
+      tags:
+      - Encounter
+      - Pre-Sedation Assessment
+  /v1/{practiceid}/chart/encounter/{encounterid}/stageproceduredocumentation:
+    get:
+      summary: Get Pre/Intra/Post procedure documentation for given encounter
+      description: Retrieves the Pre/Intra/Post procedure documentation associated
+        with a specific encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: showhtml
+        schema:
+          type: boolean
+        required: false
+        description: Procedure documentation is stored as HTML templates filled in
+          by the practice.  By default, we strip out all HTML when returning the data
+          back through the API.  However, there are times when preserving the HTML
+          formatting may be useful. If SHOWHTML is set to true, the original HTML
+          from the template is preserved when returning data back through the API.
+      - in: query
+        name: stage
+        schema:
+          type: string
+        required: true
+        description: Stage of the encounter workflow (PRE/INTRA/POST).
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  lastmodifiedby:
+                    description: The last user who updated this form.
+                    type: string
+                  lastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  proceduredocumentationtext:
+                    description: The text of the stage-specific Procedure Documentation
+                      section. Not all practices use this. Some use it extensively
+                      with HTML templates.
+                    type: string
+                  proceduretemplatename:
+                    description: The name of the template from which this document
+                      originates
+                    type: string
+                  stage:
+                    description: Stage of the encounter workflow (PRE/INTRA/POST).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridStageproceduredocumentation
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Documentation
+  /v1/{practiceid}/chart/encounter/{encounterid}/proceduretimes:
+    get:
+      summary: Get Procedure times entered during the specified procedure encounter
+        through the encounter id.
+      description: Retrieves Procedure times entered during the specified procedure
+        encounter through the encounter id.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  note:
+                    description: Freetext note associated with procedure times.
+                    type: string
+                  notelastmodifiedby:
+                    description: The username of whoever last modified the note.
+                    type: string
+                  notelastmodifieddatetime:
+                    description: 'The latest date and time that this field got modified;
+                      Provided in the format: MM/DD/YYYY HH24::MM::SS in Eastern time.'
+                    type: string
+                  procedureevents:
+                    description: Array of ProcedureEvent objects, each of which correspond
+                      to a configured event which tracks the time it was recorded.
+                    items:
+                      properties:
+                        lastmodifiedby:
+                          description: The username of whoever last modified the procedure
+                            event.
+                          type: string
+                        lastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                        name:
+                          description: The name of the procedure event as it is configured
+                            in the database.
+                          type: string
+                        time:
+                          description: The time in which the event occurred.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridProceduretimes
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Times
+  /v1/{practiceid}/chart/encounter/{encounterid}/procedureroles:
+    get:
+      summary: Get Procedure roles entered during the specified procedure encounter
+        through the encounter id.
+      description: Retrieves Procedure roles entered during the specified procedure
+        encounter through the encounter id.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  procedureroles:
+                    description: Array of ProcedureRole objects, each of which correspond
+                      to a configured role which tracks providers and time in/out.  This
+                      may not always be included as some sections that use this entity
+                      do not utilize it.
+                    items:
+                      properties:
+                        lastmodifiedby:
+                          description: The last user who updated this section.
+                          type: string
+                        lastmodifieddatetime:
+                          description: 'The latest date and time that this field got
+                            modified; Provided in the format: MM/DD/YYYY HH24::MM::SS
+                            in Eastern time.'
+                          type: string
+                        name:
+                          description: The name of the procedure role as it is configured
+                            in the database.
+                          type: string
+                        timeindate:
+                          description: 'The time in which the provider/MA with the
+                            procedure role entered the room. In the format: HH12::MM
+                            AM/PM in Local time.'
+                          type: string
+                        timeoutdate:
+                          description: 'The time in which the provider/MA with the
+                            procedure role left the room. In the format: HH12::MM
+                            AM/PM in Local time.'
+                          type: string
+                        username:
+                          description: The username of the provider/MA with the procedure
+                            role.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridProcedureroles
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Roles
+  /v1/{practiceid}/chart/encounter/{encounterid}/proceduretimeoutchecklist:
+    get:
+      summary: Get procedure checklist event times for given encounter
+      description: Retrieves the procedure checklist event times associated with a
+        specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  note:
+                    description: A freetext note associated with the Procedure Timeout/Checklist
+                      section.
+                    type: string
+                  notelastmodifiedby:
+                    description: The last user who updated this section.
+                    type: string
+                  notelastmodifieddatetime:
+                    description: 'The latest date/time that this section got modified
+                      in format: MM/DD/YYYY HH24::MM::SS.'
+                    type: string
+                  procedureevents:
+                    description: The list of events.
+                    items:
+                      properties:
+                        eventlastmodifiedby:
+                          description: The last user who updated this section.
+                          type: string
+                        eventlastmodifieddatetime:
+                          description: 'The latest date/time that this section got
+                            modified in format: MM/DD/YYYY HH24::MM::SS.'
+                          type: string
+                        name:
+                          description: The name of the procedure event as it is configured
+                            in the database.
+                          type: string
+                        time:
+                          description: The time at which the event occurred.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridProceduretimeoutchecklist
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Timeout/Checklist
+  /v1/{practiceid}/chart/encounter/{encounterid}/procedurevitals:
+    get:
+      summary: Vitals entered during the specified procedure stage.
+      description: Retrieves vitals entered during the specified procedure stage associated
+        with a given encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: showunits
+        schema:
+          type: boolean
+        required: false
+        description: Show units on vitals where applicable.
+      - in: query
+        name: stage
+        schema:
+          type: string
+        required: true
+        description: Procedure stage to the retrieve the procedure vitals for.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  abbreviation:
+                    description: Short human-readable string for this vital group.
+                      E.g., Ht.
+                    type: string
+                  key:
+                    description: Key for this vital group. E.g., HEIGHT.
+                    type: string
+                  ordering:
+                    description: Configured order for this vital group
+                    type: integer
+                  readings:
+                    description: List of vital attribute readings. One entry per attribute
+                      (so the temperature and where the temperature was taken are
+                      two different readings, tied together by the readingid
+                    items:
+                      properties:
+                        clinicalelementid:
+                          description: Key used to identify this particular vital
+                            attribute
+                          type: string
+                        code:
+                          description: Code indentifier for the reading.
+                          type: string
+                        codedescription:
+                          description: Description of the code identifier.
+                          type: string
+                        codeset:
+                          description: Codeset of the code.
+                          type: string
+                        createdby:
+                          description: The athenaNet username of the person who entered
+                            the vital.
+                          type: string
+                        createddate:
+                          description: The date this vital was entered into the chart.
+                            Returned in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        isgraphable:
+                          description: Flag indicating if this vital is graphable.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        lastmodifiedby:
+                          description: The athenaNet username of the user that last
+                            modified the reading.
+                          type: string
+                        lastmodifieddate:
+                          description: The date this vital was last modified. Returned
+                            in mm/dd/yyyy hh24:mi:ss format.
+                          type: string
+                        percentilespec:
+                          properties:
+                            high:
+                              description: The highest value the y value could be.
+                              type: integer
+                            highordinal:
+                              description: Ordinal of the high value.
+                              type: string
+                            low:
+                              description: The lowest value that y could be.
+                              type: integer
+                            lowordinal:
+                              description: Ordinal of the lowest value.
+                              type: string
+                            prefix:
+                              description: 'Indicator of less than or greater. Possible
+                                values: (>,<)'
+                              type: string
+                          type: object
+                        readingid:
+                          description: Numeric key used to tie related and distinguish
+                            separate readings. So the diastolic and systolic blood
+                            pressure should have the same readingid.
+                          type: integer
+                        readingtaken:
+                          description: Date that the reading was taken.
+                          type: string
+                        source:
+                          description: The source of this reading.
+                          type: string
+                        sourceid:
+                          description: External key to source.
+                          type: integer
+                        unit:
+                          description: Unit that describes this vital's value.
+                          type: string
+                        value:
+                          description: 'The value of this reading. NOTE: for numeric
+                            values, the units are always in the ''native'' units per
+                            the configuration.'
+                          type: string
+                        vitalid:
+                          description: Unique ID for this vital attribute reading.
+                            Used to update/delete this reading.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridProcedurevitals
+      x-scopes: []
+      tags:
+      - Encounter
+      - Procedure Vitals
+  /v1/{practiceid}/encounter/{encounterid}/procedurecodes:
+    get:
+      summary: Get list of procedure codes available for given encounter
+      description: Retrieves a list of procedure codes that can be attached to the
+        billing slip for a given encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: The name of the procedure you want to search for. This can be
+          the code or the description.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The human readable description of the code.
+                    type: string
+                  procedurecode:
+                    description: The CPT code for the procedure.
+                    type: string
+                  servicetype:
+                    description: 'The type of service this procedure is associated
+                      with. Ex: DME or LAB'
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidEncounterEncounteridProcedurecodes
+      x-scopes: []
+      tags:
+      - Encounter
+      - Billing Slip
+  /v1/{practiceid}/reference/order/procedure:
+    get:
+      summary: Get list of procedures and surgeries
+      description: Retrieve the list of surgeries and procedures
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderProcedure
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Procedures and Surgeries
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

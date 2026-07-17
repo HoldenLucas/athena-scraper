@@ -1,0 +1,178 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patientsatisfaction:
+    get:
+      summary: Get patient-satisfaction score - for past appointments
+      description: Retrieves the patient-satisfaction score for a specific provider
+        in a past appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: true
+        description: The last date in a range that you want to search for patients
+          based on when they had an appointment.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: departmentid
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: providerid
+      - in: query
+        name: lastmodified
+        schema:
+          type: string
+        required: false
+        description: Only return appointments that were last modified on the date
+          provided.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: true
+        description: The first date in a range that you want to search for patients
+          based on when they had an appointment.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentdate:
+                    description: Date of the appointment
+                    type: string
+                  appointmentid:
+                    description: ID of the appointment
+                    type: integer
+                  communicatorbrandid:
+                    description: ID of the communicator brand where the appointment
+                      took place.
+                    type: integer
+                  departmentid:
+                    description: ID of the department where the appointment took place.
+                    type: integer
+                  providerid:
+                    description: ID of the provider that rendered services at the
+                      appointment.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsatisfaction
+      x-scopes: []
+      tags:
+      - Patients
+      - PatientSatisfaction
+  /v1/{practiceid}/patientsatisfaction/results:
+    post:
+      summary: Upload patient-satisfaction score data
+      description: Add the patient-satisfaction score for a specific provider in the
+        system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: This is the number of rows updated in the database.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsatisfactionResults
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - enddate
+              - providerdata
+              - startdate
+              properties:
+                enddate:
+                  type: string
+                  description: This should be the last day of the reporting period
+                    that we are working with. For instance if you are submitting report
+                    data for the month of october, you would send a date such as '10/31/2015'.
+                startdate:
+                  type: string
+                  description: This should be the last day of the reporting period
+                    that we are working with. For instance if you are submitting report
+                    data for the month of october, you would send a date such as '10/31/2015'.
+                averagescore:
+                  type: string
+                  description: This is the average score that we should be comparing
+                    our providers to. It should be a number between 0 and 999.99
+                providerdata:
+                  type: string
+                  description: JSON object that is an array of objects containing
+                    "providerid", "departmentid", "score", and "datapointcount" which
+                    is the number of surveys thatmake up our average score.
+        required: true
+      tags:
+      - Patients
+      - PatientSatisfaction
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

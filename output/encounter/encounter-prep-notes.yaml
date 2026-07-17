@@ -1,0 +1,303 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/encounterprep/notes/:
+    get:
+      summary: Gets the encounter prep notes for this encounter.
+      description: Gets the encounter prep notes for this encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: query
+        name: locations
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: The array of locations to filter prep notes to.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Include deleted prep notes in the response.
+      - in: query
+        name: showtokens
+        schema:
+          type: boolean
+        required: false
+        description: Include version tokens for the notes in the response. Defaults
+          to false.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encounterprepnotes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        note:
+                          type: string
+                          description: The note content.
+                        noteid:
+                          type: integer
+                          description: The note ID.
+                        location:
+                          type: string
+                          description: The note location in athenaNet.
+                        deletedby:
+                          type: string
+                          description: The username of the user who deleted this prep
+                            note.
+                        versiontoken:
+                          type: string
+                          description: A token specifying a unique version of the
+                            note in the database.  Will only be returned if the input
+                            parameter SHOWTOKENS is true.
+                        lastmodifiedby:
+                          type: string
+                          description: The username of the user who last modified
+                            this prep note.
+                        deleteddatetime:
+                          type: string
+                          description: The date and time the prep note was deleted.
+                        lastmodifieddatetime:
+                          type: string
+                          description: The date and time the prep note was last modified.
+                    description: The list of encounter prep notes for an encounter.
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridEncounterprepNotes
+      x-scopes: []
+      tags:
+      - Encounter
+      - Encounter Prep Notes
+    post:
+      summary: Creates the encounter prep notes for this encounter.
+      description: Creates the encounter prep notes for this encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  noteid:
+                    type: integer
+                    description: The note ID of the newly created note.
+                  versiontoken:
+                    type: string
+                    description: A token specifying a unique version of the note in
+                      the database.  Will only be returned if the input parameter
+                      USEVERSIONTOKENS is true.
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridEncounterprepNotes
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - location
+              properties:
+                note:
+                  type: string
+                  description: The note text to be modified
+                location:
+                  enum:
+                  - EXAM
+                  - INTAKE
+                  type: string
+                  description: The location where the note will show up in the encounter.  One
+                    of EXAM or INTAKE.
+                useversiontokens:
+                  type: boolean
+                  description: On a successful post, if this parameter is true, the
+                    version token will be returned in the output, and otherwise will
+                    not.  Defaults to false.
+        required: true
+      tags:
+      - Encounter
+      - Encounter Prep Notes
+  /v1/{practiceid}/chart/encounter/{encounterid}/encounterprep/notes/{noteid}/:
+    put:
+      summary: Updates the encounter prep notes for this encounter.
+      description: Updates the encounter prep notes for this encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: noteid
+        schema:
+          type: integer
+        required: true
+        description: noteid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  noteid:
+                    type: integer
+                    description: The ID of the updated note.
+                  versiontoken:
+                    type: string
+                    description: A token specifying a unique version of the note in
+                      the database.  Will only be returned if a version token was
+                      provided in the input.
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridEncounterprepNotesNoteid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  description: The text to update the prep note with.
+                versiontoken:
+                  type: string
+                  description: A token specifying a unique version of the note in
+                    the database. If it's specified and does not match the version
+                    token on the server, the update will fail. If it's not specified,
+                    the version token will not be returned in the output.
+        required: true
+      tags:
+      - Encounter
+      - Encounter Prep Notes
+    delete:
+      summary: Deletes encounter prep notes for this encounter.
+      description: Deletes encounter prep notes for this encounter.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: noteid
+        schema:
+          type: integer
+        required: true
+        description: noteid
+      - in: query
+        name: versiontoken
+        schema:
+          type: string
+        required: false
+        description: A token specifying a unique version of the note in the database.
+          If it's specified and does not match the version token on the server, the
+          delete will fail.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  noteid:
+                    type: integer
+                    description: The ID of the deleted note.
+          description: Success
+      operationId: deletePracticeidChartEncounterEncounteridEncounterprepNotesNoteid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Encounter Prep Notes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

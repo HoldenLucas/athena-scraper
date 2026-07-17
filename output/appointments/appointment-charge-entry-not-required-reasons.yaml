@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/{appointmentid}/chargeentrynotrequired:
+    post:
+      summary: Add indicator that charge entry is not required on appointment
+      description: Update the appointment record to indicate charge entry is not required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If success is false this is a field that may provide
+                      additional details.
+                    type: string
+                  success:
+                    description: Notes successfully marking the appointment as not
+                      requiring charge entry.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmentsAppointmentidChargeentrynotrequired
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - chargeentrynotrequiredreason
+              - athenausername
+              properties:
+                athenausername:
+                  type: string
+                  description: athenaNet username of the person marking this appointment
+                    as not requiring charge entry.
+                chargeentrynotrequiredreason:
+                  type: string
+                  description: Reason that this appointment is being marked as not
+                    requiring charge entry. This reason is specific to each practice
+                    and must be configured by that practice in athenaNet. The reasons,
+                    with descriptions, can be listed with the /configuration/appointments/chargeentrynotrequiredreasons
+                    endpoint.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Charge Entries
+  /v1/{practiceid}/configuration/appointments/chargeentrynotrequiredreasons:
+    get:
+      summary: Get list of charge entry not required reasons
+      description: Returns a list of valid reasons to mark an appointment as charge
+        entry not required. These reasons will be valid values for the NOBILLINGSLIPCANCELREASON
+        field when posting.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: A more verbose name that may provide a little more
+                      detail.
+                    type: string
+                  reason:
+                    description: Reason to mark appointment as charge entry not required.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidConfigurationAppointmentsChargeentrynotrequiredreasons
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Charge Entries
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,264 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patientappointmentreasons:
+    get:
+      summary: Get list of appointment reasons
+      description: Retrieve the list of appointment reasons configured for the Practice
+        which will allow the patient to select a reason for their appointment.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet provider ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The patient-friendly name to accompany the reason.
+                    type: string
+                  reason:
+                    description: The patient-friendly reason used to select an appointment
+                      type. This is meant to assist the patient in narrowing down
+                      what type of appointment should be selected and, in athenaNet,
+                      maps to the appropriate appointment type for a particular department/provider
+                      combination.
+                    type: string
+                  reasonid:
+                    description: The ID for this reason.  Used to request open appointment
+                      slots.
+                    type: integer
+                  reasontype:
+                    description: Appointment reasons can be for new patients, existing
+                      patients, or all. Values are "new", "existing", or "all".
+                    type: string
+                  schedulingmaxdays:
+                    description: The maximum number of days before an appointment
+                      that a patient can schedule for a specific practice.
+                    type: integer
+                  schedulingminhours:
+                    description: The minimum number of hours before an appointment
+                      that a patient can schedule or cancel for a specific practice.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientappointmentreasons
+      x-scopes: []
+      tags:
+      - Appointments
+      - Patient Appointment Reasons
+  /v1/{practiceid}/patientappointmentreasons/newpatient:
+    get:
+      summary: Get list of appointment reasons for new patients
+      description: Retrieve the list of appointment reasons configured for the Practice
+        for new patients to attend
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet provider ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The patient-friendly name to accompany the reason.
+                    type: string
+                  reason:
+                    description: The patient-friendly reason used to select an appointment
+                      type. This is meant to assist the patient in narrowing down
+                      what type of appointment should be selected and, in athenaNet,
+                      maps to the appropriate appointment type for a particular department/provider
+                      combination.
+                    type: string
+                  reasonid:
+                    description: The ID for this reason.  Used to request open appointment
+                      slots.
+                    type: integer
+                  reasontype:
+                    description: Appointment reasons can be for new patients, existing
+                      patients, or all. Values are "new", "existing", or "all".
+                    type: string
+                  schedulingmaxdays:
+                    description: The maximum number of days before an appointment
+                      that a patient can schedule for a specific practice.
+                    type: integer
+                  schedulingminhours:
+                    description: The minimum number of hours before an appointment
+                      that a patient can schedule or cancel for a specific practice.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientappointmentreasonsNewpatient
+      x-scopes: []
+      tags:
+      - Appointments
+      - Patient Appointment Reasons
+  /v1/{practiceid}/patientappointmentreasons/existingpatient:
+    get:
+      summary: Get list of appointment reasons for existing patients
+      description: Retrieve the list of appointment reasons configured for the Practice
+        existing patients to attend
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department ID.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet provider ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: The patient-friendly name to accompany the reason.
+                    type: string
+                  reason:
+                    description: The patient-friendly reason used to select an appointment
+                      type. This is meant to assist the patient in narrowing down
+                      what type of appointment should be selected and, in athenaNet,
+                      maps to the appropriate appointment type for a particular department/provider
+                      combination.
+                    type: string
+                  reasonid:
+                    description: The ID for this reason.  Used to request open appointment
+                      slots.
+                    type: integer
+                  reasontype:
+                    description: Appointment reasons can be for new patients, existing
+                      patients, or all. Values are "new", "existing", or "all".
+                    type: string
+                  schedulingmaxdays:
+                    description: The maximum number of days before an appointment
+                      that a patient can schedule for a specific practice.
+                    type: integer
+                  schedulingminhours:
+                    description: The minimum number of hours before an appointment
+                      that a patient can schedule or cancel for a specific practice.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientappointmentreasonsExistingpatient
+      x-scopes: []
+      tags:
+      - Appointments
+      - Patient Appointment Reasons
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

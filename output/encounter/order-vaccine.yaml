@@ -1,0 +1,258 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/vaccine:
+    post:
+      summary: Create new vaccine order
+      description: Create a new vaccine order record for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentid:
+                    description: The ID of the document created.
+                    type: integer
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersVaccine
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - ordertypeid
+              - diagnosissnomedcode
+              properties:
+                ndc:
+                  type: string
+                  description: The National Drug Code for the vaccine.
+                facilityid:
+                  type: string
+                  description: The athena id of the pharmacy you want to send the
+                    vaccine prescription to. Defaults to the patient default pharmacy.
+                    Get a localized list using /chart/configuration/facilities.
+                ordertypeid:
+                  type: integer
+                  description: The athena ID of the vaccine to order. Must be an orderable
+                    vaccine. Get the IDs using /reference/order/vaccine
+                declineddate:
+                  type: string
+                  description: The date on which the patient declined the vaccine.
+                    Required if the declined reason is passed in.
+                orderingmode:
+                  enum:
+                  - ''
+                  - PRESCRIBE
+                  - ADMINISTER
+                  - DECLINE
+                  type: string
+                  default: ADMINISTER
+                  description: Selects whether you wish to prescribe, administer,
+                    or decline this vaccine.
+                pharmacynote:
+                  type: string
+                  description: A note to send to the pharmacy.
+                providernote:
+                  type: string
+                  description: An internal note for the provider or staff.
+                performondate:
+                  type: string
+                  description: The date on which the Vaccine was administered.
+                administernote:
+                  type: string
+                  description: An additional note to the provider or staff for administration.
+                declinedreason:
+                  type: integer
+                  description: To get a list of decline reasons for this input, call
+                    "GET /reference/order/vaccine/declinedreasons"
+                unstructuredsig:
+                  type: string
+                  description: The unstructured sig.
+                dispenseaswritten:
+                  type: boolean
+                  description: Whether the vaccine prescription should be marked as
+                    dispense as written (i.e., no substitutions without consulting
+                    the doctor).
+                numrefillsallowed:
+                  type: integer
+                  description: The number of refills allowed for this vaccine prescription.
+                    Defaults to 0.
+                diagnosissnomedcode:
+                  type: integer
+                  description: The SNOMED code for diagnosis this order is for.
+        required: true
+      tags:
+      - Encounter
+      - Order Vaccine
+  /v1/{practiceid}/reference/order/vaccine:
+    get:
+      summary: Get list of orderable vaccines
+      description: Retrieves a list of orderable vaccines
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: false
+        description: A term to search for. Must be at least 2 characters
+      - in: query
+        name: cvx
+        schema:
+          type: string
+        required: false
+        description: The CVX code of the vaccine. Matching vaccines will be returned.
+          A list of CVX codes can be retrieved at https://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=vg
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderVaccine
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Vaccine
+  /v1/{practiceid}/reference/order/vaccine/declinedreasons:
+    get:
+      summary: Get list of vaccine decline reasons
+      description: Retrieves a list of configured vaccine declined reasons
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: showinactive
+        schema:
+          type: boolean
+        required: false
+        description: Include deactivated declined reasons
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 1000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  active:
+                    description: Indicates whether the declined reason is currently
+                      active and may be used for creating new orders
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  declinedreason:
+                    description: The reason that the patient declined the vaccine.
+                      Required if the declined date is passed in. Defaults to "Patient
+                      decision".
+                    type: string
+                  declinedreasonid:
+                    description: The declined reason ID.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderVaccineDeclinedreasons
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Vaccine
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,283 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/patientrecord:
+    get:
+      summary: Get list of patient records for given patient
+      description: Retrieves the list of a patient record for a specific person
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: patientid
+        in: path
+        name: patientid
+        required: true
+        schema:
+          type: integer
+      - description: The status of the task to filter document results.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+      - description: The athenaNet department id.
+        in: query
+        name: departmentid
+        required: true
+        schema:
+          type: integer
+      - description: The document subclass to filter document results.
+        in: query
+        name: documentsubclass
+        required: false
+        schema:
+          type: string
+      - description: By default, deleted documents are not listed.  Set to list these.
+        in: query
+        name: showdeleted
+        required: false
+        schema:
+          type: boolean
+      - description: Show only documents attached to this encounter.
+        in: query
+        name: encounterid
+        required: false
+        schema:
+          type: integer
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Status of the document
+                  subject:
+                    type: string
+                    description: Subject of the document
+                  priority:
+                    type: number
+                    description: Document priority, when available.
+                  patientid:
+                    type: number
+                    description: The athenaNet patient ID
+                  assignedto:
+                    type: string
+                    description: Person the document is assigned to
+                  providerid:
+                    type: number
+                    description: Provider ID for this document
+                  createddate:
+                    type: string
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                  encounterid:
+                    type: string
+                    description: Encounter ID
+                  departmentid:
+                    type: string
+                    description: Department for the document
+                  documenttype:
+                    type: string
+                    description: The description for this document
+                  externalnote:
+                    type: string
+                    description: External note for the patient
+                  internalnote:
+                    type: string
+                    description: The 'Internal Note' attached to this document
+                  receivernote:
+                    type: string
+                    description: External note sent to the receiving facility
+                  tietoorderid:
+                    type: number
+                    description: Order ID of the order this document is tied to, if
+                      any
+                  appointmentid:
+                    type: number
+                    description: The appointment ID for this document.
+                  documentclass:
+                    type: string
+                    description: Class of document
+                  documentroute:
+                    type: string
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                  declinedreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was not given.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the reason the
+                            order was not given.
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                  documentsource:
+                    type: string
+                    description: Explains where this document originated (e.g. ENCOUNTER,
+                      PORTAL, etc.)
+                  documenttypeid:
+                    type: number
+                    description: The ID of the description for this document
+                  createddatetime:
+                    type: string
+                    description: Date/Time (ISO 8601) the document was created
+                  deleteddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was deleted
+                  patientrecordid:
+                    type: number
+                    description: The primary key for patientrecord class of documents
+                  documentsubclass:
+                    type: string
+                    description: Specific type of document
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  clinicalproviderid:
+                    type: number
+                    description: The clinical provider ID of the performing provider
+                  declinedreasontext:
+                    type: string
+                    description: The user-facing description of the reason the order
+                      was not given.
+                  documentdescription:
+                    type: string
+                    description: Description of the document type
+                  externalaccessionid:
+                    type: string
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  internalaccessionid:
+                    type: string
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                  observationdatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the observation was taken
+                  lastmodifieddatetime:
+                    type: string
+                    description: Date/time (ISO 8601) the document was last modified
+                  contraindicationreason:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          description: The code indicating why the order was contraindicated.
+                        codeset:
+                          type: string
+                          description: The codeset that the code belongs to.
+                        description:
+                          type: string
+                          description: The plaintext description of the contraindication
+                            reason.
+                    description: List of codes indicating why the order was contraindicated
+                      (for vaccines only). If this field is not present, the order
+                      does not contain a contraindication reason.
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsPatientrecord
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document List By Class
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

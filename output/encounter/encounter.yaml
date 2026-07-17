@@ -1,0 +1,363 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}:
+    get:
+      summary: Get encounter information
+      description: Retrieves information of a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  additionalencountersignatures:
+                    description: List of Additional Encounter Signature of user/provider.
+                    items:
+                      properties:
+                        scribedby:
+                          description: User who scribed the encounter. This can only
+                            be set if "Documented by scribe" is checked.
+                          type: string
+                        scribeddate:
+                          description: Date and time when the encounter was scribed.
+                          type: string
+                        signedby:
+                          description: Username of provider who signed the encounter
+                            in past.
+                          type: string
+                        signeddate:
+                          description: Date and time of when encounter was signed
+                            off.
+                          type: string
+                      type: object
+                    type: array
+                  appointmentid:
+                    description: Athena appointment ID resulting in this encounter
+                    type: integer
+                  closeddate:
+                    description: date when this encounter was closed
+                    type: string
+                  closeduser:
+                    description: Username of the provider who closed this encounter
+                    type: string
+                  confidentialitycode:
+                    description: The confidentiality code for the encounter. 'N' for
+                      non-restricted encounters, 'R' for restricted encounters. Only
+                      present when the CTMI-2263_ENCOUNTER_ACCESS_RESTRICTION rollout
+                      toggle is enabled.
+                    type: string
+                  departmentid:
+                    description: The athena department ID of this encounter
+                    type: integer
+                  diagnoses:
+                    description: List of diagnoses for this encounter
+                    items:
+                      properties:
+                        description:
+                          description: Brief description for this SNOMED Code
+                          type: string
+                        diagnosisid:
+                          description: Athena ID for this diagnosis
+                          type: integer
+                        icdcodes:
+                          description: List of relevant ICD codes for this diagnosis
+                          items:
+                            properties:
+                              code:
+                                description: Actual ICD code for this diagnosis
+                                type: string
+                              codeset:
+                                description: Codeset for this code (ICD9 or ICD10)
+                                type: string
+                              description:
+                                description: Brief description for this code
+                                type: string
+                            type: object
+                          type: array
+                        imodiagnosislist:
+                          description: This is a JSON structure containing IMO data
+                            relevant to this diagnosis. If excluded, it will be populated
+                            with the default IMO data for this SNOMED.
+                          items:
+                            properties:
+                              icdcodes:
+                                description: List of relevant ICD codes for this diagnosis.
+                                items:
+                                  properties:
+                                    code:
+                                      description: Unstripped ICD code for this diagnosis.
+                                      type: string
+                                    codeset:
+                                      description: Codeset for this code (ICD9 or
+                                        ICD10).
+                                      type: string
+                                    description:
+                                      description: Brief description for this code.
+                                      type: string
+                                  type: object
+                                type: array
+                              imocode:
+                                properties:
+                                  code:
+                                    description: The IMO code for this diagnosis
+                                    type: string
+                                  description:
+                                    description: Brief description for the IMO code.
+                                    type: string
+                                  laterality:
+                                    description: Laterality of the IMO code
+                                    type: string
+                                  needsrefinement:
+                                    description: Whether the IMO diagnosis need refinement
+                                    enum:
+                                    - ''
+                                    - false
+                                    - true
+                                    type: string
+                                type: object
+                              imoentityid:
+                                description: The Athena ID for this IMO entity
+                                type: integer
+                              patientfacingdescription:
+                                description: The patient facing description of the
+                                  IMO diagnosis, if any.
+                                type: string
+                              providerfacingdescription:
+                                description: The provider facing description of the
+                                  IMO diagnosis, if any.
+                                type: string
+                              snomedcodes:
+                                description: List of relevant SNOMED codes for this
+                                  diagnosis.
+                                items:
+                                  properties:
+                                    code:
+                                      description: Actual SNOMED code for this diagnosis.
+                                      type: string
+                                    codeset:
+                                      description: Codeset for this code.
+                                      type: string
+                                    description:
+                                      description: Brief description for this code.
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        note:
+                          description: The note entered for this diagnosis.
+                          type: string
+                        snomedcode:
+                          description: SNOMED Code for this diagnosis
+                          type: integer
+                      type: object
+                    type: array
+                  encounteramendments:
+                    description: Array ref of username and datetime of user who amended
+                      and closed the encounter.
+                    items:
+                      properties:
+                        amendedclosedby:
+                          description: User/Provider who amended and/or closed an
+                            encounter.
+                          type: string
+                        amendedcloseddate:
+                          description: Date and time when an encounter was amended
+                            and/or closed.
+                          type: string
+                      type: object
+                    type: array
+                  encounterdate:
+                    description: Date when this encounter occured
+                    type: string
+                  encounterid:
+                    description: Athena ID for this encounter
+                    type: integer
+                  encountertype:
+                    description: Type of encounter (FLOWSHEET, ORDERSONLY, VISIT,
+                      etc.). By default only VISIT and ORDERSONLY are shown, use INCLUDEALLtypeS
+                      flag to see others.
+                    type: string
+                  encountervisitname:
+                    description: The visit name for this encounter
+                    type: string
+                  isclosing:
+                    description: true in case close attempted else the field will
+                      not be present
+                    type: string
+                  lastreopened:
+                    description: The date the encounter was last reopened. The field
+                      will not be present if the encounter has not be closed.
+                    type: string
+                  lastupdated:
+                    description: The date the encounter was last updated
+                    type: string
+                  patientlocation:
+                    description: Patient location
+                    type: string
+                  patientlocationid:
+                    description: Athena ID for the patient location
+                    type: integer
+                  patientstatus:
+                    description: Patient status
+                    type: string
+                  patientstatusid:
+                    description: Athena ID for the patient status
+                    type: integer
+                  providerfirstname:
+                    description: First name of the provider for this encounter
+                    type: string
+                  providerid:
+                    description: The ID of the provider for this encounter
+                    type: integer
+                  providerlastname:
+                    description: Last name of the provider for this encounter
+                    type: string
+                  providerphone:
+                    description: Phone number of the provider for this encounter
+                    type: string
+                  reviewedandsignedby:
+                    description: Username of provider who reviewed and signed the
+                      encounter.
+                    type: string
+                  reviewedandsigneddate:
+                    description: Date and time of when encounter was reviewed and
+                      signed off.
+                    type: string
+                  stage:
+                    description: Last stage of the encounter
+                    type: string
+                  status:
+                    description: Status of this encounter (CLOSED, OPEN, PEND). By
+                      default only OPEN, CLOSED, and REVIEW statuses are shown, use
+                      INCLUDEALLSTATUSES flag to see others.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounterid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Encounter
+    put:
+      summary: Update patient location/status encounter information
+      description: Modifies the patient location and patient status for a specific
+        encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  encounterprep:
+                    description: Whether the encounter contains encounter prep data.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  status:
+                    description: The status of the encounter.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounterid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                patientstatusid:
+                  type: integer
+                  description: The practice patient status id. You can get a list
+                    of valid values by department via GET /chart/configuration/patientstatuses.
+                patientlocationid:
+                  type: integer
+                  description: The practice patient location id. You can get a list
+                    of valid values by department via GET /chart/configuration/patientlocations.
+        required: true
+      tags:
+      - Encounter
+      - Encounter
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

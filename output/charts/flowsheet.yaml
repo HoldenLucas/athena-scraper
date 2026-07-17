@@ -1,0 +1,460 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/flowsheets/{snomedcode}:
+    get:
+      summary: Get patient's problem-specific flowsheet
+      description: Retrieves data of the patient with a specific problem
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: snomedcode
+        schema:
+          type: integer
+        required: true
+        description: snomedcode
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: Date you want flowsheet element's data to stop.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The department ID of the patient chart.
+      - in: query
+        name: providerid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: The list of provider IDs to format the flowsheet as.
+      - in: query
+        name: showglobalflowsheetelementsonly
+        schema:
+          type: boolean
+        required: false
+        description: Show elements from the globally configured flowsheet rather than
+          those specific to a provider.  This may restrict the information returned,
+          but is generally faster.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: Date you want flowsheet element's data to start.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  globalflowsheettemplateid:
+                    description: ID of the global template for this flowsheet (if
+                      applicable).
+                    type: integer
+                  headers:
+                    description: An array of header elements associated with this
+                      flowsheet.
+                    items:
+                      properties:
+                        elementid:
+                          description: The element ID of this header element.
+                          type: integer
+                        elementkey:
+                          description: The element key of this header element.
+                          type: string
+                        name:
+                          description: The name of this header element.
+                          type: string
+                        question:
+                          description: The information on the question being asked.
+                          properties:
+                            answer:
+                              description: The answer the user provided.
+                              type: string
+                            question:
+                              description: The actual question text.
+                              type: string
+                            questionid:
+                              description: The ID associated with this question.
+                              type: integer
+                            questionkey:
+                              description: The Key associated with this question.
+                              type: string
+                            questionnotes:
+                              description: Any notes attached to this question.
+                              type: string
+                          type: object
+                        type:
+                          description: The type of this header element.
+                          type: string
+                        value:
+                          description: The value entered for this header field.
+                          type: string
+                      type: object
+                    type: array
+                  labanalytes:
+                    description: Flowsheet elements of type LABANALYTE.
+                    items:
+                      properties:
+                        analytename:
+                          description: Text that describes this kind of analyte.
+                          type: string
+                        chartdata:
+                          description: An array of analytes for this specific type
+                            of analyte.
+                          items:
+                            properties:
+                              analytedate:
+                                description: Date of this analyte was recorded.
+                                type: string
+                              analyteid:
+                                description: ID of this lab analyte.
+                                type: integer
+                              loinc:
+                                description: The LOINC code.
+                                type: integer
+                              referencerange:
+                                description: Normal range of this analyte's value.
+                                type: string
+                              units:
+                                description: Units of the value returned.
+                                type: string
+                              value:
+                                description: Value of this analyte.
+                                type: string
+                              valuestatus:
+                                description: If this analyte is not in the expected
+                                  range, this value will describe the abnormality.
+                                type: string
+                            type: object
+                          type: array
+                        name:
+                          description: The name of the LABANALYTE.
+                          type: string
+                      type: object
+                    type: array
+                  medications:
+                    description: Flowsheet elements of type MEDICATION.
+                    items:
+                      properties:
+                        chartdata:
+                          description: Data for this flowsheet.
+                          items:
+                            properties:
+                              events:
+                                description: Each event for this medication.
+                                items:
+                                  properties:
+                                    eventdate:
+                                      description: Date of the event.
+                                      type: string
+                                    medicationid:
+                                      description: ID of the medication.
+                                      type: integer
+                                    medname:
+                                      description: Name of this medication.
+                                      type: string
+                                    refills:
+                                      description: Number of refills.
+                                      type: integer
+                                    sig:
+                                      description: Sig as would be displayed in athenaNet.
+                                      type: string
+                                    source:
+                                      description: Source of this event.
+                                      type: string
+                                    strength:
+                                      description: Strength of medication.
+                                      type: string
+                                    type:
+                                      description: Type of event.
+                                      type: string
+                                  type: object
+                                type: array
+                              genericmedicationid:
+                                description: ID of the generic medication.
+                                type: integer
+                            type: object
+                          type: array
+                        name:
+                          description: The name of the MEDICATION.
+                          type: string
+                      type: object
+                    type: array
+                  problemid:
+                    description: ID of the problem related to this flowsheet.
+                    type: integer
+                  vitals:
+                    description: Flowsheet elements of type VITAL.
+                    items:
+                      properties:
+                        chartdata:
+                          properties:
+                            abbreviation:
+                              description: Short human-readable string for this vital
+                                group. E.g., Ht.
+                              type: string
+                            key:
+                              description: Key for this vital group. E.g., HEIGHT.
+                              type: string
+                            ordering:
+                              description: Configured order for this vital group
+                              type: integer
+                            readings:
+                              description: List of vital attribute readings. One entry
+                                per attribute (so the temperature and where the temperature
+                                was taken are two different readings, tied together
+                                by the readingid
+                              items:
+                                properties:
+                                  clinicalelementid:
+                                    description: Key used to identify this particular
+                                      vital attribute
+                                    type: string
+                                  code:
+                                    description: Code indentifier for the reading.
+                                    type: string
+                                  codedescription:
+                                    description: Description of the code identifier.
+                                    type: string
+                                  codeset:
+                                    description: Codeset of the code.
+                                    type: string
+                                  createdby:
+                                    description: The athenaNet username of the person
+                                      who entered the vital.
+                                    type: string
+                                  createddate:
+                                    description: The date this vital was entered into
+                                      the chart. Returned in mm/dd/yyyy hh24:mi:ss
+                                      format.
+                                    type: string
+                                  isgraphable:
+                                    description: Flag indicating if this vital is
+                                      graphable.
+                                    enum:
+                                    - ''
+                                    - false
+                                    - true
+                                    type: string
+                                  lastmodifiedby:
+                                    description: The athenaNet username of the user
+                                      that last modified the reading.
+                                    type: string
+                                  lastmodifieddate:
+                                    description: The date this vital was last modified.
+                                      Returned in mm/dd/yyyy hh24:mi:ss format.
+                                    type: string
+                                  percentilespec:
+                                    properties:
+                                      high:
+                                        description: The highest value the y value
+                                          could be.
+                                        type: integer
+                                      highordinal:
+                                        description: Ordinal of the high value.
+                                        type: string
+                                      low:
+                                        description: The lowest value that y could
+                                          be.
+                                        type: integer
+                                      lowordinal:
+                                        description: Ordinal of the lowest value.
+                                        type: string
+                                      prefix:
+                                        description: 'Indicator of less than or greater.
+                                          Possible values: (>,<)'
+                                        type: string
+                                    type: object
+                                  readingid:
+                                    description: Numeric key used to tie related and
+                                      distinguish separate readings. So the diastolic
+                                      and systolic blood pressure should have the
+                                      same readingid.
+                                    type: integer
+                                  readingtaken:
+                                    description: Date that the reading was taken.
+                                    type: string
+                                  source:
+                                    description: The source of this reading.
+                                    type: string
+                                  sourceid:
+                                    description: External key to source.
+                                    type: integer
+                                  unit:
+                                    description: Unit that describes this vital's
+                                      value.
+                                    type: string
+                                  value:
+                                    description: 'The value of this reading. NOTE:
+                                      for numeric values, the units are always in
+                                      the ''native'' units per the configuration.'
+                                    type: string
+                                  vitalid:
+                                    description: Unique ID for this vital attribute
+                                      reading. Used to update/delete this reading.
+                                    type: integer
+                                type: object
+                              type: array
+                          type: object
+                        name:
+                          description: The name of the VITAL.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidFlowsheetsSnomedcode
+      x-scopes: []
+      tags:
+      - Chart
+      - Flowsheets
+  /v1/{practiceid}/chart/configuration/flowsheettemplates/{snomedcode}:
+    get:
+      summary: Get list of problem-specific flowsheet templates
+      description: Retrieves a flowsheet template for a specific problem
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: snomedcode
+        schema:
+          type: integer
+        required: true
+        description: snomedcode
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The department ID for the provider.  For non-enterprise practices,
+          you may choose any department.  This is requried only when passing in one
+          or more provider IDs.  If no provider ID is passed in, this field is ignored.
+      - in: query
+        name: providerid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  globalflowsheettemplateid:
+                    description: ID of the global template for this flowsheet (if
+                      applicable).
+                    type: integer
+                  headers:
+                    description: An array of header elements associated with this
+                      flowsheet template.
+                    items:
+                      properties:
+                        elementkey:
+                          description: The key for this header element.
+                          type: string
+                        name:
+                          description: The name of this header element.
+                          type: string
+                        type:
+                          description: The type of this header element.
+                          type: string
+                      type: object
+                    type: array
+                  labanalytes:
+                    description: Flowsheet elements of type LABANALYTE.
+                    items:
+                      properties:
+                        name:
+                          description: The name of the LABANALYTE.
+                          type: string
+                      type: object
+                    type: array
+                  medications:
+                    description: Flowsheet elements of type MEDICATION.
+                    items:
+                      properties:
+                        name:
+                          description: The name of the MEDICATION.
+                          type: string
+                      type: object
+                    type: array
+                  problemid:
+                    description: ID of the problem related to this flowsheet template.
+                    type: integer
+                  vitals:
+                    description: Flowsheet elements of type VITAL.
+                    items:
+                      properties:
+                        name:
+                          description: The name of the VITAL.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationFlowsheettemplatesSnomedcode
+      x-scopes: []
+      tags:
+      - Chart
+      - Flowsheets
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

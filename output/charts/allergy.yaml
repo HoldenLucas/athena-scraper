@@ -1,0 +1,705 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/allergies:
+    get:
+      summary: Get patient's allergies
+      description: Retrieves list of allergens, allergy reactions, severity documented
+        in the patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: showinactive
+        schema:
+          type: boolean
+        required: false
+        description: Include deactivated allergies
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  allergies:
+                    items:
+                      properties:
+                        allergenid:
+                          description: Athena ID for this allergen.
+                          type: integer
+                        allergenname:
+                          description: The name of the allergen.
+                          type: string
+                        categories:
+                          description: The category or categories of the allergen
+                            (food, medication, environment).
+                          type: array
+                        criticality:
+                          description: The criticality of the allergen.
+                          type: string
+                        deactivatedate:
+                          description: Date of allergy deactivation. Set to deactivate
+                            the allergy
+                          type: string
+                        deactivateduser:
+                          description: The name of the user who deactivated the allergy.
+                          type: string
+                        id:
+                          description: Patient Allergy ID for this allergy.
+                          type: string
+                        lastmodifiedby:
+                          description: The username of the user who last modified
+                            this allergy.
+                          type: string
+                        lastmodifieddatetime:
+                          description: The date and time the allergy was last modified.
+                          type: string
+                        note:
+                          description: Note about this allergy
+                          type: string
+                        onsetdate:
+                          description: Date of allergy onset
+                          type: string
+                        reactions:
+                          description: List of documented reactions
+                          items:
+                            properties:
+                              reactionname:
+                                description: Name of the reaction
+                                type: string
+                              severity:
+                                description: Severity of the reaction
+                                type: string
+                              severitysnomedcode:
+                                description: SNOMED code for the severity of this
+                                  reaction
+                                type: integer
+                              snomedcode:
+                                description: SNOMED code for this reaction
+                                type: integer
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  lastmodifiedby:
+                    description: The username of the user who last modified the note,
+                      nkda, or allergies.
+                    type: string
+                  lastmodifieddatetime:
+                    description: The date and time the note, nkda, or allergies were
+                      last updated.
+                    type: string
+                  lastupdated:
+                    description: Deprecated, use LASTMODIFIEDDATETIME instead. The
+                      last date any of the allergies in the returned list were updated.
+                      Does not include nkda or note information, and is date precision.
+                    type: string
+                  nkda:
+                    description: Whether the patient has no known drug allergies.
+                      This is an explicit statement separate from a patient with no
+                      documented allergies so far.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  notelastmodifiedby:
+                    description: The username of the user who last modified the note.
+                    type: string
+                  notelastmodifieddatetime:
+                    description: The date and time the note was last updated.
+                    type: string
+                  sectionnote:
+                    description: A section-wide note
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidAllergies
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies, Reactions, and Severities
+    put:
+      summary: Update patient's allergies
+      description: Modifies list of allergies documented in the patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the update operation failed, this will contain
+                      any error messages.
+                    type: string
+                  success:
+                    description: Whether the update operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidAllergies
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                nkda:
+                  type: boolean
+                  description: Whether the patient has no known drug allergies. This
+                    is an explicit statement separate from a patient with no documented
+                    allergies so far. Note that while a patient can have this checked
+                    and have allergies, that is not recommended.
+                allergies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      note:
+                        type: string
+                        description: Note about this allergy
+                      onsetdate:
+                        type: string
+                        description: Date of allergy onset
+                      reactions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            severity:
+                              type: string
+                              description: Severity of the reaction
+                            snomedcode:
+                              type: integer
+                              description: SNOMED code for this reaction
+                            reactionname:
+                              type: string
+                              description: Name of the reaction
+                            severitysnomedcode:
+                              type: integer
+                              description: SNOMED code for the severity of this reaction
+                        description: An optional list of reactions and associated
+                          severities this patient has to this allergen. Note that
+                          if you are updating the reactions or severities for a given
+                          allergen, PLEASE include all existing reactions and severties
+                          as well, as the update will override any existing entries.
+                      allergenid:
+                        type: integer
+                        description: Athena ID for this allergen.
+                      criticality:
+                        type: string
+                        description: The criticality of the allergen.
+                      allergenname:
+                        type: string
+                        description: The name of the allergen.
+                      deactivatedate:
+                        type: string
+                        description: Date of allergy deactivation. Set to deactivate
+                          the allergy
+                      reactivatedate:
+                        type: string
+                        description: Date of allergy reactivation. Set to reactivate
+                          the allergy
+                  required:
+                  - allergenid
+                  description: A complex JSON object containing an update to the list
+                    of patient allergies. Any new allergies will be added, and any
+                    existing ones (based on allergenid) will be updated. If any existing
+                    ones are skipped, they will NOT be deleted. As such, this section
+                    can be empty if, for example, you just want to update NKDA status
+                    or the section note.
+                sectionnote:
+                  type: string
+                  description: A section-wide note. Passing an empty string will remove
+                    any existing note.
+                departmentid:
+                  type: integer
+                  description: The ID of the department for this patient. A patient
+                    may have multiple charts, and the department determines which
+                    chart to use.
+                PATIENTFACINGCALL:
+                  type: boolean
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                THIRDPARTYUSERNAME:
+                  type: string
+                  description: User name of the patient in the third party application.
+        required: true
+      tags:
+      - Chart
+      - Allergies, Reactions, and Severities
+  /v1/{practiceid}/reference/allergies:
+    get:
+      summary: Search for available allergies
+      description: Retrieves a list of allergies matching the search criteria
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  allergenid:
+                    description: The athena ID of the allergen
+                    type: integer
+                  allergenname:
+                    description: The name of the allergen
+                    type: string
+                  allergy:
+                    description: DEPRECATED. Use allergenname instead. The name of
+                      the allergen.
+                    type: string
+                  allergyid:
+                    description: DEPRECATED. Use allergenid instead. The athena ID
+                      of the allergen.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceAllergies
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies, Reactions, and Severities
+  /v1/{practiceid}/reference/allergies/reactions:
+    get:
+      summary: Get list of allergy reactions
+      description: Retrieves a list of valid allergy reaction
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  reactionid:
+                    description: Athena ID for this reaction
+                    type: integer
+                  reactionname:
+                    description: Name of the reaction
+                    type: string
+                  snomedcode:
+                    description: SNOMED code for this reaction
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceAllergiesReactions
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies, Reactions, and Severities
+  /v1/{practiceid}/reference/allergies/severities:
+    get:
+      summary: Get list of allergy severities
+      description: Retrieves a list of valid allergy severities
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  severity:
+                    description: Severity level name
+                    type: string
+                  snomedcode:
+                    description: SNOMED code for this severity level
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceAllergiesSeverities
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies, Reactions, and Severities
+  /v1/{practiceid}/chart/healthhistory/allergies/changed/subscription/events:
+    get:
+      summary: Get list of allergy change events to which you are subscribed
+      description: Retrieve list of all events that can be input for this subscription.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryAllergiesChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies Subscription
+  /v1/{practiceid}/chart/healthhistory/allergies/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for allergies
+      description: Subscribes for changed allergy events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      allergies was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartHealthhistoryAllergiesChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+                departmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'For every New/Update Subscriptions complete list of
+                    departmentids should be passed. NOTE: Without DepartmentIDs entire
+                    Context/Practice will be subscribed.'
+        required: true
+      tags:
+      - Chart
+      - Allergies Subscription
+    get:
+      summary: Get list of allergy change subscription(s)
+      description: Retrieves list of events applicable for allergies
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryAllergiesChangedSubscription
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies Subscription
+    delete:
+      summary: Unsubscribe to all/specific change events for allergies
+      description: Delete an specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      allergies was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartHealthhistoryAllergiesChangedSubscription
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies Subscription
+  /v1/{practiceid}/chart/healthhistory/allergies/changed:
+    get:
+      summary: Get list of changes in allergies based on subscribed events
+      description: Retrieves list of records of modified patient allergy data
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  allergenid:
+                    description: Athena ID for this allergen.
+                    type: integer
+                  allergenname:
+                    description: The name of the allergen.
+                    type: string
+                  deactivatedate:
+                    description: Date of allergy deactivation. Set to deactivate the
+                      allergy.
+                    type: string
+                  note:
+                    description: Note about this allergy.
+                    type: string
+                  onsetdate:
+                    description: Date of allergy onset.
+                    type: string
+                  patientid:
+                    description: The Patient ID associated with the allergy.
+                    type: string
+                  reactions:
+                    description: List of documented reactions.
+                    items:
+                      properties:
+                        reactionname:
+                          description: Name of the reaction.
+                          type: string
+                        severity:
+                          description: Severity of the reaction.
+                          type: string
+                        severitysnomedcode:
+                          description: SNOMED code for the severity of this reaction.
+                          type: integer
+                        snomedcode:
+                          description: SNOMED code for this reaction.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidChartHealthhistoryAllergiesChanged
+      x-scopes: []
+      tags:
+      - Chart
+      - Allergies Subscription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

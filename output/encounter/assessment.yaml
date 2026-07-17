@@ -1,0 +1,175 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/assessment:
+    get:
+      summary: Get assessment for given encounter
+      description: Retrieves the Assessment /Plan note by the provider for a specific
+        encounter
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: encounterid
+        in: path
+        name: encounterid
+        required: true
+        schema:
+          type: integer
+      - description: If true, returns assessment note templates as structured data.
+          If false, returns it via lightly-HTML marked up English text, as displayed
+          in the athenanet encounter summary.
+        in: query
+        name: showstructured
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assessmenttext:
+                    type: string
+                    description: The text of the Assessment / Plan section. Not all
+                      practices use this. Some use it extensively with HTML templates.
+                  lastmodifiedby:
+                    type: string
+                    description: The username of the user who last updated this text.
+                  lastmodifieddatetime:
+                    type: string
+                    description: The datetime that this text was last updated.
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridAssessment
+      x-scopes: []
+      tags:
+      - Encounter
+      - Assessment / Plan
+    put:
+      summary: Update assessment for given encounter
+      description: Modifies the Assessment /Plan note for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  assessmenttext:
+                    description: The text of the Assessment / Plan section after the
+                      successful PUT.
+                    type: string
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridAssessment
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - assessmenttext
+              properties:
+                replacetext:
+                  type: boolean
+                  description: If true, will replace the existing assessment text
+                    with the new one. If false, will append to the existing text.
+                assessmenttext:
+                  type: string
+                  description: The text to be updated to the assessment note.
+                securitylabels:
+                  type: array
+                  items:
+                    type: string
+                  description: 'Comma deliniated list of valid security tags: NOPAT
+                    NOAUTH. Setting this with at least one valid security label will
+                    lock the note.'
+                confidentialreason:
+                  enum:
+                  - ''
+                  - ''
+                  - RISKOFHARMTOPATIENT
+                  - STATEFEDERALLAW
+                  - INTERNALPOLICY
+                  - PATIENTREQUEST
+                  - OTHER
+                  - NONE
+                  type: string
+                  description: Use this to specify the reason for locking the note.
+                    This parameter is not yet fully supported and will be at a future
+                    date.
+        required: true
+      tags:
+      - Encounter
+      - Assessment / Plan
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

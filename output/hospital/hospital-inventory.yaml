@@ -1,0 +1,406 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/inventory/items:
+    get:
+      summary: Get list of inventory items
+      description: Retrieves a list of inventory items that are currently available.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: vendorids
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: An array of Vendor IDs
+      - in: query
+        name: athenaids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: An array of Athena IDs.
+      - in: query
+        name: skus
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: An array of SKUs
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: Whether to return deleted items.
+      - in: query
+        name: externalinventorysystemids
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: An array of External Inventory System IDs.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  athenaid:
+                    description: The ID of the item in athena.
+                    type: number
+                  categoryid:
+                    description: ID of the inventory category the item belongs to.
+                    type: integer
+                  categoryname:
+                    description: The name of the inventory category the item belongs
+                      to.
+                    type: string
+                  categoryordering:
+                    description: The order of the category
+                    type: integer
+                  chargecode:
+                    description: Chargecode associated with the item
+                    type: string
+                  cost:
+                    description: Cost of item
+                    type: number
+                  deleted:
+                    description: If deleted it will be a date string of MM/DD/YYYY.
+                      If not deleted it should be null.
+                    type: string
+                  departmentid:
+                    description: ID of the athena department the item is used in
+                    type: string
+                  description:
+                    description: Description of the item
+                    type: string
+                  expenseaccount:
+                    description: The general ledger expense account associated with
+                      the item.
+                    type: string
+                  inventoryaccount:
+                    description: The general ledger inventory account associated with
+                      the item.
+                    type: string
+                  inventorysystemid:
+                    description: ID of the item in the external inventory management
+                      system
+                    type: integer
+                  manufacturerid:
+                    description: Manufacturer ID for the item
+                    type: string
+                  manufacturername:
+                    description: Manufacturer name for the item
+                    type: string
+                  name:
+                    description: The name of the item
+                    type: string
+                  sku:
+                    description: A unique ID for the item assigned by the vendor
+                    type: string
+                  unit:
+                    description: Unit of measurement for the item
+                    type: string
+                  vendorid:
+                    description: ID of the vendor for the item
+                    type: string
+                  vendorname:
+                    description: Vendor name for the item
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidInventoryItems
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inventory
+    post:
+      summary: Add items to inventory list
+      description: Create a record of a new item in the hospital inventory list
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: postPracticeidInventoryItems
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - inventoryitems
+              properties:
+                inventoryitems:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                        description: A unique ID for the item assigned by the vendor
+                      cost:
+                        type: number
+                        description: Cost of item
+                      name:
+                        type: string
+                        description: The name of the item
+                      unit:
+                        type: string
+                        description: Unit of measurement for the item
+                      nocharge:
+                        type: string
+                        description: Y/N - Y if the item is not chargeable and should
+                          not be mapped to a chargecode (default is 'N' - and the
+                          item may be mapped to a null chargecode)
+                      vendorid:
+                        type: string
+                        description: ID of the vendor for the item
+                      categoryid:
+                        type: integer
+                        description: ID of the inventory category the item belongs
+                          to. If not specified, we will attempt to default to Uncategorized
+                      chargecode:
+                        type: string
+                        description: Chargecode associated with the item
+                      vendorname:
+                        type: string
+                        description: Vendor name for the item
+                      description:
+                        type: string
+                        description: Description of the item
+                      departmentid:
+                        type: string
+                        description: ID of the athena department the item is used
+                          in
+                      expenseaccount:
+                        type: string
+                        description: The general ledger expense account associated
+                          with the item.
+                      manufacturerid:
+                        type: string
+                        description: Manufacturer ID for the item
+                      inventoryaccount:
+                        type: string
+                        description: The general ledger inventory account associated
+                          with the item.
+                      manufacturername:
+                        type: string
+                        description: Manufacturer name for the item
+                      inventorysystemid:
+                        type: string
+                        description: ID of the item in the external inventory management
+                          system
+                  required:
+                  - manufacturerid
+                  - manufacturername
+                  - name
+                  description: An array of JSON objects representing inventory items
+                    to add.
+        required: true
+      tags:
+      - Inpatient
+      - Inventory
+    put:
+      summary: Update items in inventory list
+      description: Modifies the items in hospital inventory list. On success, API
+        returns athena item-ids for items that were successfully updated.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: putPracticeidInventoryItems
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - inventoryitems
+              properties:
+                inventoryitems:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sku:
+                        type: string
+                        description: A unique ID for the item assigned by the vendor
+                      cost:
+                        type: number
+                        description: Cost of item
+                      name:
+                        type: string
+                        description: The name of the item
+                      unit:
+                        type: string
+                        description: Unit of measurement for the item
+                      nocharge:
+                        type: string
+                        description: Y/N - Y if the item is not chargeable and should
+                          not be mapped to a chargecode (default is 'N' - and the
+                          item may be mapped to a null chargecode)
+                      vendorid:
+                        type: string
+                        description: ID of the vendor for the item
+                      categoryid:
+                        type: integer
+                        description: ID of the inventory category the item belongs
+                          to. If not specified, we will attempt to default to Uncategorized
+                      chargecode:
+                        type: string
+                        description: Chargecode associated with the item
+                      vendorname:
+                        type: string
+                        description: Vendor name for the item
+                      description:
+                        type: string
+                        description: Description of the item
+                      departmentid:
+                        type: string
+                        description: ID of the athena department the item is used
+                          in
+                      expenseaccount:
+                        type: string
+                        description: The general ledger expense account associated
+                          with the item.
+                      manufacturerid:
+                        type: string
+                        description: Manufacturer ID for the item
+                      inventoryaccount:
+                        type: string
+                        description: The general ledger inventory account associated
+                          with the item.
+                      manufacturername:
+                        type: string
+                        description: Manufacturer name for the item
+                      inventorysystemid:
+                        type: string
+                        description: ID of the item in the external inventory management
+                          system
+                      athenainventoryitemid:
+                        type: integer
+                        description: athena's ID for the item
+                  required:
+                  - athenainventoryitemid
+                  - manufacturerid
+                  - manufacturername
+                  - name
+                  description: An array of JSON objects representing inventory items
+                    to update.
+        required: true
+      tags:
+      - Inpatient
+      - Inventory
+    delete:
+      summary: Delete items from inventory list
+      description: Deletes items matching the criteria from the inventory list. If
+        the operation was successful, this contains the athena item ids that were
+        deleted.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: athenainventoryitemids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: true
+        description: Array of athena inventory item ids to delete
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: deletePracticeidInventoryItems
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inventory
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,537 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/encounter/{encounterid}/services:
+    get:
+      summary: Get list of all services for given encounter
+      description: Retrieves a list of services associated with the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    description: The amount of services performed
+                    type: integer
+                  note:
+                    description: Notes related to services.
+                    type: string
+                  procedures:
+                    description: The services attached to the billing slip of an encounter.
+                    items:
+                      properties:
+                        billforservice:
+                          description: True if you want to bill for this service.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        diagnoses:
+                          description: The diagnoses attached to this service. This
+                            information is only valid for encounters that occured
+                            after the ICD10 transition.
+                          items:
+                            properties:
+                              icd10code:
+                                description: ID of the modifier.
+                                type: string
+                            type: object
+                          type: array
+                        documentid:
+                          description: DOCUMENTID of the service.
+                          type: integer
+                        modifiers:
+                          description: The modifiers attached to this service.
+                          items:
+                            properties:
+                              modifierid:
+                                description: ID of the modifier.
+                                type: integer
+                            type: object
+                          type: array
+                        procedurecode:
+                          description: The CPT code for the procedure attached to
+                            this service.
+                          type: string
+                        serviceid:
+                          description: ID of the service.
+                          type: integer
+                        servicetype:
+                          description: 'The type of service this is. Ex: DME or LAB'
+                          type: string
+                        units:
+                          description: The number of units for this service. This
+                            will often be the number of times the service was performed.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidEncounterEncounteridServices
+      x-scopes: []
+      tags:
+      - Encounter
+      - Billing Slip
+    post:
+      summary: Create a new service attacted to the billing slip of an encounter.
+      description: Generic success/error response
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  serviceid:
+                    description: Id of the service.
+                    type: integer
+                  servicetype:
+                    description: Type of the service.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidEncounterEncounteridServices
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                units:
+                  type: number
+                  description: The number of units for this service. This will often
+                    be the number of times the service was performed.
+                modifiers:
+                  type: array
+                  items:
+                    type: string
+                  description: A list of non fee-affecting modifiers to attach to
+                    this service. Use GET /encounter/configuration/modifiers to find
+                    valid options for this practice. Input needs to be quoted and
+                    passed in array. Eg. ["E1", "E2", "59"]
+                icd10codes:
+                  type: array
+                  items:
+                    type: string
+                  description: A list of ICD 10 codes (either as a comma delimited
+                    list or multiple POSTed values) to attach to this service. Use
+                    GET /chart/encounter/{encounterid}/diagnoses to find valid options
+                    for this encounter.
+                procedurecode:
+                  type: string
+                  description: A CPT code specifying what procedure the service was
+                    for. Use GET /encounter/{encounterid}/procedurecodes to find valid
+                    options for this encounter.
+                billforservice:
+                  type: boolean
+                  description: True if you want to bill for this service.
+        required: true
+      tags:
+      - Encounter
+      - Billing Slip
+  /v1/{practiceid}/encounter/{encounterid}/services/{serviceid}:
+    get:
+      summary: Get encounter's service information
+      description: Retrieves information of a specific service of the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: serviceid
+        schema:
+          type: integer
+        required: true
+        description: serviceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  procedures:
+                    description: The services attached to the billing slip of an encounter.
+                    items:
+                      properties:
+                        billforservice:
+                          description: True if you want to bill for this service.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        diagnoses:
+                          description: The diagnoses attached to this service. This
+                            information is only valid for encounters that occured
+                            after the ICD10 transition.
+                          items:
+                            properties:
+                              icd10code:
+                                description: ID of the modifier.
+                                type: string
+                            type: object
+                          type: array
+                        documentid:
+                          description: DOCUMENTID of the service.
+                          type: integer
+                        modifiers:
+                          description: The modifiers attached to this service.
+                          items:
+                            properties:
+                              modifierid:
+                                description: ID of the modifier.
+                                type: integer
+                            type: object
+                          type: array
+                        procedurecode:
+                          description: The CPT code for the procedure attached to
+                            this service.
+                          type: string
+                        serviceid:
+                          description: ID of the service.
+                          type: integer
+                        servicetype:
+                          description: 'The type of service this is. Ex: DME or LAB'
+                          type: string
+                        units:
+                          description: The number of units for this service. This
+                            will often be the number of times the service was performed.
+                          type: integer
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidEncounterEncounteridServicesServiceid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Billing Slip
+    put:
+      summary: Update service information of given encounter
+      description: Modifies information of a specific service of the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: serviceid
+        schema:
+          type: integer
+        required: true
+        description: serviceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidEncounterEncounteridServicesServiceid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                units:
+                  type: number
+                  description: The number of units for this service. This will often
+                    be the number of times the service was performed.
+                modifiers:
+                  type: array
+                  items:
+                    type: string
+                  description: A list of non fee-affecting modifiers to attach to
+                    this service. Use GET /encounter/configuration/modifiers to find
+                    valid options for this encounter. Input needs to be quoted and
+                    passed in an array. Eg. ["E1", "E2", "59"].
+                icd10codes:
+                  type: array
+                  items:
+                    type: string
+                  description: A list of ICD 10 codes (either as a comma delimited
+                    list or multiple POSTed values) to attach to this service. Use
+                    GET /chart/encounter/{encounterid}/diagnoses to find valid options
+                    for this encounter.
+                billforservice:
+                  type: boolean
+                  description: True if you want to bill for this service.
+        required: true
+      tags:
+      - Encounter
+      - Billing Slip
+    delete:
+      summary: Delete specific service for given encounter
+      description: Deletes the preexisting record of the service of the encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: serviceid
+        schema:
+          type: integer
+        required: true
+        description: serviceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidEncounterEncounteridServicesServiceid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Billing Slip
+  /v1/{practiceid}/chart/configuration/facilities:
+    get:
+      summary: Get list of facilities
+      description: Retrieve a list of facilities based on the search criteria provided.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: ordertype
+        schema:
+          enum:
+          - DME
+          - IMAGING
+          - LAB
+          - OTHER
+          - PRESCRIPTION
+          - PROCEDURE
+          - SURGERY
+          - VACCINE
+          - CONSULT
+          - GLASSES
+          - CONTACTLENSES
+          type: string
+          x-enumDescriptions:
+          - Durable Medical Equipment (DME)
+          - Imaging center
+          - Laboratory
+          - Other
+          - Pharmacy
+          - Facility for procedures
+          - Surgical facility
+          - Pharmacy for prescribed vaccines
+          - Consult
+          - Glasses
+          - Contact Lenses
+        required: true
+        description: The type of facility to search for.
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Used to help determine both whether to include which practice-configured
+          facilities as well as help sort the results.
+      - in: query
+        name: name
+        schema:
+          type: string
+        required: true
+        description: The facility to search for. This can include the name or address
+          of the facility, in space delimited form
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: Used to help determine which matches to return based on distance
+          to patient and practice.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The physical address of the facility
+                    type: string
+                  city:
+                    description: The city of the facility
+                    type: string
+                  distance:
+                    description: How far the facility is from the department or patient
+                      (if patientid is given), in miles.
+                    type: string
+                  facilityid:
+                    description: The athena ID of this facility, to be used when adding
+                      orders
+                    type: integer
+                  faxnumber:
+                    description: The fax number of the facility
+                    type: string
+                  name:
+                    description: The name of the facility
+                    type: string
+                  ncpdpid:
+                    description: The NCPDP ID of the given facility, if applicable.
+                    type: integer
+                  pharmacytype:
+                    description: For pharmacies, whether this is a RETAIL or MAILORDER
+                      pharmacy.
+                    type: string
+                  phonenumber:
+                    description: The phone number of the facility
+                    type: string
+                  state:
+                    description: The state of the facility
+                    type: string
+                  zipcode:
+                    description: The zip code of the facility
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationFacilities
+      x-scopes: []
+      tags:
+      - Encounter
+      - Facility Search
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

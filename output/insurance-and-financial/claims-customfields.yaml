@@ -1,0 +1,121 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/claims/customfields:
+    get:
+      summary: Get claim's custom-fields
+      description: Retrieves a list of custom fields specific to a practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  casesensitiveyn:
+                    description: Is this field case sensitive?
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  customfieldid:
+                    description: The custom field ID.
+                    type: integer
+                  disallowupdateyn:
+                    description: Can this field be updated?
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  length:
+                    description: Maximum length of this field.
+                    type: integer
+                  name:
+                    description: The name of this custom field.
+                    type: string
+                  ordering:
+                    description: The ordering in which this field is displayed.
+                    type: integer
+                  selectlist:
+                    description: An array of options, each one containing selectid
+                      and a selectvalue.
+                    items:
+                      properties:
+                        optionid:
+                          description: The ID that is used to identify this option.
+                          type: integer
+                        optionvalue:
+                          description: The value to be displayed.
+                          type: string
+                      type: object
+                    type: array
+                  selectyn:
+                    default: false
+                    description: Is this field a select list (and thus should have
+                      a "selectlist" as well).
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  showonbasicclaimview:
+                    description: Is this field available on the basic claim view?
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  type:
+                    description: One of "TEXT", "DATE", "NUMBER", or "REFERRINGPROVIDER".
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidClaimsCustomfields
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Claim Custom Fields List
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,240 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/driverslicense:
+    post:
+      summary: Add patient's driver's license document
+      description: Create a record of patient's driving license document
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates whether the submission was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidDriverslicense
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - image
+              properties:
+                image:
+                  type: string
+                  description: Base64 encoded image, or, if multipart/form-data, unencoded
+                    image. This image may be scaled down after submission. PUT is
+                    not recommended when using multipart/form-data. Since POST and
+                    PUT have identical functionality, POST is recommended.
+                departmentid:
+                  type: string
+                  description: The department ID associated with this upload.
+        required: true
+      tags:
+      - Forms and Documents
+      - Driver's License
+    get:
+      summary: Get patient's driver's license document
+      description: Retrieves patient's driving license documents
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: jpegoutput
+        schema:
+          enum:
+          - false
+          - true
+          type: string
+          x-enumDescriptions:
+          - false
+          - true
+        required: false
+        description: If set to true, or if Accept header is image/jpeg, returns the
+          image directly.  (The image may be scaled.)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  image:
+                    description: Base64 encoded image.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDriverslicense
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Driver's License
+    put:
+      summary: Update patient's driver's license document
+      description: Modifies patient's driving license documents
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates whether the submission was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidDriverslicense
+      x-scopes: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - image
+              properties:
+                image:
+                  type: string
+                  description: Base64 encoded image, or, if multipart/form-data, unencoded
+                    image. This image may be scaled down after submission. PUT is
+                    not recommended when using multipart/form-data. Since POST and
+                    PUT have identical functionality, POST is recommended.
+                departmentid:
+                  type: string
+                  description: The department ID associated with this upload.
+        required: true
+      tags:
+      - Forms and Documents
+      - Driver's License
+    delete:
+      summary: Delete patient's driver's license document
+      description: Deletes the record of a patient's driving license
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Indicates whether the submission was successful.
+                    enum:
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidPatientsPatientidDriverslicense
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Driver's License
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

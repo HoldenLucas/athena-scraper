@@ -1,0 +1,151 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/stays/{stayid}/diagnoses:
+    get:
+      summary: Get list of diagnosis for a stay
+      description: Retrieve a list of diagnoses for a specific hospital stay
+      parameters:
+      - in: path
+        name: stayid
+        schema:
+          type: integer
+        required: true
+        description: stayid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admissiondiagnosis:
+                    description: Boolean value to specify whether it is an admission
+                      diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  createdby:
+                    description: The name of the person who entered this diagnosis.
+                    type: string
+                  description:
+                    description: Brief description for this SNOMED Code.
+                    type: string
+                  diagnosisid:
+                    description: The athena ID for this diagnosis.
+                    type: integer
+                  diagnosisnote:
+                    description: Note entered for this diagnosis.
+                    type: string
+                  dischargediagnosis:
+                    description: Boolean value to specify whether it is a discharge
+                      diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  events:
+                    description: List of Events.
+                    properties:
+                      createdby:
+                        description: The athenaNet username of the provider who entered
+                          this diagnosis.
+                        type: string
+                      createddate:
+                        description: The date this diagnosis was entered by the provider.
+                          Returned in mm/dd/yyyy hh24:mi:ss format.
+                        type: string
+                      eventid:
+                        description: The Athena ID for this diagnosis.
+                        type: integer
+                      eventtype:
+                        description: 'List of start and stop events for this diagnosis
+                          which can occur multiple times. The type of this event:
+                          START or END'
+                        type: string
+                      onsetdate:
+                        description: The specified onset date for this diagnosis as
+                          entered by the provider.
+                        type: string
+                      resolutiondate:
+                        description: The date this diagnosis was resolved as entered
+                          by the provider.
+                        type: string
+                    type: object
+                  laterality:
+                    description: The laterality of the diagnosis, if any.
+                    type: string
+                  primarydiagnosis:
+                    description: Boolean value to specify whether it is a primary
+                      diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  snomedcode:
+                    description: SNOMED code associated with this diagnosis.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidStaysStayidDiagnoses
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Inpatient Diagnoses
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

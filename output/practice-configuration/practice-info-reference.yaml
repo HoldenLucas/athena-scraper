@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/practiceinfo:
+    get:
+      summary: Get list of practice(s), athena-products enabled for the user
+      description: Retrieves the practice information
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ccmenabled:
+                    description: When called with a Context ID, this will return whether
+                      or not Cronic Care Management is enabled for the given practice.
+                      Currently, this is only available when querying an individual
+                      practice (not practice ID 1).
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  experiencemode:
+                    description: 'This is a practice setting which is set to one of
+                      the following: STREAMLINEDONLY or CLASSICONLY'
+                    type: string
+                  golivedate:
+                    description: The date that this practice went (or will go) live
+                      in athenaNet. Note that, if in the future, this date might change
+                      as implementations are moved around.
+                    type: string
+                  hasclinicals:
+                    description: Does this practice use athenaClinicals.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  hascollector:
+                    description: Does this practice use athenaCollector.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  hascommunicator:
+                    description: Does this practice use athenaCommunicator.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  iscoordinatorreceiver:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  iscoordinatorsender:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  mastercontextid:
+                    description: This will appear only in athena's demo environment,
+                      and indicates the context ID (Practice's ID number) of the practice
+                      this was copied from. Please note - a master's context ID may
+                      change roughly once per week in the future. If you need to refer
+                      to a master context in a static manner, see MASTERID.
+                    type: string
+                  mastercontextname:
+                    description: This will appear only in athena's demo environment,
+                      and indicates the name of the practice this was copied from.
+                    type: string
+                  masterid:
+                    description: This will appear only in athena's demo environment.  The
+                      MASTERID is the ID for a master, which is static throughout
+                      the lifetime of the master. Though a master's schema number
+                      (MASTERCONTEXTID) may change, the MASTERID field will never
+                      change.  The MASTERID is analogous to finishing third in a race
+                      - you will always be known for finishing third. The MASTERCONTEXTID
+                      is analogous to your phone number, which may change if you ditch
+                      your phone line for a different carrier.
+                    type: string
+                  name:
+                    description: The name athenahealth uses internally for this practice.
+                      Note that practices may use different names for patients.
+                    type: string
+                  nsaenabled:
+                    description: When called with a Context ID, this will return whether
+                      or not New Schedule Admin is enabled for the given practice.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  practiceid:
+                    description: The athenaNet practice ID.
+                    type: string
+                  publicnames:
+                    description: When available, one or more names that the practices
+                      uses externally from athenaCommunicator.  Again, this name should
+                      be verified with the practice before using it for patients.  Currently,
+                      this is only available when querying an individual practice
+                      (not practice ID 1).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPracticeinfo
+      x-scopes: []
+      tags:
+      - Administrative
+      - General Practice Information
+  /v1/{practiceid}/ping:
+    get:
+      summary: Return an acknowledgement that request was received and that this API
+        key has access to the given practice.
+      description: No description
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pong:
+                    description: Acknowledgement of request
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPing
+      x-scopes: []
+      tags:
+      - Administrative
+      - ping endpoint
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

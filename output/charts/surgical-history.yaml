@@ -1,0 +1,348 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/surgicalhistory:
+    post:
+      summary: Add surgical history data to patient's chart
+      description: Record historical surgery information performed on a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+                  procedureids:
+                    type: string
+                    description: Procedure IDs of newly created procedures in surgical
+                      history
+          description: Success
+      operationId: postPracticeidChartPatientidSurgicalhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                PATIENTFACINGCALL:
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                  type: boolean
+                THIRDPARTYUSERNAME:
+                  description: User name of the patient in the third party application.
+                  type: string
+                departmentid:
+                  description: The athenaNet department id.
+                  type: integer
+                procedures:
+                  description: A JSON array of procedures, mimicking <a href="https://docs.athenahealth.com/api/api-ref/surgical-history">the
+                    inputs</a> described in the PUT/POST call. It is good practice
+                    to use the POST call whenever adding new surgical history, however
+                    it can only save historical procedures, regardless of input source.
+                    Do take note that when calling PUT, any procedures without a procedureid
+                    in the PUT call will also add new history. The PUT endpoint can
+                    only operate on procedures with source 'historical' and not 'encounter'.
+                    Please note a procedure's source cannot be changed after its creation.
+                  items:
+                    properties:
+                      delete:
+                        description: Remove the answer to this question
+                        type: boolean
+                      note:
+                        description: Any additional notes
+                        type: string
+                      procedurecode:
+                        description: Procedure code identifying the performed procedure
+                          for the given surgery
+                        type: string
+                      proceduredate:
+                        description: Effective date of the procedure
+                        type: string
+                      procedureid:
+                        description: Athena ID for this surgery
+                        type: integer
+                    type: object
+                  type: array
+                sectionnote:
+                  description: Any additional section notes
+                  type: string
+              required:
+              - departmentid
+              type: object
+        required: true
+      tags:
+      - Chart
+      - Surgical History
+    get:
+      summary: Get patient's surgical history data
+      description: Retrieve a list of historical surgeries performed on the specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: returnversiontoken
+        schema:
+          type: boolean
+        required: false
+        description: Boolean whether the user wants the Version Token returned
+      - in: query
+        name: THIRDPARTYUSERNAME
+        schema:
+          type: string
+        required: false
+        description: User name of the patient in the third party application.
+      - in: query
+        name: PATIENTFACINGCALL
+        schema:
+          type: boolean
+        required: false
+        description: When 'true' is passed we will collect relevant data and store
+          in our database.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  notelastmodifiedby:
+                    description: Last username to modify the surgical history note
+                    type: string
+                  notelastmodifieddatetime:
+                    description: Last date and time the surgical history note was
+                      modified
+                    type: string
+                  procedures:
+                    description: List of performed procedures
+                    items:
+                      properties:
+                        description:
+                          description: Surgery description for this procedure code
+                          type: string
+                        lastmodifiedby:
+                          description: Last username to modify the surgical history
+                            procedure.
+                          type: string
+                        lastmodifieddatetime:
+                          description: Last date and time the surgical history procedure
+                            was modified.
+                          type: string
+                        note:
+                          description: Additional note for this surgery, if available
+                          type: string
+                        procedurecode:
+                          description: Procedure code
+                          type: string
+                        proceduredate:
+                          description: Date when the surgery was performed
+                          type: string
+                        procedureid:
+                          description: Athena ID for this surgery
+                          type: integer
+                        providerid:
+                          description: ID of the provider that performed this procedure.
+                            Only returned for entries with source="encounter".
+                          type: integer
+                        source:
+                          description: Source of this procedure. Can be encounter
+                            (if performed) or historical
+                          type: string
+                      type: object
+                    type: array
+                  sectionnote:
+                    description: Additional note for the entire surgical history section,
+                      if any
+                    type: string
+                  versiontoken:
+                    description: Version Token for the data being returned
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidSurgicalhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Surgical History
+    put:
+      summary: Update patient's surgical history data
+      description: Modifies the historical surgery information for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+                  procedureids:
+                    type: string
+                    description: Procedure IDs of newly created procedures in surgical
+                      history
+          description: Success
+      operationId: putPracticeidChartPatientidSurgicalhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                PATIENTFACINGCALL:
+                  description: When 'true' is passed we will collect relevant data
+                    and store in our database.
+                  type: boolean
+                THIRDPARTYUSERNAME:
+                  description: User name of the patient in the third party application.
+                  type: string
+                departmentid:
+                  description: The athenaNet department id.
+                  type: integer
+                procedures:
+                  description: A JSON array of procedures, mimicking <a href="https://docs.athenahealth.com/api/api-ref/surgical-history">the
+                    inputs</a> described in the PUT/POST call. It is good practice
+                    to use the POST call whenever adding new surgical history, however
+                    it can only save historical procedures, regardless of input source.
+                    Do take note that when calling PUT, any procedures without a procedureid
+                    in the PUT call will also add new history. The PUT endpoint can
+                    only operate on procedures with source 'historical' and not 'encounter'.
+                    Please note a procedure's source cannot be changed after its creation.
+                  items:
+                    properties:
+                      delete:
+                        description: Remove the answer to this question
+                        type: boolean
+                      note:
+                        description: Any additional notes
+                        type: string
+                      procedurecode:
+                        description: Procedure code identifying the performed procedure
+                          for the given surgery
+                        type: string
+                      proceduredate:
+                        description: Effective date of the procedure
+                        type: string
+                      procedureid:
+                        description: Athena ID for this surgery
+                        type: integer
+                    type: object
+                  type: array
+                sectionnote:
+                  description: Any additional section notes
+                  type: string
+              required:
+              - departmentid
+              type: object
+        required: true
+      tags:
+      - Chart
+      - Surgical History
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

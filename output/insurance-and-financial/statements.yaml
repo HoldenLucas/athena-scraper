@@ -1,0 +1,360 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/statements:
+    post:
+      summary: Record when patient statements are sent out by a third party vendor
+      description: This API records when patient statements are sent out by a third
+        party vendor. It is used when patient statements have been turned off by athena
+        in order to allow those communications be handled by a third party vendor,
+        which generally instructs the patient on how to complete the payment using
+        the third party vendor's patient pay platform.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    description: Status of Patient claim age update
+                    items:
+                      properties:
+                        chargeids:
+                          description: Array of Charge IDs updated
+                          items:
+                            properties:
+                              chargeid:
+                                description: Charge ID
+                                type: number
+                              error:
+                                description: Error in Charge
+                                type: string
+                            type: object
+                          required:
+                          - chargeid
+                          - error
+                          type: array
+                        claimids:
+                          description: Array of Claim IDs updated
+                          items:
+                            properties:
+                              claimid:
+                                description: Claim ID
+                                type: number
+                              error:
+                                description: Error in Claim
+                                type: string
+                            type: object
+                          required:
+                          - claimid
+                          - error
+                          type: array
+                        error:
+                          description: Error at Patient level
+                          type: string
+                        patientid:
+                          description: Patient ID
+                          type: number
+                      type: object
+                    required:
+                    - patientid
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodeStatements
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      claimids:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            claimid:
+                              type: number
+                              description: Claim ID
+                            dunninglevel:
+                              type: number
+                              description: Dunning level of Claim
+                        required:
+                        - claimid
+                        description: Claim IDs that represent Claim level line items
+                          in the statement
+                      chargeids:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            chargeid:
+                              type: number
+                              description: Charge ID
+                            dunninglevel:
+                              type: number
+                              description: Dunning level of Charge
+                        required:
+                        - chargeid
+                        description: Charge lDs that represent Charge level line items
+                          in the statement
+                      patientid:
+                        type: number
+                        description: Patient ID
+                      totalamount:
+                        type: number
+                        description: Billed amount in the statement
+                      statementdate:
+                        type: string
+                        description: Statement date in the format YYYYMMDD
+                  required:
+                  - statementdate
+                  - totalamount
+                  - patientid
+                  description: Patient charge and statement sent details
+        required: true
+      tags:
+      - PatientPayVendors
+      - Update the age of the claim when the statements are sent to the patients with
+        a Patient Pay Vendor
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/patientenrollment:
+    post:
+      summary: Enrolls/unenrolls patients from a third party vendor's patient pay
+        services
+      description: For Partial Patient Pay vendors (i.e. when all patients are NOT
+        required to use the third party vendor's services), this API allows the third
+        party vendor to inform athena when a patient has enrolled with their services
+        so that athena can stop sending billing statements to that patient.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    description: Status of Patient enrollments
+                    items:
+                      properties:
+                        patientid:
+                          description: Patient ID
+                          type: number
+                        status:
+                          description: Status of the enrollment/unenrollment - success/failure
+                          type: string
+                        statuscode:
+                          description: 'PATIENTNOTFOUND => Patient not found in Athena
+
+                            PATIENTALREADYENROLLED => Patient already enrolled with
+                            vendor
+
+                            PATIENTNOTENROLLED => Patient not enrolled with vendor
+
+                            FAILEDACTION => Failed to update status code, an internal
+                            server error occured
+
+                            Code describing the status
+
+                            '
+                          type: string
+                      type: object
+                    required:
+                    - status
+                    - statuscode
+                    - patientid
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodePatientenrollment
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - action
+              - patients
+              properties:
+                action:
+                  type: string
+                  description: Action to take - enroll/unenroll
+                patients:
+                  type: array
+                  items:
+                    type: number
+                  description: 'List of Patient IDs Example: [123,124]'
+        required: true
+      tags:
+      - PatientPayVendors
+      - Update the Enrollment status of a Patient with a Patient Pay Vendor
+  /v1/{practiceid}/patientpayvendors/{vendorcode}/changeageingownership:
+    post:
+      summary: Allows third party vendors to indicate who is resposible for managing
+        the dunning level of a claim
+      description: This API informs athena on who manages dunning levels for a given
+        claim. The default result of enrolling a patient is that athena will manage
+        the claims dunning levels.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: vendorcode
+        schema:
+          type: string
+        required: true
+        description: vendorcode
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    description: Status of Claim enrollments
+                    items:
+                      properties:
+                        claimid:
+                          description: Claim ID
+                          type: number
+                        status:
+                          description: Status of ageing ownership change
+                          type: string
+                        statuscode:
+                          description: 'CLAIMNOTFOUND => Claim not found in Athena
+
+                            FAILEDACTION => Failed to update status code, an internal
+                            server error occurred
+
+
+                            Code describing the status
+
+                            '
+                          type: string
+                      type: object
+                    required:
+                    - status
+                    - claimid
+                    - statuscode
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidPatientpayvendorsVendorcodeChangeageingownership
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - claims
+              - action
+              - patientid
+              properties:
+                action:
+                  type: string
+                  description: Represents who should own the Ageing of claims.Valid
+                    values are "AGEINGBYATHENA" , "AGEINGBYVENDOR"
+                claims:
+                  type: array
+                  items:
+                    type: number
+                  description: 'List of Claim IDs Example: ["123","124"]'
+                patientid:
+                  type: string
+                  description: Patientid of claims given in the input
+        required: true
+      tags:
+      - PatientPayVendors
+      - Update the Enrollment status of a Claim with a Patient Pay Vendor
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

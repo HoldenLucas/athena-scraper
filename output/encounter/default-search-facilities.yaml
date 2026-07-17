@@ -1,0 +1,86 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/defaultsearchfacilities:
+    get:
+      summary: Get default search facility information for given encounter
+      description: Retrieves the default laboratory and imaging facility information
+        configured in the patient's profile
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  imagingfacilityid:
+                    description: The athena ID of the default imaging facility used
+                      for order type search.
+                    type: integer
+                  imagingfacilityname:
+                    description: The name of the default imaging facility used for
+                      order type search.
+                    type: string
+                  labfacilityid:
+                    description: The athena ID of the default lab facility used for
+                      order type search.
+                    type: integer
+                  labfacilityname:
+                    description: The name of the default lab facility used for order
+                      type search.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridDefaultsearchfacilities
+      x-scopes: []
+      tags:
+      - Encounter
+      - Default Search Facilities
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

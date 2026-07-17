@@ -1,0 +1,362 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/acog:
+    get:
+      summary: Get list of patient's ACOG documents
+      description: Retrieves the ACOG documents of a specific patient
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: patientid
+        in: path
+        name: patientid
+        required: true
+        schema:
+          type: integer
+      - description: The status of the task to filter document results.
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+      - description: The athenaNet department id.
+        in: query
+        name: departmentid
+        required: true
+        schema:
+          type: integer
+      - description: By default, deleted documents are not listed.  Set to list these.
+        in: query
+        name: showdeleted
+        required: false
+        schema:
+          type: boolean
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  acogid:
+                    type: string
+                    description: The ID of the ACOG document
+                  status:
+                    type: string
+                    description: The status of this ACOG document (SUBMITTED, FOLLOWUP,
+                      CLOSED or DELETED)
+                  edddate:
+                    type: string
+                    description: The estimated delivery date.
+                  priority:
+                    type: string
+                    description: Priority of this ACOG document.  1 is high; 2 is
+                      normal.
+                  patientid:
+                    type: string
+                    description: The athenaNet patient ID.
+                  closeddate:
+                    type: string
+                    description: When the OB episode was closed.
+                  createddate:
+                    type: string
+                    description: The date this ACOG document was created.
+                  description:
+                    type: string
+                    description: A description of the ACOG document (e.g. "image documentation").
+                  obepisodeid:
+                    type: string
+                    description: The ID of the OB episode.
+                  deliverydate:
+                    type: string
+                    description: The actual delivery date.
+                  departmentid:
+                    type: string
+                    description: The department ID associated with this ACOG document.
+                  documentclass:
+                    type: string
+                    description: This is the class of the ACOG document
+                  documentroute:
+                    type: string
+                    description: The route the document was sent via (e.g. "FAX")
+                  documentsource:
+                    type: string
+                    description: The source of the document (e.g. "EPISODE")
+                  createddatetime:
+                    type: string
+                    description: The date/time this ACOG document was created.
+                  deleteddatetime:
+                    type: string
+                    description: When this document was deleted (if at all).
+                  initialexamdate:
+                    type: string
+                    description: The initial exam date.
+                  obepisodestatus:
+                    type: string
+                    description: The status of the OB Episode (different from the
+                      document status)
+                  documentsubclass:
+                    type: string
+                    description: This is the subclass of ACOG document.  This is what
+                      we use as "documentclass" for uploads via the API.
+                  lastmodifieddate:
+                    type: string
+                    description: The date this ACOG document was last modified.
+                  lastmodifieduser:
+                    type: string
+                    description: The user who last modified this document.
+                  clinicalproviderid:
+                    type: string
+                    description: The clinical provider ID
+                  lastmodifieddatetime:
+                    type: string
+                    description: The date/time this ACOG document was last modified
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsAcog
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document List By Class
+  /v1/{practiceid}/patients/{patientid}/documents/acog/{acogid}:
+    get:
+      summary: Get one patient's ACOG document
+      description: Retrieves a specific ACOG document of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: acogid
+        schema:
+          type: integer
+        required: true
+        description: acogid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acogid:
+                    description: The ID of the ACOG document
+                    type: string
+                  clinicalproviderid:
+                    description: The clinical provider ID
+                    type: string
+                  closeddate:
+                    description: When the OB episode was closed.
+                    type: string
+                  createddate:
+                    description: The date this ACOG document was created.
+                    type: string
+                  createddatetime:
+                    description: The date/time this ACOG document was created.
+                    type: string
+                  deleteddatetime:
+                    description: When this document was deleted (if at all).
+                    type: string
+                  deliverydate:
+                    description: The actual delivery date.
+                    type: string
+                  departmentid:
+                    description: The department ID associated with this ACOG document.
+                    type: string
+                  description:
+                    description: A description of the ACOG document (e.g. "image documentation").
+                    type: string
+                  documentclass:
+                    description: This is the class of the ACOG document
+                    type: string
+                  documentroute:
+                    description: The route the document was sent via (e.g. "FAX")
+                    type: string
+                  documentsource:
+                    description: The source of the document (e.g. "EPISODE")
+                    type: string
+                  documentsubclass:
+                    description: This is the subclass of ACOG document.  This is what
+                      we use as "documentclass" for uploads via the API.
+                    type: string
+                  edddate:
+                    description: The estimated delivery date.
+                    type: string
+                  initialexamdate:
+                    description: The initial exam date.
+                    type: string
+                  lastmodifieddate:
+                    description: The date this ACOG document was last modified.
+                    type: string
+                  lastmodifieddatetime:
+                    description: The date/time this ACOG document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this document.
+                    type: string
+                  obepisodeid:
+                    description: The ID of the OB episode.
+                    type: string
+                  obepisodestatus:
+                    description: The status of the OB Episode (different from the
+                      document status)
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: string
+                  priority:
+                    description: Priority of this ACOG document.  1 is high; 2 is
+                      normal.
+                    type: string
+                  status:
+                    description: The status of this ACOG document (SUBMITTED, FOLLOWUP,
+                      CLOSED or DELETED)
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsAcogAcogid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+  /v1/{practiceid}/patients/{patientid}/documents/acog/{acogid}/html:
+    get:
+      summary: Get HTML formatted details from ACOG document
+      description: Retrieves a specific ACOG document of the patient in HTML format
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: acogid
+        schema:
+          type: integer
+        required: true
+        description: acogid
+      - in: query
+        name: includewrapper
+        schema:
+          type: boolean
+        required: false
+        description: If true, will include a wrapper with standard HTML tags
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  htmldata:
+                    description: ACOG document formatted as HTML.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsAcogAcogidHtml
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - ACOG document (individual) in HTML format
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,1228 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/prescription:
+    get:
+      summary: Get list of prescriptions for given patient
+      description: Retrieves a list of prescription document information for a specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: encounterid
+        schema:
+          type: integer
+        required: false
+        description: Show only documents attached to this encounter.
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: false
+        description: An optional filter to specify the end of the documents search
+          date range (MM/DD/YYYY). Inclusive.
+      - in: query
+        name: status
+        schema:
+          enum:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+          type: string
+          x-enumDescriptions:
+          - ADMINISTER
+          - CLOSED
+          - DATAENTRY
+          - DELETED
+          - DISPENSE
+          - FOLLOWUP
+          - HOLD
+          - NOTIFY
+          - PEND
+          - PENDING
+          - PENDINGLABEL
+          - PERFORM
+          - REVIEW
+          - SCHEDULE
+          - SCHEDULED
+          - SUBMIT
+          - SUBMITTED
+        required: false
+        description: The status of the task to filter document results.
+      - in: query
+        name: documentclass
+        schema:
+          type: string
+        required: false
+        description: The class(es) of document(s) comma separated.
+      - in: query
+        name: documentsubclass
+        schema:
+          type: string
+        required: false
+        description: The document subclass to filter document results.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: By default, deleted documents are not listed.  Set to list these.
+      - in: query
+        name: showdeclinedorders
+        schema:
+          type: boolean
+        required: false
+        description: If set, include orders that were declined
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: false
+        description: An optional filter to specify the start of the documents search
+          date range (MM/DD/YYYY). Inclusive.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    description: The appointment ID for this document
+                    type: integer
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  createddate:
+                    description: Date the document was created. Please use createddatetime
+                      instead.
+                    type: string
+                  createddatetime:
+                    description: Date/Time (ISO 8601) the document was created
+                    type: string
+                  deaschedule:
+                    description: A number corresponding to the level of restriction
+                      the drug is placed under by the DEA.
+                    type: integer
+                  declinedreason:
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                    items:
+                      properties:
+                        code:
+                          description: The code indicating why the order was not given.
+                          type: string
+                        codeset:
+                          description: The codeset that the code belongs to.
+                          type: string
+                        description:
+                          description: The plaintext description of the reason the
+                            order was not given.
+                          type: string
+                      type: object
+                    type: array
+                  declinedreasontext:
+                    description: The user-facing description of the reason the order
+                      was not given.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdescription:
+                    description: Description of the document type
+                    type: string
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    enum:
+                    - ''
+                    - PATIENT
+                    - CAREGIVER
+                    - PARTNER
+                    - PHARMACY
+                    - LAB
+                    - PCP
+                    - SPECIALIST
+                    - STAFF
+                    - HOSPITAL
+                    - OTHER
+                    - PORTAL
+                    - Live Operator
+                    type: string
+                  documentsubclass:
+                    description: Specific type of document
+                    type: string
+                  documenttypeid:
+                    description: A specific document type identifier.
+                    type: integer
+                  encounterid:
+                    description: Encounter ID
+                    type: string
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient.
+                    type: string
+                  facilityid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country.  These include providers as well as
+                      radiology centers, labs and pharmacies.
+                    type: integer
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  lastmodifieddatetime:
+                    description: Date/time (ISO 8601) the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this document.
+                    type: string
+                  observationdate:
+                    type: string
+                  observationdatetime:
+                    description: Date/time (ISO 8601) the observation was taken
+                    type: string
+                  orderingmode:
+                    description: Ordering Mode for a prescription.  One of Prescribe,
+                      Adminster, Dispense
+                    type: string
+                  ordertype:
+                    description: Order type group name
+                    type: string
+                  patientcaseid:
+                    description: The patient case id
+                    type: string
+                  patientid:
+                    description: The athenaNet patient ID.
+                    type: integer
+                  prescriptionid:
+                    description: ID of a prescription document
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  providernpi:
+                    description: NPI (National Provider Identity) of the provider
+                      for this prescription.
+                    type: string
+                  status:
+                    description: Status of the document
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                  tietoorderid:
+                    description: Order ID of the order this document is tied to, if
+                      any
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsPrescription
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document List By Class
+  /v1/{practiceid}/patients/{patientid}/documents/prescription/{prescriptionid}:
+    get:
+      summary: Get specific prescription document for given patient
+      description: Retrieves a specific prescription document information for a specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: prescriptionid
+        schema:
+          type: integer
+        required: true
+        description: prescriptionid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  actionnote:
+                    description: The most recent action note for a document
+                    type: string
+                  administereddatetime:
+                    description: Date/time (ISO 8601) medication was administered
+                    type: string
+                  administerexpirationdate:
+                    description: Expiration of the medication or vaccine administered
+                    type: string
+                  administerlotnumber:
+                    description: Lot number of the medication or vaccine administered
+                    type: string
+                  administermanufacturer:
+                    description: Manufacturer of the administered medication
+                    type: string
+                  administernote:
+                    description: Adminster note
+                    type: string
+                  administerroute:
+                    description: The route the medication was administered using
+                    type: string
+                  administersite:
+                    description: The site on the patient that the medication/vaccine/etc
+                      was administered
+                    type: string
+                  administeruser:
+                    description: The username of the person who administered the prescription
+                    type: string
+                  assignedto:
+                    description: Person the document is assigned to
+                    type: string
+                  billingndc:
+                    description: The National Drug Code for the document
+                    type: string
+                  createddatetime:
+                    description: Date/Time (ISO 8601) the document was created
+                    type: string
+                  createduser:
+                    description: The user who created this document.
+                    type: string
+                  deaschedule:
+                    description: A number corresponding to the level of restriction
+                      the drug is placed under by the DEA.
+                    type: integer
+                  declinedreason:
+                    description: List of codes indicating why the order was not given.
+                      If this field is not present, the order was not declined. If
+                      the array is empty, no reason has been chosen.
+                    items:
+                      properties:
+                        code:
+                          description: The code indicating why the order was not given.
+                          type: string
+                        codeset:
+                          description: The codeset that the code belongs to.
+                          type: string
+                        description:
+                          description: The plaintext description of the reason the
+                            order was not given.
+                          type: string
+                      type: object
+                    type: array
+                  declinedreasontext:
+                    description: The user-facing description of the reason the order
+                      was not given.
+                    type: string
+                  deleteddatetime:
+                    description: Date/time (ISO 8601) the document was deleted
+                    type: string
+                  departmentid:
+                    description: Department for the document
+                    type: string
+                  diagnosislist:
+                    description: Diagnoses for this document
+                    items:
+                      properties:
+                        diagnosiscode:
+                          properties:
+                            code:
+                              type: string
+                            codeset:
+                              type: string
+                            description:
+                              type: string
+                          type: object
+                        imodiagnosislist:
+                          description: List of IMO codes and data for this diagnosis
+                            This API attribute is being rolled out and will be Generally
+                            Available on or before TBD
+                          items:
+                            properties:
+                              icdcodes:
+                                description: List of relevant ICD codes for this IMO
+                                  code
+                                items:
+                                  properties:
+                                    code:
+                                      description: ICD code for this diagnosis
+                                      type: string
+                                    codeset:
+                                      description: Codeset for this code (ICD9 or
+                                        ICD10)
+                                      type: string
+                                    description:
+                                      description: Brief description for this code
+                                      type: string
+                                  type: object
+                                type: array
+                              id:
+                                description: The athena id of the imo diagnosis
+                                type: integer
+                              imocode:
+                                description: IMO code details for this diagnosis
+                                properties:
+                                  code:
+                                    description: The IMO code for this diagnosis
+                                    type: string
+                                  codeset:
+                                    description: Codeset for this code (IMO)
+                                    type: string
+                                  description:
+                                    description: The provider facing description for
+                                      this IMO code
+                                    type: string
+                                  laterality:
+                                    description: The laterality for this IMO code
+                                    type: string
+                                  needsrefinement:
+                                    description: Whether or not the IMO term supports
+                                      further refinement
+                                    enum:
+                                    - ''
+                                    - false
+                                    - true
+                                    type: string
+                                type: object
+                              patientfacingdescription:
+                                description: The patient facing description for this
+                                  IMO code
+                                type: string
+                              providerfacingdescription:
+                                description: The provider facing description for this
+                                  IMO code
+                                type: string
+                              snomedcodes:
+                                description: List of relevant SNOMED codes for this
+                                  IMO code
+                                items:
+                                  properties:
+                                    code:
+                                      description: SNOMED code for this diagnosis
+                                      type: string
+                                    codeset:
+                                      description: Codeset for this code (SNOMED)
+                                      type: string
+                                    description:
+                                      description: Brief description for this code
+                                      type: string
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                        snomedicdcodes:
+                          items:
+                            properties:
+                              code:
+                                type: string
+                              codeset:
+                                type: string
+                              description:
+                                type: string
+                              unstrippeddiagnosiscode:
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  dispenseaswritten:
+                    description: Whether this prescription is labeled Dispense As
+                      Written
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  documentclass:
+                    description: Class of document
+                    type: string
+                  documentdescription:
+                    description: Description of the document type
+                    type: string
+                  documentroute:
+                    description: Explains method by which the document was entered
+                      into the AthenaNet (INTERFACE (digital), FAX, etc.)
+                    type: string
+                  documentsource:
+                    description: Explains where this document originated.
+                    enum:
+                    - ''
+                    - PATIENT
+                    - CAREGIVER
+                    - PARTNER
+                    - PHARMACY
+                    - LAB
+                    - PCP
+                    - SPECIALIST
+                    - STAFF
+                    - HOSPITAL
+                    - OTHER
+                    - PORTAL
+                    - Live Operator
+                    type: string
+                  documentsubclass:
+                    description: Specific type of document
+                    type: string
+                  documenttypeid:
+                    description: A specific document type identifier.
+                    type: integer
+                  dosageadditionalinstructions:
+                    description: Additional instructions for the medication
+                    type: string
+                  dosagedurationunit:
+                    description: Units for the dosage duration
+                    type: string
+                  dosagedurationvalue:
+                    description: Duration (in DOSAGEDURATIONUNITS) of the dosage
+                    type: number
+                  dosagefrequencyunit:
+                    description: Units for the dosage frequency
+                    type: string
+                  dosagefrequencyvalue:
+                    description: Frequency (in DOSAGEFREQUENCYUNITS) of the dosage
+                    type: number
+                  dosagequantityunit:
+                    description: Units for the dosage quantity
+                    type: string
+                  dosagequantityvalue:
+                    description: Quantity (in DOSAGEQUANTITYUNITS) of the dosage
+                    type: number
+                  earliestfilldate:
+                    description: The earliest date a prescription may be filled, in
+                      the format mm/dd/yyyy.
+                    type: string
+                  encounterid:
+                    description: Encounter ID
+                    type: string
+                  externalaccessionid:
+                    description: The external accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  externalnote:
+                    description: External note for the patient.
+                    type: string
+                  facilityid:
+                    description: The ID of the clinical provider associated with this
+                      clinical document. Clinical providers are a master list of providers
+                      throughout the country.  These include providers as well as
+                      radiology centers, labs and pharmacies.
+                    type: integer
+                  futuresubmitdate:
+                    description: The future submit date in the format mm/dd/yyyy.
+                    type: string
+                  internalaccessionid:
+                    description: The internal accession ID for this document. Format
+                      depends on the system the ID belongs to.
+                    type: string
+                  internalnote:
+                    description: The 'Internal Note' attached to this document
+                    type: string
+                  isstructuredsig:
+                    description: If sig for a prescription was specified as structured
+                      entry, versus unstructured free text
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  lastmodifieddatetime:
+                    description: Date/time (ISO 8601) the document was last modified
+                    type: string
+                  lastmodifieduser:
+                    description: The user who last modified this document.
+                    type: string
+                  medid:
+                    description: The medication ID of this medication
+                    type: integer
+                  ndcs:
+                    description: List of NDCs associated with this prescription
+                    items:
+                      type: string
+                    type: array
+                  notetopharmacy:
+                    description: A note to send to the pharmacy.
+                    type: string
+                  observationdatetime:
+                    description: Date/time (ISO 8601) the observation was taken
+                    type: string
+                  orderingmode:
+                    description: Ordering Mode for a prescription.  One of Prescribe,
+                      Adminster, Dispense
+                    type: string
+                  ordertype:
+                    description: Order type group name
+                    type: string
+                  pages:
+                    description: An array of image pages associated with this document.
+                    items:
+                      properties:
+                        contenttype:
+                          description: The content-type that will be returned by the
+                            page image call.
+                          type: string
+                        href:
+                          description: The URL to get the document image.
+                          type: string
+                        pageid:
+                          description: The ID to use in a call to get the page image.
+                          type: string
+                        pageordering:
+                          description: Within this list of pages, the ordering (starting
+                            with 1).
+                          type: string
+                      type: object
+                    type: array
+                  patientcaseid:
+                    description: The patient case id
+                    type: string
+                  prescriptionid:
+                    description: ID of a prescription document
+                    type: integer
+                  priority:
+                    description: Document priority, when available. 1 is high, 2 is
+                      normal. Some labs use other numbers or characters that are lab-specific.
+                    type: string
+                  providerid:
+                    description: Provider ID for this document
+                    type: integer
+                  providernpi:
+                    description: NPI (National Provider Identity) of the provider
+                      for this prescription.
+                    type: string
+                  quantityndc:
+                    description: National Drug Code
+                    type: string
+                  quantityunit:
+                    description: Unit for prescription quantity
+                    type: string
+                  quantityvalue:
+                    description: Value for prescription quantity
+                    type: number
+                  refillsallowed:
+                    description: Number of refills allowed
+                    type: integer
+                  rxnorm:
+                    description: RXNORM code for this drug
+                    type: string
+                  sampleexpirationdate:
+                    description: Expiration of the medication or vaccine sample
+                    type: string
+                  samplelotnumber:
+                    description: Lot number of the medication or vaccine sample
+                    type: string
+                  sig:
+                    description: Text sig for a prescription
+                    type: string
+                  status:
+                    description: Status of the document
+                    type: string
+                  subject:
+                    description: Subject of the document
+                    type: string
+                  textconsent:
+                    description: This value is true or false for the order if PatientNotification
+                      feature is enabled for this context/provider/patient
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsPrescriptionPrescriptionid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+  /v1/{practiceid}/patients/{patientid}/documents/prescriptions/{prescriptionid}:
+    put:
+      summary: Update specific prescription document for given patient
+      description: Modifies the information for a specific prescription document
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: prescriptionid
+        schema:
+          type: integer
+        required: true
+        description: prescriptionid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidDocumentsPrescriptionsPrescriptionid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                note:
+                  type: string
+                  description: The note to be appended to the document. This field
+                    supports line breaks in the form of '\n' and '\r\n'.
+                pintotop:
+                  type: boolean
+                  description: If set, pins the ACTIONNOTE to the top of the workflow.
+                actionnote:
+                  type: string
+                  description: The note appended to the action taken on the document.
+                    This field supports line breaks in the form of '\n' and '\r\n'.
+                assignedto:
+                  type: string
+                  description: This field accepts a username and assigns the order
+                    to that username.
+                departmentid:
+                  type: integer
+                  description: The ID of the department.
+                internalnote:
+                  type: string
+                  description: The internal note for the document. This field supports
+                    line breaks in the form of '\n' and '\r\n'.
+        required: true
+      tags:
+      - Forms and Documents
+      - Order Requests
+  /v1/{practiceid}/patients/{patientid}/documents/prescription/{prescriptionid}/pages/{pageid}:
+    get:
+      summary: Get specific page from given prescription
+      description: Retrieves a specific page from the specific prescription document
+        of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: pageid
+        schema:
+          type: integer
+        required: true
+        description: pageid
+      - in: path
+        name: prescriptionid
+        schema:
+          type: integer
+        required: true
+        description: prescriptionid
+      - in: query
+        name: filesize
+        schema:
+          enum:
+          - SMALL
+          - LARGE
+          type: string
+          x-enumDescriptions:
+          - Small
+          - Large
+        required: false
+        description: The file size of the document being requested.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  attachment:
+                    description: The image of the page in png format.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsPrescriptionPrescriptionidPagesPageid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Document Details
+  /v1/{practiceid}/prescriptions/changed/subscription/events:
+    get:
+      summary: Get list of change events for prescriptions
+      description: 'Retrieves a list of all events that can be input for this subscription.
+        Note: This endpoint may rely on specific settings to be enabled in athenaNet
+        Production to function properly that are not required in other environments.
+        Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPrescriptionsChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Prescriptions Changed Subscription
+  /v1/{practiceid}/prescriptions/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for prescriptions
+      description: 'Subscribes for changed prescription events Note: This endpoint
+        may rely on specific settings to be enabled in athenaNet Production to function
+        properly that are not required in other environments. Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      prescription was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPrescriptionsChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+                departmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'For every New/Update Subscriptions complete list of
+                    departmentids should be passed. NOTE: Without DepartmentIDs entire
+                    Context/Practice will be subscribed.'
+        required: true
+      tags:
+      - Forms and Documents
+      - Prescriptions Changed Subscription
+    get:
+      summary: Get list of subscribed events for changes in prescriptions
+      description: 'Retrieves list of events applicable for prescription Note: This
+        endpoint may rely on specific settings to be enabled in athenaNet Production
+        to function properly that are not required in other environments. Please see
+        <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPrescriptionsChangedSubscription
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Prescriptions Changed Subscription
+    delete:
+      summary: Unsubscribe to all/specific events for changes in prescriptions
+      description: 'Delete an specific event which is no longer required Note: This
+        endpoint may rely on specific settings to be enabled in athenaNet Production
+        to function properly that are not required in other environments. Please see
+        <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      prescription was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidPrescriptionsChangedSubscription
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Prescriptions Changed Subscription
+  /v1/{practiceid}/prescriptions/changed:
+    get:
+      summary: Get list of changes in prescriptions
+      description: 'Retrieves list of records of modified prescription data Note:
+        This endpoint may rely on specific settings to be enabled in athenaNet Production
+        to function properly that are not required in other environments. Please see
+        <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 5000)Please note
+          that this endpoint has a different default than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  administeryn:
+                    description: True if the order is marked as administered.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  approvedby:
+                    description: The user who approved this order. Blank if the order
+                      has not been approved.
+                    type: string
+                  approvedtimestamp:
+                    description: The timestamp when this order was approved. Blank
+                      if the order has not been approved.
+                    type: string
+                  assigneduser:
+                    description: User this order is assigned to.
+                    type: string
+                  class:
+                    description: The document class of this order.
+                    type: string
+                  classdescription:
+                    description: A description of the document class for this order.
+                    type: string
+                  clinicalordertypeid:
+                    description: The athena ID for this type of order. Can be used
+                      to create another order of this type.
+                    type: integer
+                  clinicalproviderordertypeid:
+                    description: The Unique ID for the type of order referred to by
+                      a clinical provider. A clinical provider here refers to a facility.
+                    type: integer
+                  dateordered:
+                    description: Timestamp for when this order was created.
+                    type: string
+                  deniedby:
+                    description: The user who denied this order. Blank if the order
+                      has not been denied.
+                    type: string
+                  deniedtimestamp:
+                    description: The timestamp when this order was denied. Blank if
+                      the order has not been denied.
+                    type: string
+                  departmentid:
+                    description: The ID of the department this order is associated
+                      with.
+                    type: integer
+                  description:
+                    description: A description of this document.
+                    type: string
+                  documentationonly:
+                    description: A boolean field describing if this order is documentation
+                      only.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  documentid:
+                    description: The id of this order.
+                    type: integer
+                  encounterid:
+                    description: The ID of the clinical encounter this order is associated
+                      with.
+                    type: integer
+                  externalnote:
+                    description: Note to the provider.
+                    type: string
+                  localpatientid:
+                    description: The local ID of the patient this order is associated
+                      with.
+                    type: integer
+                  ordergenusname:
+                    description: It represents a class of vaccine.
+                    type: string
+                  orderingprovider:
+                    description: The username of the provider who created the order.
+                    type: string
+                  outofnetworkreason:
+                    description: Out of network reason
+                    type: string
+                  patientid:
+                    description: The ID of the patient this order is associated with.
+                    type: integer
+                  status:
+                    description: Current status of the order.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPrescriptionsChanged
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Prescriptions Changed Subscription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

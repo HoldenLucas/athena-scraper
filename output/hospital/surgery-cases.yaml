@@ -1,0 +1,333 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/surgerycases/changed:
+    get:
+      summary: Get list of changes in surgical cases based on subscribed events
+      description: 'BETA: Retrieves a list of new or updated surgical cases.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the department.
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that processed messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  caseid:
+                    description: Case id associated with the procedure.
+                    type: integer
+                  duration:
+                    description: The duration of the surgery in number of minutes.
+                    type: string
+                  endtime:
+                    description: The time when the surgery is to end ('HH:MI AM' format).
+                    type: string
+                  orcaseid:
+                    description: Booking id representing the surgery.
+                    type: integer
+                  orcaselocation:
+                    description: The room where the booking is scheduled to take place
+                    type: string
+                  patientid:
+                    description: The id of the patient being operated.
+                    type: integer
+                  procedurecodes:
+                    description: An Array of IDs for the clinical order type (also
+                      referred to as the procedure).
+                    items:
+                      type: string
+                    type: array
+                  proceduredesc:
+                    description: An Array of the names of the procedures.
+                    items:
+                      type: string
+                    type: array
+                  scheduledstarttime:
+                    description: The date and time that the procedure is scheduled
+                      to start.('MM/DD/YYYY 24HH:MM' format).
+                    type: string
+                  starttime:
+                    description: The time when the surgery is to begin ('HH:MI AM'
+                      format).
+                    type: string
+                  stayid:
+                    description: Stay ID associated with the booking.
+                    type: integer
+                  surgeonid:
+                    description: The provider id of the primary surgeon on the booking
+                    type: integer
+                  surgeonname:
+                    description: The name of the primary surgeon on the booking
+                    type: string
+                  surgerystatus:
+                    description: Text holding active state information regarding the
+                      surgery case.
+                    type: string
+                  visitid:
+                    description: Visit ID associated with the booking.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidSurgerycasesChanged
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Cases
+  /v1/{practiceid}/surgerycases/changed/subscription/events:
+    get:
+      summary: Get list of hospital surgical cases change events to which you can
+        subscribe
+      description: 'BETA: Returns list of events you can subscribe to when surgical
+        cases are added or updated.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidSurgerycasesChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Cases
+  /v1/{practiceid}/surgerycases/changed/subscription:
+    get:
+      summary: Get list of subscribed events for changes in hospital surgical cases
+      description: 'BETA: Retrieves list of events applicable for hospital stays changes'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidSurgerycasesChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Cases
+    post:
+      summary: Subscribe to all/specific change events for hospital surgical cases
+      description: 'BETA: Subscribes for change events for hospital surgical cases'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      surgerycases was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidSurgerycasesChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+        required: true
+      tags:
+      - Inpatient
+      - Surgery Cases
+    delete:
+      summary: Unsubscribe to all/specific change events for hospital surgical cases
+      description: 'BETA: Delete a specific event which is no longer required'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      surgerycases was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidSurgerycasesChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Surgery Cases
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

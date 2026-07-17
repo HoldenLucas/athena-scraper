@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/inptadmin/{inptadminid}/pages/{pageid}:
+    get:
+      summary: Get page from patient's inpatient admin document
+      description: Retrieves a specific page from the specific inpatient admin document
+        of the patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: inptadminid
+        schema:
+          type: integer
+        required: true
+        description: inptadminid
+      - in: path
+        name: pageid
+        schema:
+          type: integer
+        required: true
+        description: pageid
+      - in: query
+        name: filesize
+        schema:
+          enum:
+          - SMALL
+          - LARGE
+          type: string
+          x-enumDescriptions:
+          - Small
+          - Large
+        required: false
+        description: The file size of the document being requested.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  attachment:
+                    description: The image of the page in png format.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidDocumentsInptadminInptadminidPagesPageid
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Inpatient Admin Documents
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

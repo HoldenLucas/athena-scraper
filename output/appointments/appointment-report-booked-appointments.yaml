@@ -1,0 +1,2558 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointments/report:
+    get:
+      summary: Get report of booked appointments
+      description: Retrieves calling users appointment details of all booked, rescheduled
+        and cancelled appointments
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: true
+        description: The ending date range of when an appointment was scheduled (inclusive).
+      - in: query
+        name: showexpectedprocedurecodes
+        schema:
+          type: boolean
+        required: false
+        description: Set this field to true to retrieve expected procedure codes.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: true
+        description: The starting date range of when an appointment was scheduled
+          (inclusive).
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  cancelled:
+                    items:
+                      properties:
+                        appointmentconfirmationid:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the numeric ID (global to athenaNet).
+                          type: string
+                        appointmentconfirmationname:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the name (global to athenaNet).
+                          type: string
+                        appointmentcopay:
+                          description: 'Detailed information about the copay for this
+                            appointment.  Gives more detail than the COPAY field.  Note:
+                            this information is not yet available in all practices,
+                            we are rolling this out slowly.'
+                          type: string
+                        appointmentid:
+                          description: Appointment ID of the booked appointment
+                          type: string
+                        appointmentmessage:
+                          description: The message to the patient that is associated
+                            with the appointment.
+                          type: string
+                        appointmentnotes:
+                          description: An array of appointment notes for this appointment.
+                          items:
+                            properties:
+                              displayonschedule:
+                                description: Whether the note should be displayed
+                                  on the schedule.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              id:
+                                description: The id of the appointment note.
+                                type: integer
+                              text:
+                                description: The note associated with the appointment.
+                                type: string
+                            type: object
+                          type: array
+                        appointmentstatus:
+                          description: The athenaNet appointment status. There are
+                            several possible statuses.  x=cancelled. f=filled. (It
+                            can include appointments where were never checked in,
+                            even if the appointment date is in the past. It is up
+                            to a practice to cancel appointments as a no show when
+                            appropriate to do so.)  o=open. 2=checked in. 3=checked
+                            out. 4=charge entered (i.e. a past appointment).
+                          type: string
+                        appointmenttype:
+                          description: The practice-friendly (not patient friendly)
+                            name for this appointment type.  Note that this may <strong>not</strong>
+                            be the same as the booked appointment because of "generic"
+                            slots.
+                          type: string
+                        appointmenttypeid:
+                          description: This is the ID for the appointment type.   Note
+                            that this may <strong>not</strong> be the same as the
+                            booked appointment because of "generic" slots.
+                          type: string
+                        cancelledby:
+                          description: If the appointment has been cancelled, the
+                            username who cancelled the appointment.
+                          type: string
+                        cancelleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was cancelled (if cancelled)
+                          type: string
+                        cancelreasonid:
+                          description: If the appointment was cancelled, the numeric
+                            ID (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonname:
+                          description: If the appointment was cancelled, the name
+                            (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonnoshow:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a no show reason.
+                          type: string
+                        cancelreasonslotavailable:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a slot available reason.
+                          type: string
+                        chargeentrynotrequired:
+                          description: This field will tell if an appointment has
+                            been marked as not requiring change entry.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        chargeentrynotrequiredreason:
+                          description: This field will give the reason that an appointment
+                            has been marked as not requiring charge entry.
+                          type: string
+                        checkindatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked in.
+                          type: string
+                        checkoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked out.
+                          type: string
+                        claims:
+                          description: As detailed in /claims, if requested.
+                          items:
+                            properties:
+                              appointmentid:
+                                description: The appointment ID associated with this
+                                  claim.
+                                type: string
+                              billedproviderid:
+                                description: The provider ID of the billing provider
+                                  for this claim.
+                                type: string
+                              billedservicedate:
+                                description: The billed date of service.
+                                type: string
+                              chargeamount:
+                                description: The total amount billed for all services
+                                  from this claim.
+                                type: string
+                              claimcreateddate:
+                                description: The date the claim was created.
+                                type: string
+                              claimid:
+                                description: athenaNet's internal ID for this claim,
+                                  specific to the practice.
+                                type: string
+                              diagnoses:
+                                description: '<p>Diagnoses is an array of all diagnoses.   Each
+                                  entry in the array is a hash with several fields.  /ccda
+                                  is a better clinical representation.  These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    deleteddiagnosis:
+                                      description: In certain cases, diagnoses may
+                                        be added and then removed from a particular
+                                        claim.  In normal circumstances, this will
+                                        be false.  However, if a diagnosis was removed,
+                                        this will be true.
+                                      type: string
+                                    diagnosiscategory:
+                                      description: The category for this diagnosis.
+                                      type: string
+                                    diagnosiscodeset:
+                                      description: Either ICD9 or ICD10.
+                                      type: string
+                                    diagnosisdescription:
+                                      description: A description of this diagnosis.
+                                      type: string
+                                    diagnosisid:
+                                      description: A unique ID related to this diagnosis.
+                                      type: string
+                                    diagnosisrawcode:
+                                      description: The raw ICD-9 code.  This will
+                                        migrate to ICD-10 in the future.
+                                      type: string
+                                  type: object
+                                type: array
+                              patientpayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the patient.
+                                type: string
+                              primaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the primary insurace.
+                                type: string
+                              procedures:
+                                description: '<p>Procedures is an array of all procedures.  /ccda
+                                  is a better clinical representation.   These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    allowableamount:
+                                      description: The total amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemax:
+                                      description: The maximum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemin:
+                                      description: The minimum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    chargeamount:
+                                      description: The amount charged for this procedure.
+                                      type: string
+                                    procedurecategory:
+                                      description: The category name associated with
+                                        this procedure.
+                                      type: string
+                                    procedurecode:
+                                      description: The CPT code associated with this
+                                        procedure.
+                                      type: string
+                                    proceduredescription:
+                                      description: A description of this procedure.
+                                      type: string
+                                    transactionid:
+                                      description: The ID of the last transaction
+                                        associated with the claim.
+                                      type: string
+                                  type: object
+                                type: array
+                              referringproviderid:
+                                description: The referring provider ID for this claim.  See
+                                  /referringproviders.  This is not the same as the
+                                  ID from the /providers call.
+                                type: integer
+                              secondaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the secondary insurace.
+                                type: string
+                              transactiondetails:
+                                description: A hash of ids ("transactionid") to amounts;
+                                  these should sum to the chargeamount. Please note
+                                  that this has been deprecated in lieu of the data
+                                  being available in the procedures section.
+                                type: string
+                              transactionid:
+                                description: A unique ID for the primary transaction
+                                  this claim represents.  May be useful for debugging.
+                                type: string
+                            type: object
+                          type: array
+                        coordinatorenterpriseyn:
+                          description: If true, the appointment was booked through
+                            athenaCoordinator Enterprise.
+                          type: string
+                        copay:
+                          description: Expected copay for this appointment. Based
+                            on the appointment type, the patient's primary insurance,
+                            and any copays collected.  To see the amounts used in
+                            this calculated value, see the APPOINTMENTCOPAY fields.
+                          type: string
+                        customfields:
+                          description: The custom fields associated with the appointments.
+                          items:
+                            properties:
+                              customfieldid:
+                                description: Corresponds to the /customfields customfieldid.
+                                type: string
+                              customfieldvalue:
+                                description: For a non-select custom field, the value.
+                                type: string
+                              optionid:
+                                description: For a select custom field, the selectid
+                                  value (from /customfield's selectlist).
+                                type: string
+                              referringproviderid:
+                                description: For a referring provider custom field,
+                                  the referring provider's ID.
+                                type: string
+                            type: object
+                          type: array
+                        date:
+                          description: The appointment date.
+                          type: string
+                        departmentid:
+                          type: string
+                        duration:
+                          description: In minutes
+                          type: integer
+                        encounterid:
+                          description: The encounter id associated with this appointment,
+                            useful for certain other calls. Only present for appointments
+                            with Clinicals that have been checked in.
+                          type: string
+                        encounterstate:
+                          description: The status of the clinical encounter associated
+                            with this appointment (OPEN, CLOSED, DELETED, PEND, etc.).
+                            This differs from encounterstatus, which refers to the
+                            status of the patient in the encounter.
+                          type: string
+                        encounterstatus:
+                          description: The status of this patient in the encounter
+                            (READYFORSTAFF, WITHSTAFF, READFORPROVIDER, CHECKEDOUT).
+                            Only present for appointments with Clinicals that have
+                            been checked in.
+                          type: string
+                        finalappointment:
+                          description: The current appointment after rescheduling.
+                            The encapsulating original appointment may have been rescheduled
+                            multiple times.
+                          type: string
+                        frozenyn:
+                          description: If true, this appointment slot is frozen
+                          type: string
+                        hl7providerid:
+                          description: This is the raw provider ID that should be
+                            used ONLY if using this appointment in conjunction with
+                            an HL7 message and with athenahealth's prior guidance.
+                            It is only available in some situations.
+                          type: integer
+                        insurances:
+                          description: List of active patient insurance packages.
+                            Only shown for single or multiple booked appointments
+                            if SHOWINSURANCE is set.
+                          items:
+                            properties:
+                              adjusterfax:
+                                description: CASE POLICY FIELD - Fax for the adjuster
+                                  on this case policy.  Only available for auto insurance
+                                  or worker's comp case policies.
+                                type: string
+                              adjusterfirstname:
+                                description: CASE POLICY FIELD - First name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterlastname:
+                                description: CASE POLICY FIELD - Last name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterphone:
+                                description: CASE POLICY FIELD - Phone number/other
+                                  contact info for the adjuster on this case policy.  Only
+                                  available for auto insurance or worker's comp case
+                                  policies.
+                                type: string
+                              anotherpartyresponsibleyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  if another party was responsible for this accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              autoaccidentstate:
+                                description: CASE POLICY FIELD - Two-letter abbreviation
+                                  for the state in which the auto accident took place.
+                                  Only meaningful for auto insurance case policies.
+                                type: string
+                              cancelled:
+                                description: The date in which the insurance was marked
+                                  cancelled.
+                                type: string
+                              cancelledby:
+                                description: The username of the user who cancelled
+                                  this insurance in athenanet.
+                                type: string
+                              caseinjurydate:
+                                description: CASE POLICY FIELD - Date of the injury.  Required
+                                  for auto insurance, legal, and worker's comp case
+                                  policies.
+                                type: string
+                              casepolicytypename:
+                                description: CASE POLICY FIELD - The name of this
+                                  type of case policy.
+                                type: string
+                              ccmstatusid:
+                                description: Status ID of current CCM enrollment.
+                                type: integer
+                              ccmstatusname:
+                                description: The name of current CCM enrollment status.
+                                type: string
+                              coinsurancepercent:
+                                description: The coinsurance percentage for this insurance.
+                                  If you've just POSTed a new insurance you will have
+                                  to wait for the auto eligbility check before this
+                                  field populates.
+                                type: number
+                              confidentialitycode:
+                                description: Gives the confidentiality code for the
+                                  patient.
+                                type: string
+                              copays:
+                                description: Details about the copays for this insurance
+                                  package. If you've just POSTed a new insurance you
+                                  will have to wait for the auto eligbility check
+                                  before these populate.
+                                type: string
+                              coveragetype:
+                                description: Details about the coverage type for this
+                                  insurance package. This information is available
+                                  according to the access level from the session user.
+                                type: string
+                              created:
+                                description: The date in which the insurance was created.
+                                type: string
+                              createdby:
+                                description: The username of the user who created
+                                  this insurance in athenanet.
+                                type: string
+                              deletednote:
+                                description: The athenaNet insurance notes added while
+                                  cancelling the insurance.
+                                type: string
+                              descriptionofinjury:
+                                description: CASE POLICY FIELD - A description of
+                                  the injury.  Only available for auto insurance and
+                                  worker's comp case policies.
+                                type: string
+                              eligibilitylastchecked:
+                                description: Date the eligibility was last checked.
+                                type: string
+                              eligibilitymessage:
+                                description: The message, usually from our engine,
+                                  of the eligibility check.
+                                type: string
+                              eligibilityreason:
+                                description: The source of the current status. Athena
+                                  is our eligibility engine.
+                                type: string
+                              eligibilitystatus:
+                                description: Current eligibility status of this insurance
+                                  package.
+                                type: string
+                              employerid:
+                                description: The employer ID associated with the patient's
+                                  insurance.
+                                type: string
+                              expirationdate:
+                                description: Date the insurance expires.
+                                type: string
+                              icd10codes:
+                                description: CASE POLICY FIELD - See documentation
+                                  for ICD9CODES.
+                                type: string
+                              icd9codes:
+                                description: CASE POLICY FIELD - A list of ICD9 accepted
+                                  diagnosis codes. Only available for worker's comp
+                                  case policies.
+                                type: string
+                              injuredbodypart:
+                                description: CASE POLICY FIELD - Text field for describing
+                                  the injured body part.  Only available for auto
+                                  insurance  and worker's comp case policies.
+                                type: string
+                              insuranceclaimnumber:
+                                description: CASE POLICY FIELD - The auto insurance
+                                  claim number or the worker's comp claim number.
+                                type: string
+                              insuranceid:
+                                description: The athena insurance policy ID.
+                                type: string
+                              insuranceidnumber:
+                                description: The insurance policy ID number (as presented
+                                  on the insurance card itself).
+                                type: string
+                              insurancepackageaddress1:
+                                description: Address 1 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackageaddress2:
+                                description: Address 2 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackagecity:
+                                description: City for the AthenaNet insurance Package.
+                                type: string
+                              insurancepackageid:
+                                description: The athenaNet insurance package ID.
+                                type: integer
+                              insurancepackagepayerid:
+                                description: Insurance Package Payer ID (EMC Code)
+                                type: string
+                              insurancepackagestate:
+                                description: State of the AthenaNet insurance package
+                                type: string
+                              insurancepackagezip:
+                                description: Zip code of the AthenaNet insurance package
+                                type: string
+                              insurancepayername:
+                                description: Name of the payer specific insurance
+                                  package.
+                                type: string
+                              insurancephone:
+                                description: 'The phone number for the insurance company.
+                                  Note: This defaults to the insurance package phone
+                                  number. If this is set, it will override it. Likewise
+                                  if blanked out, it will go back to default.'
+                                type: string
+                              insuranceplandisplayname:
+                                description: Superpackagename of the specific insurance
+                                  package.
+                                type: string
+                              insuranceplanname:
+                                description: Name of the specific insurance package.
+                                type: string
+                              insurancepolicyholder:
+                                description: The full name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholderaddress1:
+                                description: The first address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholderaddress2:
+                                description: The second address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercity:
+                                description: The city of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdercountrycode:
+                                description: The country code (3 letter) of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercountryiso3166:
+                                description: The <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO
+                                  3166</a> country code of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderdob:
+                                description: The DOB of the insurance policy holder
+                                  (mm/dd/yyyy).
+                                type: string
+                              insurancepolicyholderfirstname:
+                                description: The first name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderlastname:
+                                description: The last name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholdermiddlename:
+                                description: The middle name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholdersex:
+                                description: The sex of the insurance policy holder.  Except
+                                  for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderssn:
+                                description: The SSN of the insurance policy holder.
+                                  If set, it should be either 9 digits or masked 9
+                                  chars(* followed by digits).
+                                type: string
+                              insurancepolicyholderstate:
+                                description: The state of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdersuffix:
+                                description: The suffix of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderzip:
+                                description: The zip of the insurance policy holder.
+                                type: string
+                              insuranceproducttype:
+                                description: The athenaNet insurance product type.
+                                type: string
+                              insurancetype:
+                                description: Type of insurance. E.g., Medicare Part
+                                  B, Group Policy, HMO, etc.
+                                type: string
+                              insuredentitytypeid:
+                                description: The ID of the entity type for this insurance.
+                                type: integer
+                              insuredidnumber:
+                                description: The insurance policy ID number of insured.
+                                type: string
+                              insuredpcp:
+                                type: string
+                              insuredpcpid:
+                                description: The primary care physician ID that is
+                                  associated with the insurance.
+                                type: integer
+                              insuredpcpnpi:
+                                description: The national provider id of the primary
+                                  care physcian assicated with the insurance.
+                                type: integer
+                              insuredreferringprovider:
+                                description: The referring provider that is associated
+                                  with the insurance.
+                                type: string
+                              insuredreferringproviderid:
+                                description: The referring provider ID that is associated
+                                  with the insurance.
+                                type: integer
+                              ircid:
+                                description: Insurance category / company internal
+                                  ID
+                                type: integer
+                              ircname:
+                                description: Insurance category / company. E.g., United
+                                  Healthcare, BCBS-MA, etc.
+                                type: string
+                              issuedate:
+                                description: Date the insurance was issued.
+                                type: string
+                              lastupdated:
+                                description: Date on which patient record was last
+                                  updated.
+                                type: string
+                              lastupdatedby:
+                                description: User who last updated the patient record.
+                                type: string
+                              note:
+                                description: The athenaNet insurance notes.
+                                type: string
+                              packageexpirationdate:
+                                description: Expiration date of insurance package.
+                                type: string
+                              paymentplanid:
+                                description: The payment plan id associated with patient's
+                                  insurance.
+                                type: number
+                              pendinginsurancepackageid:
+                                description: The insurance package id of pending insurance
+                                  package.
+                                type: number
+                              pendinginsurancepackagename:
+                                description: The insurance package name of pending
+                                  insurance package.
+                                type: string
+                              policynumber:
+                                description: The insurance group number.  This is
+                                  sometimes present on an insurance card.
+                                type: string
+                              relatedtoautoaccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to an auto accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtoemploymentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to the patient's
+                                  employer.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtootheraccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to another accident.  Only
+                                  available for worker's comp case policies.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relationshiptoinsured:
+                                default: Self
+                                description: This patient's relationship to the policy
+                                  holder (text).
+                                type: string
+                              relationshiptoinsuredid:
+                                default: 1
+                                description: This patient's relationship to the policy
+                                  holder (as an ID).  See <a href="/workflows/patient-relationship-mapping">the
+                                  mapping</a>.
+                                type: integer
+                              repricername:
+                                description: CASE POLICY FIELD - Name for the repricer.  Only
+                                  available for worker's comp case policies.
+                                type: string
+                              repricerphone:
+                                description: CASE POLICY FIELD - Phone number for
+                                  the repricer.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                              sequencenumber:
+                                description: 1 = primary, 2 = secondary, 3 = tertiary,
+                                  etc.  Must have a primary before a secondary and
+                                  a secondary before a tertiary, etc.
+                                type: integer
+                              slidingfeeplanid:
+                                description: If the patient is on a sliding fee plan,
+                                  this is the ID of that plan.  See /slidingfeeplans.
+                                type: integer
+                              stateofreportedinjury:
+                                description: CASE POLICY FIELD - Two-letter state
+                                  abbreviation for the state this injury was reported
+                                  in.  Only available for worker's comp case policies.
+                                type: string
+                              workcompboardnumber:
+                                description: CASE POLICY FIELD - Worker Compensation
+                                  Board Number.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                            type: object
+                          type: array
+                        lastmodified:
+                          description: 'The date/time when the appointment was last
+                            modified. Note: It may be possible for the lastmodified
+                            field to be updated without any other field in the API
+                            call being changed. This occurs when appointment fields
+                            not included in the API output are updated.'
+                          type: string
+                        lastmodifiedby:
+                          description: The user who last modified the appointment.
+                          type: string
+                        patient:
+                          description: See /patients for details
+                          type: string
+                        patientappointmenttypename:
+                          description: The patient-friendly name for this appointment
+                            type.  Note that this may <strong>not</strong> be the
+                            same as the booked appointment because of "generic" slots.
+                          type: string
+                        patientid:
+                          description: The athenaNet patient ID for this appointment
+                          type: string
+                        patientlocationid:
+                          description: The location of the patient. See /patientlocation
+                            for practice list. Only present for appointments with
+                            Clinicals that have been checked in.
+                          type: string
+                        providerid:
+                          type: string
+                        referringproviderid:
+                          description: The referring provider ID.
+                          type: string
+                        reminderdetails:
+                          description: Detailed ReminderCall information made for
+                            this appointment.
+                          items:
+                            properties:
+                              calltime:
+                                description: Date and time of the call attempt.
+                                type: string
+                              messageresultid:
+                                description: Id of the message attempt.
+                                type: string
+                              messagetype:
+                                description: The type of message that was attempted.
+                                type: string
+                              result:
+                                description: A description of what happened during
+                                  the call attempt.
+                                type: string
+                            type: object
+                          type: array
+                        renderingproviderid:
+                          description: The rendering provider ID.
+                          type: string
+                        rescheduledappointmentid:
+                          description: When an appointment is rescheduled, this is
+                            the ID of the replacement appointment.
+                          type: string
+                        scheduledby:
+                          description: The username who scheduled the appointment.
+                          type: string
+                        scheduleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was scheduled.
+                          type: string
+                        startcheckin:
+                          description: The timestamp when the appointment started
+                            the check in process. If this is set while an appointment
+                            is still in status 'f', it means that the check-in process
+                            has begun but is not yet completed.
+                          type: string
+                        startcheckoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            check-out was started.
+                          type: string
+                        starttime:
+                          description: As HH:MM (where HH is the 0-23 hour and MM
+                            is the minute).  This time is local to the department.
+                          type: string
+                        stopcheckin:
+                          description: The timestamp when the check-in process was
+                            finished for this appointment.
+                          type: string
+                        stopexamdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the exam
+                            was completed.
+                          type: string
+                        stopintakedatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the intake
+                            process was completed.
+                          type: string
+                        stopsignoff:
+                          description: 'The timestamp when the sign-off process was
+                            finished for this appointment. The STOPSIGNOFF property
+                            will only be visible if the following rollout toggle is
+                            ENABLED : CLUCT_315_MDP_UCTB'
+                          type: string
+                        suggestedoverbooking:
+                          description: High risk score for Smart Scheduling
+                          type: string
+                        supervisingproviderid:
+                          description: The supervising provider ID.
+                          type: integer
+                        templateappointmentid:
+                          description: The original appointment ID. This is useful
+                            if an appointment has been cancelled and you want to find
+                            the original ID.
+                          type: string
+                        templateappointmenttypeid:
+                          description: The original appointment type for this slot.
+                            This can change for generic appointments.
+                          type: string
+                        urgentyn:
+                          description: Urgent flag for the appointment.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        useexpectedprocedurecodes:
+                          description: An array of expected procedure codes attached
+                            to this appointment.
+                          items:
+                            properties:
+                              procedurecode:
+                                description: The ID of the code.
+                                type: string
+                              procedurecodedescription:
+                                description: The description of the code.
+                                type: string
+                            type: object
+                          type: array
+                        visitid:
+                          description: Visit Id of the appointment.
+                          type: string
+                      type: object
+                    type: array
+                  rescheduled:
+                    items:
+                      properties:
+                        appointmentconfirmationid:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the numeric ID (global to athenaNet).
+                          type: string
+                        appointmentconfirmationname:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the name (global to athenaNet).
+                          type: string
+                        appointmentcopay:
+                          description: 'Detailed information about the copay for this
+                            appointment.  Gives more detail than the COPAY field.  Note:
+                            this information is not yet available in all practices,
+                            we are rolling this out slowly.'
+                          type: string
+                        appointmentid:
+                          description: Appointment ID of the booked appointment
+                          type: string
+                        appointmentmessage:
+                          description: The message to the patient that is associated
+                            with the appointment.
+                          type: string
+                        appointmentnotes:
+                          description: An array of appointment notes for this appointment.
+                          items:
+                            properties:
+                              displayonschedule:
+                                description: Whether the note should be displayed
+                                  on the schedule.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              id:
+                                description: The id of the appointment note.
+                                type: integer
+                              text:
+                                description: The note associated with the appointment.
+                                type: string
+                            type: object
+                          type: array
+                        appointmentstatus:
+                          description: The athenaNet appointment status. There are
+                            several possible statuses.  x=cancelled. f=filled. (It
+                            can include appointments where were never checked in,
+                            even if the appointment date is in the past. It is up
+                            to a practice to cancel appointments as a no show when
+                            appropriate to do so.)  o=open. 2=checked in. 3=checked
+                            out. 4=charge entered (i.e. a past appointment).
+                          type: string
+                        appointmenttype:
+                          description: The practice-friendly (not patient friendly)
+                            name for this appointment type.  Note that this may <strong>not</strong>
+                            be the same as the booked appointment because of "generic"
+                            slots.
+                          type: string
+                        appointmenttypeid:
+                          description: This is the ID for the appointment type.   Note
+                            that this may <strong>not</strong> be the same as the
+                            booked appointment because of "generic" slots.
+                          type: string
+                        cancelledby:
+                          description: If the appointment has been cancelled, the
+                            username who cancelled the appointment.
+                          type: string
+                        cancelleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was cancelled (if cancelled)
+                          type: string
+                        cancelreasonid:
+                          description: If the appointment was cancelled, the numeric
+                            ID (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonname:
+                          description: If the appointment was cancelled, the name
+                            (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonnoshow:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a no show reason.
+                          type: string
+                        cancelreasonslotavailable:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a slot available reason.
+                          type: string
+                        chargeentrynotrequired:
+                          description: This field will tell if an appointment has
+                            been marked as not requiring change entry.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        chargeentrynotrequiredreason:
+                          description: This field will give the reason that an appointment
+                            has been marked as not requiring charge entry.
+                          type: string
+                        checkindatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked in.
+                          type: string
+                        checkoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked out.
+                          type: string
+                        claims:
+                          description: As detailed in /claims, if requested.
+                          items:
+                            properties:
+                              appointmentid:
+                                description: The appointment ID associated with this
+                                  claim.
+                                type: string
+                              billedproviderid:
+                                description: The provider ID of the billing provider
+                                  for this claim.
+                                type: string
+                              billedservicedate:
+                                description: The billed date of service.
+                                type: string
+                              chargeamount:
+                                description: The total amount billed for all services
+                                  from this claim.
+                                type: string
+                              claimcreateddate:
+                                description: The date the claim was created.
+                                type: string
+                              claimid:
+                                description: athenaNet's internal ID for this claim,
+                                  specific to the practice.
+                                type: string
+                              diagnoses:
+                                description: '<p>Diagnoses is an array of all diagnoses.   Each
+                                  entry in the array is a hash with several fields.  /ccda
+                                  is a better clinical representation.  These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    deleteddiagnosis:
+                                      description: In certain cases, diagnoses may
+                                        be added and then removed from a particular
+                                        claim.  In normal circumstances, this will
+                                        be false.  However, if a diagnosis was removed,
+                                        this will be true.
+                                      type: string
+                                    diagnosiscategory:
+                                      description: The category for this diagnosis.
+                                      type: string
+                                    diagnosiscodeset:
+                                      description: Either ICD9 or ICD10.
+                                      type: string
+                                    diagnosisdescription:
+                                      description: A description of this diagnosis.
+                                      type: string
+                                    diagnosisid:
+                                      description: A unique ID related to this diagnosis.
+                                      type: string
+                                    diagnosisrawcode:
+                                      description: The raw ICD-9 code.  This will
+                                        migrate to ICD-10 in the future.
+                                      type: string
+                                  type: object
+                                type: array
+                              patientpayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the patient.
+                                type: string
+                              primaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the primary insurace.
+                                type: string
+                              procedures:
+                                description: '<p>Procedures is an array of all procedures.  /ccda
+                                  is a better clinical representation.   These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    allowableamount:
+                                      description: The total amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemax:
+                                      description: The maximum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemin:
+                                      description: The minimum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    chargeamount:
+                                      description: The amount charged for this procedure.
+                                      type: string
+                                    procedurecategory:
+                                      description: The category name associated with
+                                        this procedure.
+                                      type: string
+                                    procedurecode:
+                                      description: The CPT code associated with this
+                                        procedure.
+                                      type: string
+                                    proceduredescription:
+                                      description: A description of this procedure.
+                                      type: string
+                                    transactionid:
+                                      description: The ID of the last transaction
+                                        associated with the claim.
+                                      type: string
+                                  type: object
+                                type: array
+                              referringproviderid:
+                                description: The referring provider ID for this claim.  See
+                                  /referringproviders.  This is not the same as the
+                                  ID from the /providers call.
+                                type: integer
+                              secondaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the secondary insurace.
+                                type: string
+                              transactiondetails:
+                                description: A hash of ids ("transactionid") to amounts;
+                                  these should sum to the chargeamount. Please note
+                                  that this has been deprecated in lieu of the data
+                                  being available in the procedures section.
+                                type: string
+                              transactionid:
+                                description: A unique ID for the primary transaction
+                                  this claim represents.  May be useful for debugging.
+                                type: string
+                            type: object
+                          type: array
+                        coordinatorenterpriseyn:
+                          description: If true, the appointment was booked through
+                            athenaCoordinator Enterprise.
+                          type: string
+                        copay:
+                          description: Expected copay for this appointment. Based
+                            on the appointment type, the patient's primary insurance,
+                            and any copays collected.  To see the amounts used in
+                            this calculated value, see the APPOINTMENTCOPAY fields.
+                          type: string
+                        customfields:
+                          description: The custom fields associated with the appointments.
+                          items:
+                            properties:
+                              customfieldid:
+                                description: Corresponds to the /customfields customfieldid.
+                                type: string
+                              customfieldvalue:
+                                description: For a non-select custom field, the value.
+                                type: string
+                              optionid:
+                                description: For a select custom field, the selectid
+                                  value (from /customfield's selectlist).
+                                type: string
+                              referringproviderid:
+                                description: For a referring provider custom field,
+                                  the referring provider's ID.
+                                type: string
+                            type: object
+                          type: array
+                        date:
+                          description: The appointment date.
+                          type: string
+                        departmentid:
+                          type: string
+                        duration:
+                          description: In minutes
+                          type: integer
+                        encounterid:
+                          description: The encounter id associated with this appointment,
+                            useful for certain other calls. Only present for appointments
+                            with Clinicals that have been checked in.
+                          type: string
+                        encounterstate:
+                          description: The status of the clinical encounter associated
+                            with this appointment (OPEN, CLOSED, DELETED, PEND, etc.).
+                            This differs from encounterstatus, which refers to the
+                            status of the patient in the encounter.
+                          type: string
+                        encounterstatus:
+                          description: The status of this patient in the encounter
+                            (READYFORSTAFF, WITHSTAFF, READFORPROVIDER, CHECKEDOUT).
+                            Only present for appointments with Clinicals that have
+                            been checked in.
+                          type: string
+                        finalappointment:
+                          description: The current appointment after rescheduling.
+                            The encapsulating original appointment may have been rescheduled
+                            multiple times.
+                          type: string
+                        frozenyn:
+                          description: If true, this appointment slot is frozen
+                          type: string
+                        hl7providerid:
+                          description: This is the raw provider ID that should be
+                            used ONLY if using this appointment in conjunction with
+                            an HL7 message and with athenahealth's prior guidance.
+                            It is only available in some situations.
+                          type: integer
+                        insurances:
+                          description: List of active patient insurance packages.
+                            Only shown for single or multiple booked appointments
+                            if SHOWINSURANCE is set.
+                          items:
+                            properties:
+                              adjusterfax:
+                                description: CASE POLICY FIELD - Fax for the adjuster
+                                  on this case policy.  Only available for auto insurance
+                                  or worker's comp case policies.
+                                type: string
+                              adjusterfirstname:
+                                description: CASE POLICY FIELD - First name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterlastname:
+                                description: CASE POLICY FIELD - Last name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterphone:
+                                description: CASE POLICY FIELD - Phone number/other
+                                  contact info for the adjuster on this case policy.  Only
+                                  available for auto insurance or worker's comp case
+                                  policies.
+                                type: string
+                              anotherpartyresponsibleyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  if another party was responsible for this accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              autoaccidentstate:
+                                description: CASE POLICY FIELD - Two-letter abbreviation
+                                  for the state in which the auto accident took place.
+                                  Only meaningful for auto insurance case policies.
+                                type: string
+                              cancelled:
+                                description: The date in which the insurance was marked
+                                  cancelled.
+                                type: string
+                              cancelledby:
+                                description: The username of the user who cancelled
+                                  this insurance in athenanet.
+                                type: string
+                              caseinjurydate:
+                                description: CASE POLICY FIELD - Date of the injury.  Required
+                                  for auto insurance, legal, and worker's comp case
+                                  policies.
+                                type: string
+                              casepolicytypename:
+                                description: CASE POLICY FIELD - The name of this
+                                  type of case policy.
+                                type: string
+                              ccmstatusid:
+                                description: Status ID of current CCM enrollment.
+                                type: integer
+                              ccmstatusname:
+                                description: The name of current CCM enrollment status.
+                                type: string
+                              coinsurancepercent:
+                                description: The coinsurance percentage for this insurance.
+                                  If you've just POSTed a new insurance you will have
+                                  to wait for the auto eligbility check before this
+                                  field populates.
+                                type: number
+                              confidentialitycode:
+                                description: Gives the confidentiality code for the
+                                  patient.
+                                type: string
+                              copays:
+                                description: Details about the copays for this insurance
+                                  package. If you've just POSTed a new insurance you
+                                  will have to wait for the auto eligbility check
+                                  before these populate.
+                                type: string
+                              coveragetype:
+                                description: Details about the coverage type for this
+                                  insurance package. This information is available
+                                  according to the access level from the session user.
+                                type: string
+                              created:
+                                description: The date in which the insurance was created.
+                                type: string
+                              createdby:
+                                description: The username of the user who created
+                                  this insurance in athenanet.
+                                type: string
+                              deletednote:
+                                description: The athenaNet insurance notes added while
+                                  cancelling the insurance.
+                                type: string
+                              descriptionofinjury:
+                                description: CASE POLICY FIELD - A description of
+                                  the injury.  Only available for auto insurance and
+                                  worker's comp case policies.
+                                type: string
+                              eligibilitylastchecked:
+                                description: Date the eligibility was last checked.
+                                type: string
+                              eligibilitymessage:
+                                description: The message, usually from our engine,
+                                  of the eligibility check.
+                                type: string
+                              eligibilityreason:
+                                description: The source of the current status. Athena
+                                  is our eligibility engine.
+                                type: string
+                              eligibilitystatus:
+                                description: Current eligibility status of this insurance
+                                  package.
+                                type: string
+                              employerid:
+                                description: The employer ID associated with the patient's
+                                  insurance.
+                                type: string
+                              expirationdate:
+                                description: Date the insurance expires.
+                                type: string
+                              icd10codes:
+                                description: CASE POLICY FIELD - See documentation
+                                  for ICD9CODES.
+                                type: string
+                              icd9codes:
+                                description: CASE POLICY FIELD - A list of ICD9 accepted
+                                  diagnosis codes. Only available for worker's comp
+                                  case policies.
+                                type: string
+                              injuredbodypart:
+                                description: CASE POLICY FIELD - Text field for describing
+                                  the injured body part.  Only available for auto
+                                  insurance  and worker's comp case policies.
+                                type: string
+                              insuranceclaimnumber:
+                                description: CASE POLICY FIELD - The auto insurance
+                                  claim number or the worker's comp claim number.
+                                type: string
+                              insuranceid:
+                                description: The athena insurance policy ID.
+                                type: string
+                              insuranceidnumber:
+                                description: The insurance policy ID number (as presented
+                                  on the insurance card itself).
+                                type: string
+                              insurancepackageaddress1:
+                                description: Address 1 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackageaddress2:
+                                description: Address 2 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackagecity:
+                                description: City for the AthenaNet insurance Package.
+                                type: string
+                              insurancepackageid:
+                                description: The athenaNet insurance package ID.
+                                type: integer
+                              insurancepackagepayerid:
+                                description: Insurance Package Payer ID (EMC Code)
+                                type: string
+                              insurancepackagestate:
+                                description: State of the AthenaNet insurance package
+                                type: string
+                              insurancepackagezip:
+                                description: Zip code of the AthenaNet insurance package
+                                type: string
+                              insurancepayername:
+                                description: Name of the payer specific insurance
+                                  package.
+                                type: string
+                              insurancephone:
+                                description: 'The phone number for the insurance company.
+                                  Note: This defaults to the insurance package phone
+                                  number. If this is set, it will override it. Likewise
+                                  if blanked out, it will go back to default.'
+                                type: string
+                              insuranceplandisplayname:
+                                description: Superpackagename of the specific insurance
+                                  package.
+                                type: string
+                              insuranceplanname:
+                                description: Name of the specific insurance package.
+                                type: string
+                              insurancepolicyholder:
+                                description: The full name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholderaddress1:
+                                description: The first address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholderaddress2:
+                                description: The second address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercity:
+                                description: The city of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdercountrycode:
+                                description: The country code (3 letter) of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercountryiso3166:
+                                description: The <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO
+                                  3166</a> country code of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderdob:
+                                description: The DOB of the insurance policy holder
+                                  (mm/dd/yyyy).
+                                type: string
+                              insurancepolicyholderfirstname:
+                                description: The first name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderlastname:
+                                description: The last name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholdermiddlename:
+                                description: The middle name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholdersex:
+                                description: The sex of the insurance policy holder.  Except
+                                  for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderssn:
+                                description: The SSN of the insurance policy holder.
+                                  If set, it should be either 9 digits or masked 9
+                                  chars(* followed by digits).
+                                type: string
+                              insurancepolicyholderstate:
+                                description: The state of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdersuffix:
+                                description: The suffix of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderzip:
+                                description: The zip of the insurance policy holder.
+                                type: string
+                              insuranceproducttype:
+                                description: The athenaNet insurance product type.
+                                type: string
+                              insurancetype:
+                                description: Type of insurance. E.g., Medicare Part
+                                  B, Group Policy, HMO, etc.
+                                type: string
+                              insuredentitytypeid:
+                                description: The ID of the entity type for this insurance.
+                                type: integer
+                              insuredidnumber:
+                                description: The insurance policy ID number of insured.
+                                type: string
+                              insuredpcp:
+                                type: string
+                              insuredpcpid:
+                                description: The primary care physician ID that is
+                                  associated with the insurance.
+                                type: integer
+                              insuredpcpnpi:
+                                description: The national provider id of the primary
+                                  care physcian assicated with the insurance.
+                                type: integer
+                              insuredreferringprovider:
+                                description: The referring provider that is associated
+                                  with the insurance.
+                                type: string
+                              insuredreferringproviderid:
+                                description: The referring provider ID that is associated
+                                  with the insurance.
+                                type: integer
+                              ircid:
+                                description: Insurance category / company internal
+                                  ID
+                                type: integer
+                              ircname:
+                                description: Insurance category / company. E.g., United
+                                  Healthcare, BCBS-MA, etc.
+                                type: string
+                              issuedate:
+                                description: Date the insurance was issued.
+                                type: string
+                              lastupdated:
+                                description: Date on which patient record was last
+                                  updated.
+                                type: string
+                              lastupdatedby:
+                                description: User who last updated the patient record.
+                                type: string
+                              note:
+                                description: The athenaNet insurance notes.
+                                type: string
+                              packageexpirationdate:
+                                description: Expiration date of insurance package.
+                                type: string
+                              paymentplanid:
+                                description: The payment plan id associated with patient's
+                                  insurance.
+                                type: number
+                              pendinginsurancepackageid:
+                                description: The insurance package id of pending insurance
+                                  package.
+                                type: number
+                              pendinginsurancepackagename:
+                                description: The insurance package name of pending
+                                  insurance package.
+                                type: string
+                              policynumber:
+                                description: The insurance group number.  This is
+                                  sometimes present on an insurance card.
+                                type: string
+                              relatedtoautoaccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to an auto accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtoemploymentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to the patient's
+                                  employer.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtootheraccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to another accident.  Only
+                                  available for worker's comp case policies.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relationshiptoinsured:
+                                default: Self
+                                description: This patient's relationship to the policy
+                                  holder (text).
+                                type: string
+                              relationshiptoinsuredid:
+                                default: 1
+                                description: This patient's relationship to the policy
+                                  holder (as an ID).  See <a href="/workflows/patient-relationship-mapping">the
+                                  mapping</a>.
+                                type: integer
+                              repricername:
+                                description: CASE POLICY FIELD - Name for the repricer.  Only
+                                  available for worker's comp case policies.
+                                type: string
+                              repricerphone:
+                                description: CASE POLICY FIELD - Phone number for
+                                  the repricer.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                              sequencenumber:
+                                description: 1 = primary, 2 = secondary, 3 = tertiary,
+                                  etc.  Must have a primary before a secondary and
+                                  a secondary before a tertiary, etc.
+                                type: integer
+                              slidingfeeplanid:
+                                description: If the patient is on a sliding fee plan,
+                                  this is the ID of that plan.  See /slidingfeeplans.
+                                type: integer
+                              stateofreportedinjury:
+                                description: CASE POLICY FIELD - Two-letter state
+                                  abbreviation for the state this injury was reported
+                                  in.  Only available for worker's comp case policies.
+                                type: string
+                              workcompboardnumber:
+                                description: CASE POLICY FIELD - Worker Compensation
+                                  Board Number.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                            type: object
+                          type: array
+                        lastmodified:
+                          description: 'The date/time when the appointment was last
+                            modified. Note: It may be possible for the lastmodified
+                            field to be updated without any other field in the API
+                            call being changed. This occurs when appointment fields
+                            not included in the API output are updated.'
+                          type: string
+                        lastmodifiedby:
+                          description: The user who last modified the appointment.
+                          type: string
+                        patient:
+                          description: See /patients for details
+                          type: string
+                        patientappointmenttypename:
+                          description: The patient-friendly name for this appointment
+                            type.  Note that this may <strong>not</strong> be the
+                            same as the booked appointment because of "generic" slots.
+                          type: string
+                        patientid:
+                          description: The athenaNet patient ID for this appointment
+                          type: string
+                        patientlocationid:
+                          description: The location of the patient. See /patientlocation
+                            for practice list. Only present for appointments with
+                            Clinicals that have been checked in.
+                          type: string
+                        providerid:
+                          type: string
+                        referringproviderid:
+                          description: The referring provider ID.
+                          type: string
+                        reminderdetails:
+                          description: Detailed ReminderCall information made for
+                            this appointment.
+                          items:
+                            properties:
+                              calltime:
+                                description: Date and time of the call attempt.
+                                type: string
+                              messageresultid:
+                                description: Id of the message attempt.
+                                type: string
+                              messagetype:
+                                description: The type of message that was attempted.
+                                type: string
+                              result:
+                                description: A description of what happened during
+                                  the call attempt.
+                                type: string
+                            type: object
+                          type: array
+                        renderingproviderid:
+                          description: The rendering provider ID.
+                          type: string
+                        rescheduledappointmentid:
+                          description: When an appointment is rescheduled, this is
+                            the ID of the replacement appointment.
+                          type: string
+                        scheduledby:
+                          description: The username who scheduled the appointment.
+                          type: string
+                        scheduleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was scheduled.
+                          type: string
+                        startcheckin:
+                          description: The timestamp when the appointment started
+                            the check in process. If this is set while an appointment
+                            is still in status 'f', it means that the check-in process
+                            has begun but is not yet completed.
+                          type: string
+                        startcheckoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            check-out was started.
+                          type: string
+                        starttime:
+                          description: As HH:MM (where HH is the 0-23 hour and MM
+                            is the minute).  This time is local to the department.
+                          type: string
+                        stopcheckin:
+                          description: The timestamp when the check-in process was
+                            finished for this appointment.
+                          type: string
+                        stopexamdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the exam
+                            was completed.
+                          type: string
+                        stopintakedatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the intake
+                            process was completed.
+                          type: string
+                        stopsignoff:
+                          description: 'The timestamp when the sign-off process was
+                            finished for this appointment. The STOPSIGNOFF property
+                            will only be visible if the following rollout toggle is
+                            ENABLED : CLUCT_315_MDP_UCTB'
+                          type: string
+                        suggestedoverbooking:
+                          description: High risk score for Smart Scheduling
+                          type: string
+                        supervisingproviderid:
+                          description: The supervising provider ID.
+                          type: integer
+                        templateappointmentid:
+                          description: The original appointment ID. This is useful
+                            if an appointment has been cancelled and you want to find
+                            the original ID.
+                          type: string
+                        templateappointmenttypeid:
+                          description: The original appointment type for this slot.
+                            This can change for generic appointments.
+                          type: string
+                        urgentyn:
+                          description: Urgent flag for the appointment.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        useexpectedprocedurecodes:
+                          description: An array of expected procedure codes attached
+                            to this appointment.
+                          items:
+                            properties:
+                              procedurecode:
+                                description: The ID of the code.
+                                type: string
+                              procedurecodedescription:
+                                description: The description of the code.
+                                type: string
+                            type: object
+                          type: array
+                        visitid:
+                          description: Visit Id of the appointment.
+                          type: string
+                      type: object
+                    type: array
+                  scheduled:
+                    items:
+                      properties:
+                        appointmentconfirmationid:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the numeric ID (global to athenaNet).
+                          type: string
+                        appointmentconfirmationname:
+                          description: If there is an appointment confirmation result
+                            for this appointment, the name (global to athenaNet).
+                          type: string
+                        appointmentcopay:
+                          description: 'Detailed information about the copay for this
+                            appointment.  Gives more detail than the COPAY field.  Note:
+                            this information is not yet available in all practices,
+                            we are rolling this out slowly.'
+                          type: string
+                        appointmentid:
+                          description: Appointment ID of the booked appointment
+                          type: string
+                        appointmentmessage:
+                          description: The message to the patient that is associated
+                            with the appointment.
+                          type: string
+                        appointmentnotes:
+                          description: An array of appointment notes for this appointment.
+                          items:
+                            properties:
+                              displayonschedule:
+                                description: Whether the note should be displayed
+                                  on the schedule.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              id:
+                                description: The id of the appointment note.
+                                type: integer
+                              text:
+                                description: The note associated with the appointment.
+                                type: string
+                            type: object
+                          type: array
+                        appointmentstatus:
+                          description: The athenaNet appointment status. There are
+                            several possible statuses.  x=cancelled. f=filled. (It
+                            can include appointments where were never checked in,
+                            even if the appointment date is in the past. It is up
+                            to a practice to cancel appointments as a no show when
+                            appropriate to do so.)  o=open. 2=checked in. 3=checked
+                            out. 4=charge entered (i.e. a past appointment).
+                          type: string
+                        appointmenttype:
+                          description: The practice-friendly (not patient friendly)
+                            name for this appointment type.  Note that this may <strong>not</strong>
+                            be the same as the booked appointment because of "generic"
+                            slots.
+                          type: string
+                        appointmenttypeid:
+                          description: This is the ID for the appointment type.   Note
+                            that this may <strong>not</strong> be the same as the
+                            booked appointment because of "generic" slots.
+                          type: string
+                        cancelledby:
+                          description: If the appointment has been cancelled, the
+                            username who cancelled the appointment.
+                          type: string
+                        cancelleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was cancelled (if cancelled)
+                          type: string
+                        cancelreasonid:
+                          description: If the appointment was cancelled, the numeric
+                            ID (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonname:
+                          description: If the appointment was cancelled, the name
+                            (local to the practice) for the cancel reason.
+                          type: string
+                        cancelreasonnoshow:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a no show reason.
+                          type: string
+                        cancelreasonslotavailable:
+                          description: If the appointment was cancelled, if the cancel
+                            reason is marked as a slot available reason.
+                          type: string
+                        chargeentrynotrequired:
+                          description: This field will tell if an appointment has
+                            been marked as not requiring change entry.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        chargeentrynotrequiredreason:
+                          description: This field will give the reason that an appointment
+                            has been marked as not requiring charge entry.
+                          type: string
+                        checkindatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked in.
+                          type: string
+                        checkoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            was checked out.
+                          type: string
+                        claims:
+                          description: As detailed in /claims, if requested.
+                          items:
+                            properties:
+                              appointmentid:
+                                description: The appointment ID associated with this
+                                  claim.
+                                type: string
+                              billedproviderid:
+                                description: The provider ID of the billing provider
+                                  for this claim.
+                                type: string
+                              billedservicedate:
+                                description: The billed date of service.
+                                type: string
+                              chargeamount:
+                                description: The total amount billed for all services
+                                  from this claim.
+                                type: string
+                              claimcreateddate:
+                                description: The date the claim was created.
+                                type: string
+                              claimid:
+                                description: athenaNet's internal ID for this claim,
+                                  specific to the practice.
+                                type: string
+                              diagnoses:
+                                description: '<p>Diagnoses is an array of all diagnoses.   Each
+                                  entry in the array is a hash with several fields.  /ccda
+                                  is a better clinical representation.  These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    deleteddiagnosis:
+                                      description: In certain cases, diagnoses may
+                                        be added and then removed from a particular
+                                        claim.  In normal circumstances, this will
+                                        be false.  However, if a diagnosis was removed,
+                                        this will be true.
+                                      type: string
+                                    diagnosiscategory:
+                                      description: The category for this diagnosis.
+                                      type: string
+                                    diagnosiscodeset:
+                                      description: Either ICD9 or ICD10.
+                                      type: string
+                                    diagnosisdescription:
+                                      description: A description of this diagnosis.
+                                      type: string
+                                    diagnosisid:
+                                      description: A unique ID related to this diagnosis.
+                                      type: string
+                                    diagnosisrawcode:
+                                      description: The raw ICD-9 code.  This will
+                                        migrate to ICD-10 in the future.
+                                      type: string
+                                  type: object
+                                type: array
+                              patientpayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the patient.
+                                type: string
+                              primaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the primary insurace.
+                                type: string
+                              procedures:
+                                description: '<p>Procedures is an array of all procedures.  /ccda
+                                  is a better clinical representation.   These fields
+                                  are:</p>
+
+                                  '
+                                items:
+                                  properties:
+                                    allowableamount:
+                                      description: The total amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemax:
+                                      description: The maximum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    allowablemin:
+                                      description: The minimum amount expected from
+                                        payer for all services from this procedure.
+                                      type: string
+                                    chargeamount:
+                                      description: The amount charged for this procedure.
+                                      type: string
+                                    procedurecategory:
+                                      description: The category name associated with
+                                        this procedure.
+                                      type: string
+                                    procedurecode:
+                                      description: The CPT code associated with this
+                                        procedure.
+                                      type: string
+                                    proceduredescription:
+                                      description: A description of this procedure.
+                                      type: string
+                                    transactionid:
+                                      description: The ID of the last transaction
+                                        associated with the claim.
+                                      type: string
+                                  type: object
+                                type: array
+                              referringproviderid:
+                                description: The referring provider ID for this claim.  See
+                                  /referringproviders.  This is not the same as the
+                                  ID from the /providers call.
+                                type: integer
+                              secondaryinsurancepayer:
+                                description: The status and notes of a responsible
+                                  payer.  This payer is the secondary insurace.
+                                type: string
+                              transactiondetails:
+                                description: A hash of ids ("transactionid") to amounts;
+                                  these should sum to the chargeamount. Please note
+                                  that this has been deprecated in lieu of the data
+                                  being available in the procedures section.
+                                type: string
+                              transactionid:
+                                description: A unique ID for the primary transaction
+                                  this claim represents.  May be useful for debugging.
+                                type: string
+                            type: object
+                          type: array
+                        coordinatorenterpriseyn:
+                          description: If true, the appointment was booked through
+                            athenaCoordinator Enterprise.
+                          type: string
+                        copay:
+                          description: Expected copay for this appointment. Based
+                            on the appointment type, the patient's primary insurance,
+                            and any copays collected.  To see the amounts used in
+                            this calculated value, see the APPOINTMENTCOPAY fields.
+                          type: string
+                        customfields:
+                          description: The custom fields associated with the appointments.
+                          items:
+                            properties:
+                              customfieldid:
+                                description: Corresponds to the /customfields customfieldid.
+                                type: string
+                              customfieldvalue:
+                                description: For a non-select custom field, the value.
+                                type: string
+                              optionid:
+                                description: For a select custom field, the selectid
+                                  value (from /customfield's selectlist).
+                                type: string
+                              referringproviderid:
+                                description: For a referring provider custom field,
+                                  the referring provider's ID.
+                                type: string
+                            type: object
+                          type: array
+                        date:
+                          description: The appointment date.
+                          type: string
+                        departmentid:
+                          type: string
+                        duration:
+                          description: In minutes
+                          type: integer
+                        encounterid:
+                          description: The encounter id associated with this appointment,
+                            useful for certain other calls. Only present for appointments
+                            with Clinicals that have been checked in.
+                          type: string
+                        encounterstate:
+                          description: The status of the clinical encounter associated
+                            with this appointment (OPEN, CLOSED, DELETED, PEND, etc.).
+                            This differs from encounterstatus, which refers to the
+                            status of the patient in the encounter.
+                          type: string
+                        encounterstatus:
+                          description: The status of this patient in the encounter
+                            (READYFORSTAFF, WITHSTAFF, READFORPROVIDER, CHECKEDOUT).
+                            Only present for appointments with Clinicals that have
+                            been checked in.
+                          type: string
+                        finalappointment:
+                          description: The current appointment after rescheduling.
+                            The encapsulating original appointment may have been rescheduled
+                            multiple times.
+                          type: string
+                        frozenyn:
+                          description: If true, this appointment slot is frozen
+                          type: string
+                        hl7providerid:
+                          description: This is the raw provider ID that should be
+                            used ONLY if using this appointment in conjunction with
+                            an HL7 message and with athenahealth's prior guidance.
+                            It is only available in some situations.
+                          type: integer
+                        insurances:
+                          description: List of active patient insurance packages.
+                            Only shown for single or multiple booked appointments
+                            if SHOWINSURANCE is set.
+                          items:
+                            properties:
+                              adjusterfax:
+                                description: CASE POLICY FIELD - Fax for the adjuster
+                                  on this case policy.  Only available for auto insurance
+                                  or worker's comp case policies.
+                                type: string
+                              adjusterfirstname:
+                                description: CASE POLICY FIELD - First name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterlastname:
+                                description: CASE POLICY FIELD - Last name of the
+                                  adjuster on this case policy.  Only available for
+                                  auto insurance or worker's comp case policies.
+                                type: string
+                              adjusterphone:
+                                description: CASE POLICY FIELD - Phone number/other
+                                  contact info for the adjuster on this case policy.  Only
+                                  available for auto insurance or worker's comp case
+                                  policies.
+                                type: string
+                              anotherpartyresponsibleyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  if another party was responsible for this accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              autoaccidentstate:
+                                description: CASE POLICY FIELD - Two-letter abbreviation
+                                  for the state in which the auto accident took place.
+                                  Only meaningful for auto insurance case policies.
+                                type: string
+                              cancelled:
+                                description: The date in which the insurance was marked
+                                  cancelled.
+                                type: string
+                              cancelledby:
+                                description: The username of the user who cancelled
+                                  this insurance in athenanet.
+                                type: string
+                              caseinjurydate:
+                                description: CASE POLICY FIELD - Date of the injury.  Required
+                                  for auto insurance, legal, and worker's comp case
+                                  policies.
+                                type: string
+                              casepolicytypename:
+                                description: CASE POLICY FIELD - The name of this
+                                  type of case policy.
+                                type: string
+                              ccmstatusid:
+                                description: Status ID of current CCM enrollment.
+                                type: integer
+                              ccmstatusname:
+                                description: The name of current CCM enrollment status.
+                                type: string
+                              coinsurancepercent:
+                                description: The coinsurance percentage for this insurance.
+                                  If you've just POSTed a new insurance you will have
+                                  to wait for the auto eligbility check before this
+                                  field populates.
+                                type: number
+                              confidentialitycode:
+                                description: Gives the confidentiality code for the
+                                  patient.
+                                type: string
+                              copays:
+                                description: Details about the copays for this insurance
+                                  package. If you've just POSTed a new insurance you
+                                  will have to wait for the auto eligbility check
+                                  before these populate.
+                                type: string
+                              coveragetype:
+                                description: Details about the coverage type for this
+                                  insurance package. This information is available
+                                  according to the access level from the session user.
+                                type: string
+                              created:
+                                description: The date in which the insurance was created.
+                                type: string
+                              createdby:
+                                description: The username of the user who created
+                                  this insurance in athenanet.
+                                type: string
+                              deletednote:
+                                description: The athenaNet insurance notes added while
+                                  cancelling the insurance.
+                                type: string
+                              descriptionofinjury:
+                                description: CASE POLICY FIELD - A description of
+                                  the injury.  Only available for auto insurance and
+                                  worker's comp case policies.
+                                type: string
+                              eligibilitylastchecked:
+                                description: Date the eligibility was last checked.
+                                type: string
+                              eligibilitymessage:
+                                description: The message, usually from our engine,
+                                  of the eligibility check.
+                                type: string
+                              eligibilityreason:
+                                description: The source of the current status. Athena
+                                  is our eligibility engine.
+                                type: string
+                              eligibilitystatus:
+                                description: Current eligibility status of this insurance
+                                  package.
+                                type: string
+                              employerid:
+                                description: The employer ID associated with the patient's
+                                  insurance.
+                                type: string
+                              expirationdate:
+                                description: Date the insurance expires.
+                                type: string
+                              icd10codes:
+                                description: CASE POLICY FIELD - See documentation
+                                  for ICD9CODES.
+                                type: string
+                              icd9codes:
+                                description: CASE POLICY FIELD - A list of ICD9 accepted
+                                  diagnosis codes. Only available for worker's comp
+                                  case policies.
+                                type: string
+                              injuredbodypart:
+                                description: CASE POLICY FIELD - Text field for describing
+                                  the injured body part.  Only available for auto
+                                  insurance  and worker's comp case policies.
+                                type: string
+                              insuranceclaimnumber:
+                                description: CASE POLICY FIELD - The auto insurance
+                                  claim number or the worker's comp claim number.
+                                type: string
+                              insuranceid:
+                                description: The athena insurance policy ID.
+                                type: string
+                              insuranceidnumber:
+                                description: The insurance policy ID number (as presented
+                                  on the insurance card itself).
+                                type: string
+                              insurancepackageaddress1:
+                                description: Address 1 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackageaddress2:
+                                description: Address 2 for the AthenaNet insurance
+                                  Package.
+                                type: string
+                              insurancepackagecity:
+                                description: City for the AthenaNet insurance Package.
+                                type: string
+                              insurancepackageid:
+                                description: The athenaNet insurance package ID.
+                                type: integer
+                              insurancepackagepayerid:
+                                description: Insurance Package Payer ID (EMC Code)
+                                type: string
+                              insurancepackagestate:
+                                description: State of the AthenaNet insurance package
+                                type: string
+                              insurancepackagezip:
+                                description: Zip code of the AthenaNet insurance package
+                                type: string
+                              insurancepayername:
+                                description: Name of the payer specific insurance
+                                  package.
+                                type: string
+                              insurancephone:
+                                description: 'The phone number for the insurance company.
+                                  Note: This defaults to the insurance package phone
+                                  number. If this is set, it will override it. Likewise
+                                  if blanked out, it will go back to default.'
+                                type: string
+                              insuranceplandisplayname:
+                                description: Superpackagename of the specific insurance
+                                  package.
+                                type: string
+                              insuranceplanname:
+                                description: Name of the specific insurance package.
+                                type: string
+                              insurancepolicyholder:
+                                description: The full name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholderaddress1:
+                                description: The first address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholderaddress2:
+                                description: The second address line of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercity:
+                                description: The city of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdercountrycode:
+                                description: The country code (3 letter) of the insurance
+                                  policy holder.
+                                type: string
+                              insurancepolicyholdercountryiso3166:
+                                description: The <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO
+                                  3166</a> country code of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderdob:
+                                description: The DOB of the insurance policy holder
+                                  (mm/dd/yyyy).
+                                type: string
+                              insurancepolicyholderfirstname:
+                                description: The first name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderlastname:
+                                description: The last name of the insurance policy
+                                  holder.  Except for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholdermiddlename:
+                                description: The middle name of the insurance policy
+                                  holder.
+                                type: string
+                              insurancepolicyholdersex:
+                                description: The sex of the insurance policy holder.  Except
+                                  for self-pay, required for new policies.
+                                type: string
+                              insurancepolicyholderssn:
+                                description: The SSN of the insurance policy holder.
+                                  If set, it should be either 9 digits or masked 9
+                                  chars(* followed by digits).
+                                type: string
+                              insurancepolicyholderstate:
+                                description: The state of the insurance policy holder.
+                                type: string
+                              insurancepolicyholdersuffix:
+                                description: The suffix of the insurance policy holder.
+                                type: string
+                              insurancepolicyholderzip:
+                                description: The zip of the insurance policy holder.
+                                type: string
+                              insuranceproducttype:
+                                description: The athenaNet insurance product type.
+                                type: string
+                              insurancetype:
+                                description: Type of insurance. E.g., Medicare Part
+                                  B, Group Policy, HMO, etc.
+                                type: string
+                              insuredentitytypeid:
+                                description: The ID of the entity type for this insurance.
+                                type: integer
+                              insuredidnumber:
+                                description: The insurance policy ID number of insured.
+                                type: string
+                              insuredpcp:
+                                type: string
+                              insuredpcpid:
+                                description: The primary care physician ID that is
+                                  associated with the insurance.
+                                type: integer
+                              insuredpcpnpi:
+                                description: The national provider id of the primary
+                                  care physcian assicated with the insurance.
+                                type: integer
+                              insuredreferringprovider:
+                                description: The referring provider that is associated
+                                  with the insurance.
+                                type: string
+                              insuredreferringproviderid:
+                                description: The referring provider ID that is associated
+                                  with the insurance.
+                                type: integer
+                              ircid:
+                                description: Insurance category / company internal
+                                  ID
+                                type: integer
+                              ircname:
+                                description: Insurance category / company. E.g., United
+                                  Healthcare, BCBS-MA, etc.
+                                type: string
+                              issuedate:
+                                description: Date the insurance was issued.
+                                type: string
+                              lastupdated:
+                                description: Date on which patient record was last
+                                  updated.
+                                type: string
+                              lastupdatedby:
+                                description: User who last updated the patient record.
+                                type: string
+                              note:
+                                description: The athenaNet insurance notes.
+                                type: string
+                              packageexpirationdate:
+                                description: Expiration date of insurance package.
+                                type: string
+                              paymentplanid:
+                                description: The payment plan id associated with patient's
+                                  insurance.
+                                type: number
+                              pendinginsurancepackageid:
+                                description: The insurance package id of pending insurance
+                                  package.
+                                type: number
+                              pendinginsurancepackagename:
+                                description: The insurance package name of pending
+                                  insurance package.
+                                type: string
+                              policynumber:
+                                description: The insurance group number.  This is
+                                  sometimes present on an insurance card.
+                                type: string
+                              relatedtoautoaccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to an auto accident.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtoemploymentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to the patient's
+                                  employer.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relatedtootheraccidentyn:
+                                description: CASE POLICY FIELD - Boolean field indicating
+                                  whether this case policy is related to another accident.  Only
+                                  available for worker's comp case policies.
+                                enum:
+                                - ''
+                                - false
+                                - true
+                                type: string
+                              relationshiptoinsured:
+                                default: Self
+                                description: This patient's relationship to the policy
+                                  holder (text).
+                                type: string
+                              relationshiptoinsuredid:
+                                default: 1
+                                description: This patient's relationship to the policy
+                                  holder (as an ID).  See <a href="/workflows/patient-relationship-mapping">the
+                                  mapping</a>.
+                                type: integer
+                              repricername:
+                                description: CASE POLICY FIELD - Name for the repricer.  Only
+                                  available for worker's comp case policies.
+                                type: string
+                              repricerphone:
+                                description: CASE POLICY FIELD - Phone number for
+                                  the repricer.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                              sequencenumber:
+                                description: 1 = primary, 2 = secondary, 3 = tertiary,
+                                  etc.  Must have a primary before a secondary and
+                                  a secondary before a tertiary, etc.
+                                type: integer
+                              slidingfeeplanid:
+                                description: If the patient is on a sliding fee plan,
+                                  this is the ID of that plan.  See /slidingfeeplans.
+                                type: integer
+                              stateofreportedinjury:
+                                description: CASE POLICY FIELD - Two-letter state
+                                  abbreviation for the state this injury was reported
+                                  in.  Only available for worker's comp case policies.
+                                type: string
+                              workcompboardnumber:
+                                description: CASE POLICY FIELD - Worker Compensation
+                                  Board Number.  Only available for worker's comp
+                                  case policies.
+                                type: string
+                            type: object
+                          type: array
+                        lastmodified:
+                          description: 'The date/time when the appointment was last
+                            modified. Note: It may be possible for the lastmodified
+                            field to be updated without any other field in the API
+                            call being changed. This occurs when appointment fields
+                            not included in the API output are updated.'
+                          type: string
+                        lastmodifiedby:
+                          description: The user who last modified the appointment.
+                          type: string
+                        patient:
+                          description: See /patients for details
+                          type: string
+                        patientappointmenttypename:
+                          description: The patient-friendly name for this appointment
+                            type.  Note that this may <strong>not</strong> be the
+                            same as the booked appointment because of "generic" slots.
+                          type: string
+                        patientid:
+                          description: The athenaNet patient ID for this appointment
+                          type: string
+                        patientlocationid:
+                          description: The location of the patient. See /patientlocation
+                            for practice list. Only present for appointments with
+                            Clinicals that have been checked in.
+                          type: string
+                        providerid:
+                          type: string
+                        referringproviderid:
+                          description: The referring provider ID.
+                          type: string
+                        reminderdetails:
+                          description: Detailed ReminderCall information made for
+                            this appointment.
+                          items:
+                            properties:
+                              calltime:
+                                description: Date and time of the call attempt.
+                                type: string
+                              messageresultid:
+                                description: Id of the message attempt.
+                                type: string
+                              messagetype:
+                                description: The type of message that was attempted.
+                                type: string
+                              result:
+                                description: A description of what happened during
+                                  the call attempt.
+                                type: string
+                            type: object
+                          type: array
+                        renderingproviderid:
+                          description: The rendering provider ID.
+                          type: string
+                        rescheduledappointmentid:
+                          description: When an appointment is rescheduled, this is
+                            the ID of the replacement appointment.
+                          type: string
+                        scheduledby:
+                          description: The username who scheduled the appointment.
+                          type: string
+                        scheduleddatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss; Eastern time)
+                            that this appointment was scheduled.
+                          type: string
+                        startcheckin:
+                          description: The timestamp when the appointment started
+                            the check in process. If this is set while an appointment
+                            is still in status 'f', it means that the check-in process
+                            has begun but is not yet completed.
+                          type: string
+                        startcheckoutdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the appointment
+                            check-out was started.
+                          type: string
+                        starttime:
+                          description: As HH:MM (where HH is the 0-23 hour and MM
+                            is the minute).  This time is local to the department.
+                          type: string
+                        stopcheckin:
+                          description: The timestamp when the check-in process was
+                            finished for this appointment.
+                          type: string
+                        stopexamdatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the exam
+                            was completed.
+                          type: string
+                        stopintakedatetime:
+                          description: The time (mm/dd/yyyy hh24:mi:ss) that the intake
+                            process was completed.
+                          type: string
+                        stopsignoff:
+                          description: 'The timestamp when the sign-off process was
+                            finished for this appointment. The STOPSIGNOFF property
+                            will only be visible if the following rollout toggle is
+                            ENABLED : CLUCT_315_MDP_UCTB'
+                          type: string
+                        suggestedoverbooking:
+                          description: High risk score for Smart Scheduling
+                          type: string
+                        supervisingproviderid:
+                          description: The supervising provider ID.
+                          type: integer
+                        templateappointmentid:
+                          description: The original appointment ID. This is useful
+                            if an appointment has been cancelled and you want to find
+                            the original ID.
+                          type: string
+                        templateappointmenttypeid:
+                          description: The original appointment type for this slot.
+                            This can change for generic appointments.
+                          type: string
+                        urgentyn:
+                          description: Urgent flag for the appointment.
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        useexpectedprocedurecodes:
+                          description: An array of expected procedure codes attached
+                            to this appointment.
+                          items:
+                            properties:
+                              procedurecode:
+                                description: The ID of the code.
+                                type: string
+                              procedurecodedescription:
+                                description: The description of the code.
+                                type: string
+                            type: object
+                          type: array
+                        visitid:
+                          description: Visit Id of the appointment.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmentsReport
+      x-scopes: []
+      tags:
+      - Appointments
+      - Report on Appointments Booked via API
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

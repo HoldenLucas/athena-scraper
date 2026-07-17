@@ -1,0 +1,283 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/prescription:
+    post:
+      summary: Create new prescription order for given encounter
+      description: Create new prescription order record for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentid:
+                    description: The ID of the document created.
+                    type: integer
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersPrescription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - diagnosissnomedcode
+              properties:
+                ndc:
+                  type: string
+                  description: The NDC of the medication to order. You may use this
+                    instead of ordertypeid
+                duration:
+                  type: number
+                  description: Sig field. The numerical amount of days to take this
+                    medication for.
+                rxnormid:
+                  type: string
+                  description: The RxNormID of the medication to order. You may use
+                    this instead of ordertypeid. If the RxNormID maps to more than
+                    one possible orderable medication, it will be rejected.
+                frequency:
+                  type: string
+                  description: Sig field. How often to take doses of the medication.
+                    Get the list of available values from /reference/order/prescription/frequencies.
+                facilityid:
+                  type: integer
+                  description: The athena ID of the pharmacy you want to send the
+                    prescription to. Defaults to the patient default pharmacy. You
+                    can use this or the pharmacy NCPDP ID but not both. Get a localized
+                    list using /chart/configuration/facilities.
+                ordertypeid:
+                  type: integer
+                  description: The athena ID of the medication to order. Must be an
+                    orderable medication. We currently do not support adding of compound
+                    or unlisted medicaitons. Get the IDs using /reference/order/prescription.
+                    You may use this, an NDC, or a RxNormID.
+                externalnote:
+                  type: string
+                  description: An additional note to the patient.
+                orderingmode:
+                  enum:
+                  - ''
+                  - PRESCRIBE
+                  - ADMINISTER
+                  - DISPENSE
+                  type: string
+                  default: PRESCRIBE
+                  description: Selects whether you wish to prescribe, administer,
+                    or dispense this medication.
+                pharmacynote:
+                  type: string
+                  description: A note to send to the pharmacy.
+                providernote:
+                  type: string
+                  description: An internal note for the provider or staff.
+                administernote:
+                  type: string
+                  description: An additional note to the provider or staff for administration.
+                dosagequantity:
+                  type: number
+                  description: Sig field. The numerical amount of medication to take.
+                pharmacyncpdpid:
+                  type: string
+                  description: The NCPDP ID of the pharmacy you want to send the prescription
+                    to. You can use this instead of the facilityid, but not both.
+                unstructuredsig:
+                  type: string
+                  description: The unstructured sig. If this field is set please leave
+                    all other sig fields blank.
+                dispenseaswritten:
+                  type: boolean
+                  description: Whether the prescription should be marked as dispense
+                    as written (i.e., no substitutions without consulting the doctor).
+                numrefillsallowed:
+                  type: integer
+                  description: The number of refills allowed for this prescription.
+                    Defaults to 0.
+                dosagequantityunit:
+                  type: string
+                  description: Sig field. The unit of the dosage quantity, and required
+                    if that is passed in. Get the list of available values from /reference/order/prescription/dosagequantityunits.
+                    Most values are not valid for each individual medication.
+                diagnosissnomedcode:
+                  type: integer
+                  description: The SNOMED code for diagnosis this order is for.
+                additionalinstructions:
+                  enum:
+                  - ''
+                  - before meal(s)
+                  - with meal(s)
+                  - after meal(s)
+                  - in the morning
+                  - at noon
+                  - in the evening
+                  - at dinner
+                  - at bedtime
+                  - around the clock
+                  - as directed
+                  - as needed
+                  type: string
+                  description: Sig field. Additional modifiers for when to take the
+                    medication.
+        required: true
+      tags:
+      - Encounter
+      - Order Prescription
+  /v1/{practiceid}/reference/order/prescription/dosagequantityunits:
+    get:
+      summary: Get list of units for dosage quantities
+      description: Retrieves a list of dosage units configured in the system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  quantityunit:
+                    description: The unit for dosage quantities.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderPrescriptionDosagequantityunits
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Prescription
+  /v1/{practiceid}/reference/order/prescription/frequencies:
+    get:
+      summary: Get list of dosage frequencies
+      description: Retrieves a list of dosage frequencies configured in the system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  frequency:
+                    description: dosage frequency
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderPrescriptionFrequencies
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Prescription
+  /v1/{practiceid}/reference/order/prescription:
+    get:
+      summary: Get list of orderable medication
+      description: Retrieves a list of medications configured in the system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderPrescription
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Prescription
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

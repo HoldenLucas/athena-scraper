@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/documents/orders/referral/{referraldocumentid}/close:
+    put:
+      summary: Closes a referral order
+      description: Closes a referral order. Must be in SUBMIT, SUBMITTED, or FOLLOWUP
+        status
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: referraldocumentid
+        schema:
+          type: integer
+        required: true
+        description: referraldocumentid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: putPracticeidPatientsPatientidDocumentsOrdersReferralReferraldocumentidClose
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Update Referral Order
+  /v1/{practiceid}/patients/{patientid}/documents/orders/referral/{referraldocumentid}/reopen:
+    put:
+      summary: Reopens a closed referral order
+      description: Reopens a closed referral order
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: referraldocumentid
+        schema:
+          type: integer
+        required: true
+        description: referraldocumentid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: putPracticeidPatientsPatientidDocumentsOrdersReferralReferraldocumentidReopen
+      x-scopes: []
+      tags:
+      - Forms and Documents
+      - Update Referral Order
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

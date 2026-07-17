@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/procedure:
+    post:
+      summary: Create new procedure or surgery order for given encounter
+      description: Creates a new order for surgery or a procedures
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  documentid:
+                    type: integer
+                    description: The ID of the document created.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersProcedure
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                dateofprocedure:
+                  description: The date of the surgery/procedure order.
+                  type: string
+                diagnosissnomedcode:
+                  description: The SNOMED code for diagnosis this order is for.
+                  type: integer
+                facilityid:
+                  description: The athena ID of the facility you want to send the
+                    order to. Get a localized list using /chart/configuration/facilities.
+                  type: integer
+                facilitynote:
+                  description: A note to send to the performing provider or facility.
+                  type: string
+                futuresubmitdate:
+                  description: The date the order should be performed or sent. Defaults
+                    to today.
+                  type: string
+                highpriority:
+                  description: If true, then the order should be sent STAT.
+                  type: boolean
+                insurances:
+                  description: Insurances used in prior authorization of the order.
+                    Practices with the Authorization Management Service enabled cannot
+                    set insurances; filling in this field will result in an error
+                    if that practice setting is ON.
+                  items:
+                    properties:
+                      additionalinformation:
+                        description: Additional information note.
+                        type: string
+                      authorizationnumber:
+                        description: The authorization number.
+                        type: string
+                      effectiveenddate:
+                        description: Effective end date.
+                        type: string
+                      effectivestartdate:
+                        description: Effective start date.
+                        type: string
+                      patientinsuranceid:
+                        description: The patient insurance ID for this authorization.
+                        type: integer
+                      status:
+                        description: 'The authorization status: APPROVED, DENIED,
+                          or NOTREQUIRED.'
+                        enum:
+                        - ''
+                        - ''
+                        - NOTREQUIRED
+                        - APPROVED
+                        - DENIED
+                        type: string
+                    type: object
+                  required:
+                  - patientinsuranceid
+                  type: array
+                ordertypeid:
+                  description: The athena ID of the surgery/procedure order type.
+                  type: integer
+                placeofserviceid:
+                  description: 'The place of service of the order. Based on CMS Place
+                    of Service Codes. ID must be 02, 10, 11, 12, 19, 21, 22, or 24
+                    or else this will error. The mapping of IDs to names is as follows.
+                    02: TELEHEALTH - OTHER, 10: TELEHEALTH - PATIENTS HOME, 11: OFFICE,
+                    12: PATIENTS HOME, 19: OFF CAMPUS-OUTPATIENT HOSPITAL, 21: INPATIENT
+                    HOSPITAL, 22: ON CAMPUS-OUTPATIENT HOSPITAL, 24: AMBULATORY SURGICAL
+                    CENTER.'
+                  enum:
+                  - ''
+                  - 2
+                  - 10
+                  - 11
+                  - 12
+                  - 19
+                  - 21
+                  - 22
+                  - 24
+                  type: integer
+                procedurecodes:
+                  description: The list of procedure codes.
+                  items:
+                    type: string
+                  type: array
+                providernote:
+                  description: An internal note for the provider or staff.
+                  type: string
+              required:
+              - diagnosissnomedcode
+              - ordertypeid
+              type: object
+        required: true
+      tags:
+      - Encounter
+      - Order Procedures and Surgeries
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

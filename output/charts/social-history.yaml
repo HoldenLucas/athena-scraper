@@ -1,0 +1,490 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/socialhistory:
+    get:
+      summary: Get patient's social history data
+      description: Retrieves the social history information of a specific patient
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: patientid
+        in: path
+        name: patientid
+        required: true
+        schema:
+          type: integer
+      - description: Include the SOGI data of the patient.
+        in: query
+        name: showsogi
+        required: false
+        schema:
+          type: boolean
+      - description: The athenaNet department id.
+        in: query
+        name: departmentid
+        required: true
+        schema:
+          type: integer
+      - description: Include questions that the provider did not perform.
+        in: query
+        name: shownotperformedquestions
+        required: false
+        schema:
+          type: boolean
+      - description: The intended audience for the data. If given, questions marked
+          as confidential for this audience will be withheld.
+        in: query
+        name: recipientcategory
+        required: false
+        schema:
+          enum:
+          - PATIENT
+          - EXTERNALPROVIDER
+          type: string
+          x-enumDescriptions:
+          - Patient
+          - Provider outside this practice
+      - description: Include questions where there is no current answer.
+        in: query
+        name: showunansweredquestions
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sogi:
+                    type: object
+                    description: Object that contains SOGI data of the patient
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          description: Unique key for this question.
+                        note:
+                          type: string
+                          description: The notes associated with this question.
+                        answer:
+                          type: string
+                          description: The patient answer to this question
+                        created:
+                          type: string
+                          description: The date this answer was created.
+                        ordering:
+                          type: integer
+                          description: Display ordering for this question within this
+                            template
+                        question:
+                          type: string
+                          description: Human readable question
+                        createdby:
+                          type: string
+                          description: Username of the provider who created the answer
+                            to this question.
+                        deprecated:
+                          type: string
+                          description: "A value of 1 indicates that the question has\
+                            \ been deprecated. A deprecated question is a\n\t\t\t\t\
+                            \t\t\t\tquestion that was previously supported, and is\
+                            \ now considered obsolete for any number of reasons;\n\
+                            \t\t\t\t\t\t\t\tit could've been replaced with another\
+                            \ question, the nature of the question is no longer relevant,\n\
+                            \t\t\t\t\t\t\t\tetc. While these questions may still be\
+                            \ answered, the use of them is not recommended, and the\n\
+                            \t\t\t\t\t\t\t\tquestion will display as \"deleted\" in\
+                            \ the client's workflow."
+                        questionid:
+                          type: integer
+                          description: (Deprecated) Unique ID for this question within
+                            this template.
+                        templateid:
+                          type: integer
+                          description: The template where this question is listed
+                        answercodes:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              code:
+                                type: string
+                                description: Code for the answer to this question.
+                              codeset:
+                                type: string
+                                description: codeset for the above code.
+                          description: List of codes for the answer selected to this
+                            question.
+                        lastupdated:
+                          type: string
+                          description: The date this answer was last updated (or first
+                            answered if never updated).
+                        lastupdatedby:
+                          type: string
+                          description: Username of the provider who last modified
+                            the answer to this question.
+                        readableanswer:
+                          type: string
+                          description: The patient answer to this question in a readable
+                            format
+                        notelastupdatedby:
+                          type: string
+                          description: The username of the user who last updated the
+                            note.
+                        notperformedreason:
+                          type: string
+                          description: The reason this question was not performed.
+                        notelastupdateddate:
+                          type: string
+                          description: The date this note was last updated (or first
+                            added if never updated).
+                    description: The social history questions and answers for this
+                      patient.
+                  templates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        templateid:
+                          type: integer
+                          description: ID for this social history template
+                        templatename:
+                          type: string
+                          description: Name for this social history template
+                    description: The selected social history templates for this patient.
+                  sectionnote:
+                    type: string
+                    description: A section-wide note.
+                  sectionnotelastupdatedby:
+                    type: string
+                    description: The username of the user who last modified the section
+                      note.
+                  sectionnotelastupdateddate:
+                    type: string
+                    description: The date and time the section note was last modified.
+          description: Success
+      operationId: getPracticeidChartPatientidSocialhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Social History
+    put:
+      summary: Update patient's social history data
+      description: Modifies the social history information of a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: On failure, the reason for failure
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidSocialhistory
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        description: The question key that identifies this question
+                      note:
+                        type: string
+                        description: The note attached to this answer
+                      answer:
+                        type: string
+                        description: The answer to the question. A blank answer will
+                          delete the existing answer and the question will not show
+                          up in succeeding GETs unless includeunansweredquestions=true.
+                          An invalid answer to a question will generate an error,
+                          and none of the answers will be saved.
+                      delete:
+                        type: boolean
+                        description: Remove the answer to this question. Equivalent
+                          to submitting a null answer.
+                      notperformedreason:
+                        type: object
+                        properties:
+                          code:
+                            type: integer
+                            description: The SNOMED code for the not performed reason,
+                              or 1 if there is no reason
+                        description: The reason the question was not performed.
+                  required:
+                  - key
+                  description: The list of question/answer pairs to be submitted.
+                    A JSON array of questions mimicking <a href="https://docs.athenahealth.com/api/api-ref/social-history">the
+                    inputs</a> described in the PUT call. Only the questions submitted
+                    will be added/updated/deleted.
+                sectionnote:
+                  type: string
+                  description: A section-wide note
+                departmentid:
+                  type: integer
+                  description: The department for this patient. A patient may have
+                    multiple charts, and the department determines which chart to
+                    retrieve.
+        required: true
+      tags:
+      - Chart
+      - Social History
+  /v1/{practiceid}/chart/{patientid}/socialhistory/templates:
+    get:
+      summary: Get patient's social history templates
+      description: Retrieves a list of selected social history templates for specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  templateid:
+                    description: ID for this social history template
+                    type: integer
+                  templatename:
+                    description: Name for this social history template
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidSocialhistoryTemplates
+      x-scopes: []
+      tags:
+      - Chart
+      - Social History
+    put:
+      summary: Set the list of social history questions for this patient.
+      description: No description
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    description: On failure, the reason for failure
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartPatientidSocialhistoryTemplates
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - templateids
+              - departmentid
+              properties:
+                templateids:
+                  type: string
+                  description: A comma separated list of template IDs to display in
+                    the social history section.
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+        required: true
+      tags:
+      - Chart
+      - Social History
+  /v1/{practiceid}/chart/configuration/socialhistory:
+    get:
+      summary: Get list of social history questions and templates used by this practice
+      description: Retrieves a list of configured social history templates and questions
+        for this practice.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  questions:
+                    description: List of questions contained by this template
+                    items:
+                      properties:
+                        deprecated:
+                          description: "A value of 1 indicates that the question has\
+                            \ been deprecated. A deprecated question is a\n\t\t\t\t\
+                            \t\t\t\tquestion that was previously supported, and is\
+                            \ now considered obsolete for any number of reasons;\n\
+                            \t\t\t\t\t\t\t\tit could've been replaced with another\
+                            \ question, the nature of the question is no longer relevant,\n\
+                            \t\t\t\t\t\t\t\tetc. While these questions may still be\
+                            \ answered, the use of them is not recommended, and the\n\
+                            \t\t\t\t\t\t\t\tquestion will display as \"deleted\" in\
+                            \ the client's workflow."
+                          type: string
+                        inputtype:
+                          description: Input type for this question. Valid values
+                            are DROPDOWN, NUMERIC, FREETEXT, YESNO, and DATE
+                          type: string
+                        key:
+                          description: Unique key for this question.
+                          type: string
+                        options:
+                          description: If the inputtype is DROPDOWN, this contains
+                            the list of key => value selections.
+                          type: string
+                        ordering:
+                          description: Display ordering for this question within this
+                            template
+                          type: integer
+                        question:
+                          description: Human readable question
+                          type: string
+                        questionid:
+                          description: (Deprecated) Unique ID for this question within
+                            this template.
+                          type: integer
+                      type: object
+                    type: array
+                  templateid:
+                    description: ID for this social history template
+                    type: integer
+                  templatename:
+                    description: Name for this social history template
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartConfigurationSocialhistory
+      x-scopes: []
+      tags:
+      - Chart
+      - Social History
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

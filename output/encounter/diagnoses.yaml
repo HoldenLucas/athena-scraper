@@ -1,0 +1,508 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/diagnoses:
+    post:
+      summary: Create new diagnosis for given encounter
+      description: Create a new record of diagnoses for the specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: Brief description for this SNOMED Code.
+                    type: string
+                  diagnosisid:
+                    description: The Athena ID for the diagnosis created by the POST
+                      action.
+                    type: integer
+                  errormessage:
+                    description: If not successful, will contain error message.
+                    type: string
+                  icdcodes:
+                    description: List of relevant ICD codes for this diagnosis.
+                    items:
+                      properties:
+                        code:
+                          description: Actual ICD code for this diagnosis.
+                          type: string
+                        codeset:
+                          description: Codeset for this code (ICD9 or ICD10).
+                          type: string
+                        description:
+                          description: Brief description for this code.
+                          type: string
+                      type: object
+                    type: array
+                  imodiagnosislist:
+                    description: List of relevant IMO Entities for this diagnosis.
+                    items:
+                      properties:
+                        icdcodes:
+                          description: List of relevant ICD codes for this diagnosis.
+                          items:
+                            properties:
+                              code:
+                                description: Unstripped ICD code for this diagnosis.
+                                type: string
+                              codeset:
+                                description: Codeset for this code (ICD9 or ICD10).
+                                type: string
+                              description:
+                                description: Brief description for this code.
+                                type: string
+                            type: object
+                          type: array
+                        imocode:
+                          properties:
+                            code:
+                              description: The IMO code for this diagnosis
+                              type: string
+                            description:
+                              description: Brief description for the IMO code.
+                              type: string
+                            laterality:
+                              description: Laterality of the IMO code
+                              type: string
+                            needsrefinement:
+                              description: Whether the IMO diagnosis need refinement
+                              type: bool
+                          type: object
+                        patientfacingdescription:
+                          description: The patient facing description of the IMO Diagnosis,
+                            if any.
+                          type: string
+                        providerfacingdescription:
+                          description: The provider facing description of the IMO
+                            Diagnosis, if any.
+                          type: string
+                        snomedcodes:
+                          description: List of relevant SNOMED codes for this diagnosis.
+                          items:
+                            properties:
+                              code:
+                                description: Actual SNOMED code for this diagnosis.
+                                type: string
+                              codeset:
+                                description: Codeset for this code.
+                                type: string
+                              description:
+                                description: Brief description for this code.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  laterality:
+                    description: The laterality of the SNOMED Code, if any.
+                    type: string
+                  note:
+                    description: The note entered for this diagnosis.
+                    type: string
+                  ranking:
+                    description: Used to specify the position of this diagnosis in
+                      the diagnoses section.
+                    type: integer
+                  snomedcode:
+                    description: SNOMED Code for this diagnosis.
+                    type: integer
+                  success:
+                    description: True if successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  supportslaterality:
+                    description: If true, then laterality may chosen for the diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridDiagnoses
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - snomedcode
+              properties:
+                note:
+                  type: string
+                  description: The note to be entered for this diagnosis.
+                icd9codes:
+                  type: array
+                  items:
+                    type: string
+                  description: ICD-9 code(s) for this diagnosis.
+                icd10codes:
+                  type: array
+                  items:
+                    type: string
+                  description: ICD-10 code(s) for this diagnosis.
+                laterality:
+                  enum:
+                  - ''
+                  - LEFT
+                  - RIGHT
+                  - BILATERAL
+                  type: string
+                  description: Laterality of the SNOMED code.
+                snomedcode:
+                  type: integer
+                  description: SNOMED code for this diagnosis.
+        required: true
+      tags:
+      - Encounter
+      - Diagnoses
+    get:
+      summary: Get list of diagnoses for the given encounter
+      description: Retrieve a list of diagnoses for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  description:
+                    description: Brief description for this SNOMED Code.
+                    type: string
+                  diagnosisid:
+                    description: Athena ID for this diagnosis.
+                    type: integer
+                  icdcodes:
+                    description: List of relevant ICD codes for this diagnosis.
+                    items:
+                      properties:
+                        code:
+                          description: Actual ICD code for this diagnosis.
+                          type: string
+                        codeset:
+                          description: Codeset for this code (ICD9 or ICD10).
+                          type: string
+                        description:
+                          description: Brief description for this code.
+                          type: string
+                      type: object
+                    type: array
+                  imodiagnosislist:
+                    description: This is a JSON structure containing IMO data relevant
+                      to this diagnosis. If excluded, it will be populated with the
+                      default IMO data for this SNOMED.
+                    items:
+                      properties:
+                        dsm5icd10:
+                          description: The DSM-5 ICD-10 code relevant to this diagnosis,
+                            if any.
+                          properties:
+                            code:
+                              description: Unstripped ICD code for this diagnosis.
+                              type: string
+                            codeset:
+                              description: Codeset for this code (ICD10).
+                              type: string
+                            description:
+                              description: Brief description for this code.
+                              type: string
+                          type: object
+                        icdcodes:
+                          description: List of relevant ICD codes for this diagnosis.
+                          items:
+                            properties:
+                              code:
+                                description: Unstripped ICD code for this diagnosis.
+                                type: string
+                              codeset:
+                                description: Codeset for this code (ICD9 or ICD10).
+                                type: string
+                              description:
+                                description: Brief description for this code.
+                                type: string
+                            type: object
+                          type: array
+                        imocode:
+                          properties:
+                            code:
+                              description: The IMO code for this diagnosis
+                              type: string
+                            description:
+                              description: Brief description for the IMO code.
+                              type: string
+                            laterality:
+                              description: Laterality of the IMO code
+                              type: string
+                            needsrefinement:
+                              description: Whether the IMO diagnosis need refinement
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                          type: object
+                        imoentityid:
+                          description: The Athena ID for this IMO entity
+                          type: integer
+                        patientfacingdescription:
+                          description: The patient facing description of the IMO diagnosis,
+                            if any.
+                          type: string
+                        providerfacingdescription:
+                          description: The provider facing description of the IMO
+                            diagnosis, if any.
+                          type: string
+                        snomedcodes:
+                          description: List of relevant SNOMED codes for this diagnosis.
+                          items:
+                            properties:
+                              code:
+                                description: Actual SNOMED code for this diagnosis.
+                                type: string
+                              codeset:
+                                description: Codeset for this code.
+                                type: string
+                              description:
+                                description: Brief description for this code.
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  laterality:
+                    description: The laterality of the SNOMED Code, if any.
+                    type: string
+                  note:
+                    description: The note entered for this diagnosis.
+                    type: string
+                  ranking:
+                    description: Used to specify the position of this diagnosis in
+                      the diagnoses section.
+                    type: integer
+                  snomedcode:
+                    description: SNOMED Code for this diagnosis.
+                    type: integer
+                  supportslaterality:
+                    description: If true, then laterality may chosen for the diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartEncounterEncounteridDiagnoses
+      x-scopes: []
+      tags:
+      - Encounter
+      - Diagnoses
+  /v1/{practiceid}/chart/encounter/{encounterid}/diagnoses/{diagnosisid}:
+    put:
+      summary: Update selected diagnosis for given encounter
+      description: Modifies a diagnosis record for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: diagnosisid
+        schema:
+          type: integer
+        required: true
+        description: diagnosisid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If not successful, will contain error message.
+                    type: string
+                  success:
+                    description: True if successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  supportslaterality:
+                    description: If true, then laterality may chosen for the diagnosis.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidChartEncounterEncounteridDiagnosesDiagnosisid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - snomedcode
+              properties:
+                note:
+                  type: string
+                  description: The note to be entered for this diagnosis.
+                icd9codes:
+                  type: array
+                  items:
+                    type: string
+                  description: ICD-9 code(s) for this diagnosis.
+                icd10codes:
+                  type: array
+                  items:
+                    type: string
+                  description: ICD-10 code(s) for this diagnosis.
+                laterality:
+                  enum:
+                  - ''
+                  - LEFT
+                  - RIGHT
+                  - BILATERAL
+                  type: string
+                  description: Laterality of the SNOMED code.
+                snomedcode:
+                  type: integer
+                  description: SNOMED code for this diagnosis.
+        required: true
+      tags:
+      - Encounter
+      - Diagnoses
+    delete:
+      summary: Delete selected diagnosis for given encounter
+      description: Delete a record of a specific diagnoses
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: path
+        name: diagnosisid
+        schema:
+          type: integer
+        required: true
+        description: diagnosisid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If not successful, will contain error message.
+                    type: string
+                  success:
+                    description: True if successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidChartEncounterEncounteridDiagnosesDiagnosisid
+      x-scopes: []
+      tags:
+      - Encounter
+      - Diagnoses
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

@@ -1,0 +1,478 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/appointmenttypes:
+    post:
+      summary: Add appointment type
+      description: Create a new appointment type
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmenttypeid:
+                    description: The ID of the appointment type that was created.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidAppointmenttypes
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - patient
+              - name
+              - shortname
+              - duration
+              properties:
+                name:
+                  type: string
+                  description: The name of the appointment type.  Maximum length of
+                    30 characters.
+                generic:
+                  type: boolean
+                  description: If set to true, this type serves as a "generic" type,
+                    that will match any type when searching.  Defaults to false.
+                patient:
+                  type: boolean
+                  description: If set to true, this type serves as a "patient" type,
+                    meaning that is is a type that can be used for booking patients.
+                    If set to false, then it this type will not be used for patient
+                    (e.g. "Lunch" or "Vacation").  Non-patient types are mostly used
+                    to reserving time for providers to not see patients.
+                duration:
+                  type: integer
+                  description: The expected duration, in minutes, of the appointment
+                    type.  Note, this value cannot be changed after creation, so please
+                    choose carefully.
+                shortname:
+                  type: string
+                  description: The short name code of the appointment type.  Maximum
+                    length of 4 characters. Used for making schedule templates.  Note,
+                    this value cannot be changed after creation, so please choose
+                    carefully.
+                templatetypeonly:
+                  type: boolean
+                  description: If set to true, this type serves as a "template-only"
+                    type, meaning that it can be used for building schedule templates,
+                    but cannot be used for booking appointments (i.e. another type
+                    must be chosen). Defaults to false.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Types
+    get:
+      summary: Get list of appointment types
+      description: Retrieves list of the type of appointment available in the practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: hidegeneric
+        schema:
+          type: boolean
+        required: false
+        description: By default, we show both generic and non-generic types. Setting
+          this to true will hide the generic types (and show only non-generic types).
+      - in: query
+        name: showappointmenttypeclasses
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, returns the appointment type class ID and name
+          for each appointment type.
+      - in: query
+        name: providerids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: A list of providerids which when passed will filter the appointmenttypes
+          having said providers. This is used along with departmentids to fetch department/provider
+          specific appointmenttypes.
+      - in: query
+        name: hidetemplatetypeonly
+        schema:
+          type: boolean
+        required: false
+        description: By default, we show both "template only" and not-template only
+          types. Setting this to true, the results will omit template only types.
+          ("Template only" is a setting that makes the type appear in schedules, but
+          forces users to select a non-template type upon booking.)
+      - in: query
+        name: departmentids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: A list of departmentids which when passed will filter the appointmenttypes
+          having said departments. This is used along with providerids to fetch department/provider
+          specific appointmenttypes.
+      - in: query
+        name: hidenonpatient
+        schema:
+          type: boolean
+        required: false
+        description: This defaults to true if not specified, and thus will hide non-patient
+          facing types.  Setting this to false would thus show non-patient facing
+          types.
+      - in: query
+        name: hidenongeneric
+        schema:
+          type: boolean
+        required: false
+        description: By default, we show both generic and non-generic types. Setting
+          this to true will hide non-generic types (and show only generic types).
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmenttypeclassid:
+                    description: ID of the class which this appointment type falls
+                      under. Only returned if SHOWAPPOINTMENTTYPECLASSES is marked
+                      true.
+                    type: string
+                  appointmenttypeclassname:
+                    description: Name of the class which this appointment type falls
+                      under. Only returned if SHOWAPPOINTMENTTYPECLASSES is marked
+                      true.
+                    type: string
+                  appointmenttypeid:
+                    description: The appointment type ID.
+                    type: integer
+                  block schedule:
+                    description: The minimum number of hours before an appointment
+                      that a patient can schedule or cancel for a specific practice.
+                      Note that this data is valued in hours.
+                    type: integer
+                  createencounteroncheckin:
+                    description: If true, then this appointments of this type will
+                      generated an encounter when checked in, with certain conditions.
+                      It's rather complex, but the rendering provider on the appointment
+                      must also have the create encounter feature set, the department
+                      must have athena Clinicals enabled, and other rarer and less
+                      visible settings.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  departmentid:
+                    description: ID of the department.
+                    type: integer
+                  duration:
+                    description: Expected duration of the appointment in minutes.
+                    type: integer
+                  genericyn:
+                    description: If true, this type is a "generic" type able to be
+                      filled with other types of appointments.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  groupyn:
+                    description: If true, this is a group appointment type.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  name:
+                    description: The name of the appointment type.
+                    type: string
+                  patientdisplayname:
+                    description: Patient friendly appointment type name. Defaults
+                      to regular name.
+                    type: string
+                  patientyn:
+                    description: If true, this type is a patient-facing type.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  providerid:
+                    description: ID of the provider.
+                    type: integer
+                  shortname:
+                    description: The short name code of the appointment type.
+                    type: string
+                  templatetypeonlyyn:
+                    description: If true, this type is a "template-only" type, and
+                      must be filled with a different appointment type upon booking.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidAppointmenttypes
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Types
+  /v1/{practiceid}/appointmenttypes/{appointmenttypeid}:
+    get:
+      summary: Get one appointment type.
+      description: Raw appointment types for this practice.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmenttypeid
+        schema:
+          type: integer
+        required: true
+        description: appointmenttypeid
+      - in: query
+        name: showappointmenttypeclasses
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, returns the appointment type class ID and name
+          for each appointment type.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: The name of the appointment type.
+                  groupyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this is a group appointment type.
+                  duration:
+                    type: integer
+                    description: Expected duration of the appointment in minutes.
+                  genericyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this type is a "generic" type able to be
+                      filled with other types of appointments.
+                  patientyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this type is a patient-facing type.
+                  shortname:
+                    type: string
+                    description: The short name code of the appointment type.
+                  providerid:
+                    type: integer
+                    description: ID of the provider.
+                  departmentid:
+                    type: integer
+                    description: ID of the department.
+                  block schedule:
+                    type: integer
+                    description: The minimum number of hours before an appointment
+                      that a patient can schedule or cancel for a specific practice.
+                      Note that this data is valued in hours.
+                  appointmenttypeid:
+                    type: integer
+                    description: The appointment type ID.
+                  patientdisplayname:
+                    type: string
+                    description: Patient friendly appointment type name. Defaults
+                      to regular name.
+                  templatetypeonlyyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, this type is a "template-only" type, and
+                      must be filled with a different appointment type upon booking.
+                  appointmenttypeclassid:
+                    type: string
+                    description: ID of the class which this appointment type falls
+                      under. Only returned if SHOWAPPOINTMENTTYPECLASSES is marked
+                      true.
+                  appointmenttypeclassname:
+                    type: string
+                    description: Name of the class which this appointment type falls
+                      under. Only returned if SHOWAPPOINTMENTTYPECLASSES is marked
+                      true.
+                  createencounteroncheckin:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: If true, then this appointments of this type will
+                      generated an encounter when checked in, with certain conditions.
+                      It's rather complex, but the rendering provider on the appointment
+                      must also have the create encounter feature set, the department
+                      must have athena Clinicals enabled, and other rarer and less
+                      visible settings.
+          description: Success
+      operationId: getPracticeidAppointmenttypesAppointmenttypeid
+      x-scopes: []
+      tags:
+      - Appointments
+      - Appointment Types
+    put:
+      summary: Update a appointment type entry.
+      description: Generic success/error response
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: appointmenttypeid
+        schema:
+          type: integer
+        required: true
+        description: appointmenttypeid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidAppointmenttypesAppointmenttypeid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the appointment type.  Maximum length of
+                    30 characters.
+                generic:
+                  type: boolean
+                  description: If set to true, this type serves as a "generic" type,
+                    that will match any type when searching.  Defaults to false.
+                patient:
+                  type: boolean
+                  description: If set to true, this type serves as a "patient" type,
+                    meaning that is is a type that can be used for booking patients.
+                    If set to false, then it this type will not be used for patient
+                    (e.g. "Lunch" or "Vacation").  Non-patient types are mostly used
+                    to reserving time for providers to not see patients.
+                templatetypeonly:
+                  type: boolean
+                  description: If set to true, this type serves as a "template-only"
+                    type, meaning that it can be used for building schedule templates,
+                    but cannot be used for booking appointments (i.e. another type
+                    must be chosen). Defaults to false.
+        required: true
+      tags:
+      - Appointments
+      - Appointment Types
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

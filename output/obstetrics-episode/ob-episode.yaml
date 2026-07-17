@@ -1,0 +1,1029 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/obepisodes:
+    get:
+      summary: Get patient's list of OB episodes
+      description: Retrieves a list of OB Episodes for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: Department ID
+      - in: query
+        name: showclosed
+        schema:
+          type: boolean
+        required: false
+        description: Designates whether we will also show closed obepisodes. The default
+          value is false.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  closeddatetime:
+                    description: The date when the OB episode was closed.
+                    type: string
+                  closereason:
+                    description: 'The reason for the clinical episode''s closure.  Options
+                      include: Pregnancy Completed, Patient Transferred, Closed by
+                      AthenaNet etc...'
+                    type: string
+                  createdby:
+                    description: The username of the user who created this OB episode.
+                    type: string
+                  createddatetime:
+                    description: The date/time this OB episode was created.
+                    type: string
+                  deliverydate:
+                    description: The actual delivery date.
+                    type: string
+                  edddate:
+                    description: The estimated delivery date.
+                    type: string
+                  initialexamdate:
+                    description: The initial exam date.
+                    type: string
+                  lastmodifiedby:
+                    description: The username of the user who last modified this OB
+                      episode.
+                    type: string
+                  lastmodifieddatetime:
+                    description: The date this OB episode was last modified
+                    type: string
+                  obepisodeid:
+                    description: The ID of the OB episode
+                    type: integer
+                  outcome:
+                    description: An array of outcomes, where each outcome is associated
+                      with a different fetus.
+                    items:
+                      properties:
+                        gestationoutcome:
+                          description: DEPRECATED. This is an alternate description
+                            for the outcome.
+                          type: string
+                        outcome:
+                          description: The outcome of the gestation. Use 'GET /chart/reference/obdeliveryoutcomes'
+                            for the full list of outcomes.
+                          type: string
+                        outcomeid:
+                          description: The outcome ID
+                          type: integer
+                      type: object
+                    type: array
+                  pastpregnancysectionnote:
+                    description: OB episode Past Pregnancy Section Note.
+                    type: string
+                  pastpregnancysectionnotelastmodifieddatetime:
+                    description: The date and time this OB Episodes Past Pregnancy
+                      section note was created or last modified.
+                    type: string
+                  pastpregnancysectionnotelastmodifieduser:
+                    description: The username of the user who created or last modified
+                      this Past Pregnancy Section Note for the OB Episode.
+                    type: string
+                  primaryproviderid:
+                    description: Primary provider that is associated with this patient.
+                      This is the patient's current provider, and not necessarily
+                      the one that was associated with the clinical episode.
+                    type: integer
+                  status:
+                    description: The status of this OB episode (OPEN, CLOSED, DELETED,
+                      etc...)
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidObepisodes
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+    post:
+      summary: Create new OB episode for the patient
+      description: 'BETA: Creates a new record of OB Episode for a specific patient'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  obepisodeid:
+                    description: The ID of the ob episode.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidObepisodes
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                departmentid:
+                  type: integer
+                  description: The department ID
+                numberofgestations:
+                  type: string
+                  description: 'Used to track multiple gestation pregnancies. If more
+                    than one fetus is present, additional columns are inserted into
+                    the flowsheet to track findings specific to each fetus: presentation,
+                    fetal heart rate, and fetal movement.'
+        required: true
+      tags:
+      - Chart
+      - OB Episodes
+  /v1/{practiceid}/chart/{patientid}/obepisodes/{obepisodeid}:
+    get:
+      summary: Get specific OB episode details
+      description: 'Retrieves details of a specific OB Episode Note: This endpoint
+        may rely on specific settings to be enabled in athenaNet Production to function
+        properly that are not required in other environments. Please see <a href="/api/resources/best-practices-and-troubleshooting#Handling_Beta_APIs">Permissioned
+        Rollout of APIs</a> for more information if you are experiencing issues.'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: obepisodeid
+        schema:
+          type: integer
+        required: true
+        description: obepisodeid
+      - in: query
+        name: showhiddenproblems
+        schema:
+          type: boolean
+        required: false
+        description: Designates whether we will also show hidden problems. The default
+          value is false.
+      - in: query
+        name: showeddcalculationsdays
+        schema:
+          type: boolean
+        required: false
+        description: Designates whether we will also show eddcalculation days. The
+          default value is false.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  deliveryinformation:
+                    description: Delivery information.
+                    properties:
+                      anesthesia:
+                        description: 'Whether Anesthesia was used. Options include:
+                          General, Local, etc...'
+                        type: string
+                      comments:
+                        description: Any notes that are related to the delivery
+                        type: string
+                      deliveredby:
+                        description: ' Username of provider who delivered.'
+                        type: string
+                      deliverydate:
+                        description: The delivery date.
+                        type: string
+                      deliverysite:
+                        description: Site of delivery.
+                        type: string
+                      dischargedate:
+                        description: The date of discharge.
+                        type: string
+                      fetusdata:
+                        description: An array of outcomes, where each outcome is associated
+                          with a different fetus.
+                        items:
+                          properties:
+                            admittedtonicu:
+                              description: Admitted to NICU.  Options are true or
+                                false.
+                              type: string
+                            birthweightingrams:
+                              description: The birthweight in grams.
+                              type: string
+                            birthweightlbs:
+                              description: The pound portion of the birthweight of
+                                the fetus. E.g. If the weight is 8 pounds and 5 ounces,
+                                this field would be equal to 8.
+                              type: string
+                            birthweightoz:
+                              description: The number of ounces of the birthweight
+                                that is remaining after the number of pounds of birthweight
+                                has already been expressed. E.g. If the weight is
+                                8 pounds and 5 ounces, this field would be equal to
+                                5.
+                              type: string
+                            circumcisionyn:
+                              description: Whether the baby was circumcised.  Options
+                                are true or false.
+                              type: string
+                            deliverytype:
+                              description: The type of delivery.  Options are user
+                                entered fields that vary by practice.
+                              type: string
+                            ethnicity:
+                              description: The primary ethnicity of the baby.
+                              type: string
+                            ethnicitycodes:
+                              description: The list of ethnicities for the baby using
+                                the 2.16.840.1.113883.6.238 codeset.  See https://www.hl7.org/fhir/us/core/ValueSet-detailed-ethnicity.html
+                              items:
+                                type: string
+                              type: array
+                            fetusid:
+                              description: The athena  ID of the fetus.
+                              type: string
+                            firstname:
+                              description: First name of baby.
+                              type: string
+                            gestationlastmodifiedby:
+                              description: The username of the user who last modified
+                                the gestation.
+                              type: string
+                            gestationlastmodifieddate:
+                              description: The date/time the gestation was last modified.
+                              type: string
+                            gestationoutcomelastmodifiedby:
+                              description: The username of the user who last modified
+                                the gestation outcome.
+                              type: string
+                            gestationoutcomelastmodifieddate:
+                              description: The date/time the gestation outcome was
+                                last modified.
+                              type: string
+                            lastname:
+                              description: Last name of baby.
+                              type: string
+                            living:
+                              description: Whether the fetus lived.
+                              type: string
+                            outcome:
+                              description: The outcome of the gestation. Use 'GET
+                                /chart/reference/obdeliveryoutcomes' for the full
+                                list of outcomes.
+                              type: string
+                            outcomeid:
+                              description: The outcome ID
+                              type: integer
+                            pediatriccomplications:
+                              description: Description of any complications the fetus
+                                might have experienced.
+                              type: string
+                            race:
+                              description: The name of the primary race of the baby.
+                              type: string
+                            racecodes:
+                              description: The list of races for the baby using the
+                                2.16.840.1.113883.5.104 codeset.  See http://www.hl7.org/implement/standards/fhir/terminologies-v3.html
+                              items:
+                                type: string
+                              type: array
+                            sex:
+                              description: The sex of the fetus.
+                              type: string
+                          type: object
+                        type: array
+                      incisiontype:
+                        description: One of (Low Transverse, Low Vertical, Classical).
+                        type: string
+                      labor:
+                        description: 'The type of labor.  For example: Spontaneous,
+                          Induced etc...'
+                        type: string
+                      laborlengthhrs:
+                        description: Hours of labor involved in delivery.
+                        type: string
+                      postpartumcomplications:
+                        description: one of (None, Hemorrhage, Infection, Hypertension,
+                          Other)
+                        type: string
+                      pretermlabor:
+                        description: Whether this pregnancy had preterm labor signs.  Options
+                          are Y or N.
+                        type: string
+                      tubalsterilization:
+                        description: Whether Tubal Sterilization was used
+                        type: string
+                      weeksgestation:
+                        description: This is a string that includes the number of
+                          weeks from the beginning of the gestation followed by a
+                          period, followed by the number of days of the gestation.  For
+                          example, a string that says 2.3 means 2 weeks and 3 days,
+                          or a total of 17 days.
+                        type: string
+                    type: object
+                  dischargeinformation:
+                    description: Discharge information.
+                    properties:
+                      contraceptivemethod:
+                        description: How the couple plans to use contraceptives.
+                        type: string
+                      feedingmethod:
+                        description: one of (Breast, Bottle, Combination)
+                        type: string
+                      maternalhgbhctlevel:
+                        description: Measure of HGB/HCT level
+                        type: string
+                    type: object
+                  eddcalculation:
+                    description: Estimated delivery date information.
+                    properties:
+                      eddcalculationmethod:
+                        description: The method used to calculate the estimated delivery
+                          date.
+                        type: string
+                      initialeddconfirmedby:
+                        description: Username of individual who confirmed initial
+                          EDD, which the can be set manually or calculated based on
+                          other populated fields.
+                        type: string
+                      initialeddconfirmeddate:
+                        description: The date on which the initial EDD was set.
+                        type: string
+                      initialedddate:
+                        description: Estimated delivery date at the initial exam.
+                        type: string
+                      initialexam:
+                        description: Information about the initial exam
+                        properties:
+                          initialdaysgestation:
+                            description: Fetus age in days.
+                            type: integer
+                          initialexamdate:
+                            description: Date of initial exam.
+                            type: string
+                          initialexamprovider:
+                            description: Provider who performed the initial exam.
+                            type: string
+                          initialweeksgestation:
+                            description: Fetus age in weeks.
+                            type: integer
+                        type: object
+                      initialexamdate:
+                        description: Date of initial exam.
+                        type: string
+                      initialultrasounddate:
+                        description: Date of first ultrasound.
+                        type: string
+                      ivfinfo:
+                        description: Information about IVF, if applicable
+                        properties:
+                          conceptionbyivf:
+                            description: Whether or not the pregnancy was the result
+                              of IVF.  Options are Y or N.
+                            type: string
+                          dateofembryotransferutc:
+                            description: Provider who performed the initial exam.
+                            type: string
+                          embryoageattransfer:
+                            description: Age of the embryo (in days) when transferred.
+                            type: integer
+                        type: object
+                      lastmenstrualperiodinfo:
+                        description: Last menstrual period information.
+                        properties:
+                          definite:
+                            description: Information about whether the patient feels
+                              confident about the date of the last menstrual period.  Options
+                              are Y or N.
+                            type: string
+                          lastmenstrualperioddate:
+                            description: Date of last menstrual period.
+                            type: string
+                        type: object
+                      ultrasounddaysgestation:
+                        description: Fetus age in days.
+                        type: integer
+                      ultrasoundweeksgestation:
+                        description: Fetus age in weeks.
+                        type: integer
+                    type: object
+                  eighteentotwentyweekeddupdate:
+                    description: Information from the 18-20 week update.
+                    properties:
+                      finaleddconfirmedby:
+                        description: Username of person who confirmed estimated delivery
+                          date
+                        type: string
+                      finaleddconfirmeddate:
+                        description: The final estimated date of delivery
+                        type: string
+                      finaledddate:
+                        description: The final estimated delivery date
+                        type: string
+                      fundalhtatumbil:
+                        description: Date of fundal height at Umbilical (used for
+                          EDD calculation)
+                        type: string
+                      quickeningdate:
+                        description: The quickening date.
+                        type: string
+                      ultrasounddate:
+                        description: Date of first ultrasound.
+                        type: string
+                      ultrasoundlatestdaysgestation:
+                        description: Gestation period in days.
+                        type: integer
+                      ultrasoundlatestweeksgestation:
+                        description: Gestation period in weeks.
+                        type: integer
+                    type: object
+                  episodecreatedby:
+                    description: The username of the user who created this OB episode.
+                    type: string
+                  episodecreateddate:
+                    description: The date/time this OB episode was created.
+                    type: string
+                  episodelastmodifiedby:
+                    description: The username of the user who last modified this OB
+                      episode.
+                    type: string
+                  episodelastmodifieddate:
+                    description: The date/time this OB episode was last modified.
+                    type: string
+                  episodeobclosedby:
+                    description: The username of the individual who closed this episode.
+                    type: string
+                  episodeobcloseddatetime:
+                    description: The date at which this episode was closed.
+                    type: string
+                  episodeobclosereason:
+                    description: 'The reason for the clinical episode''s closure.  Options
+                      include: Pregnancy Completed, Patient Transferred, Closed by
+                      AthenaNet etc...'
+                    type: string
+                  geneticscreeningandinfectionhistory:
+                    description: Genetic screening and infection history information.
+                    items:
+                      properties:
+                        lastmodifiedby:
+                          description: The username of the user who last modified
+                            the genetic screening and infection history.
+                          type: string
+                        lastmodifieddate:
+                          description: The date/time the genetic screening and infection
+                            history was last modified.
+                          type: string
+                        note:
+                          description: Notes regarding the answer to the question.
+                          type: string
+                        question:
+                          description: Question asked.
+                          type: string
+                        questionid:
+                          description: The id of the the question.
+                          type: string
+                        responseyn:
+                          description: The response to the question
+                          type: string
+                      type: object
+                    type: array
+                  menstrualhistory:
+                    description: Menstrual history information.
+                    properties:
+                      frequencyq:
+                        description: Length of duration for patient's typical monthly
+                          period.
+                        type: string
+                      hcgplusdate:
+                        description: Date of positive Human Chorionic Gonadotropin
+                          pregnancy test.
+                        type: string
+                      lastmenstrualperiodinfo:
+                        description: Last menstrual period information.
+                        properties:
+                          definite:
+                            description: Information about whether the patient feels
+                              confident about the date of the last menstrual period.  Options
+                              are Y or N.
+                            type: string
+                          lastmenstrualperioddate:
+                            description: Date of last menstrual period.
+                            type: string
+                        type: object
+                      menarcheonsetage:
+                        description: Age at onset of initial menstrual period.
+                        type: string
+                      mensesmonthly:
+                        description: Whether the patient has a monthly period or not.
+                        type: string
+                      onbcpconception:
+                        description: Specify if the patient was on birth control pills
+                          at conception.
+                        type: string
+                      priormenses:
+                        description: Date of patient's prior period.
+                        type: string
+                    type: object
+                  obepisodeinformation:
+                    description: OB Episode information.
+                    properties:
+                      domesticpartner:
+                        description: The patient's domestic partner.
+                        type: string
+                      domesticpartnerphone:
+                        description: The patient's domestic partner's phone number.
+                        type: string
+                      episodedepartmentid:
+                        description: The department associated with the obepisode
+                        type: string
+                      fathername:
+                        description: The father's name.
+                        type: string
+                      fatherphone:
+                        description: The father's phone number.
+                        type: string
+                      numberoffetuses:
+                        description: The number of fetuses
+                        type: string
+                      patientbloodtype:
+                        description: The patient's blood type.
+                        type: string
+                      patientrhstatus:
+                        description: 'RH Status: (Positive or Negative).'
+                        type: string
+                      pediatrician:
+                        description: The patient's pediatrician.
+                        type: string
+                      prepregnancyweightlbs:
+                        description: The patient's pre pregnancy weight (lbs)
+                        type: string
+                    type: object
+                  pastpregnancysectionnote:
+                    description: OB episode Past Pregnancy Section Note.
+                    type: string
+                  pastpregnancysectionnotelastmodifieddatetime:
+                    description: The date and time this OB Episodes Past Pregnancy
+                      section note was created or last modified.
+                    type: string
+                  pastpregnancysectionnotelastmodifieduser:
+                    description: The username of the user who created or last modified
+                      this Past Pregnancy Section Note for the OB Episode.
+                    type: string
+                  plansandeducation:
+                    description: Plans and education information.
+                    properties:
+                      firsttrimester:
+                        description: Plans and education for the first trimester
+                        items:
+                          properties:
+                            discussedby:
+                              description: Username of person who discussed the item
+                                with the patient.
+                              type: string
+                            discusseddate:
+                              description: The date of the discussion.
+                              type: string
+                            discussionitem:
+                              description: The item discussed.
+                              type: string
+                            discussionitemlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion item.
+                              type: string
+                            discussionitemlastmodifieddate:
+                              description: The date/time the discussion item was last
+                                modified.
+                              type: string
+                            discussionlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion.
+                              type: string
+                            discussionlastmodifieddate:
+                              description: The date/time the discussion was last modified.
+                              type: string
+                            note:
+                              description: The notes taken on the discussion.
+                              type: string
+                          type: object
+                        type: array
+                      secondtrimester:
+                        description: Plans and education for the second trimester
+                        items:
+                          properties:
+                            discussedby:
+                              description: Username of person who discussed the item
+                                with the patient.
+                              type: string
+                            discusseddate:
+                              description: The date of the discussion.
+                              type: string
+                            discussionitem:
+                              description: The item discussed.
+                              type: string
+                            discussionitemlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion item.
+                              type: string
+                            discussionitemlastmodifieddate:
+                              description: The date/time the discussion item was last
+                                modified.
+                              type: string
+                            discussionlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion.
+                              type: string
+                            discussionlastmodifieddate:
+                              description: The date/time the discussion was last modified.
+                              type: string
+                            note:
+                              description: The notes taken on the discussion.
+                              type: string
+                          type: object
+                        type: array
+                      thirdtrimester:
+                        description: Plans and education for the third trimester
+                        items:
+                          properties:
+                            discussedby:
+                              description: Username of person who discussed the item
+                                with the patient.
+                              type: string
+                            discusseddate:
+                              description: The date of the discussion.
+                              type: string
+                            discussionitem:
+                              description: The item discussed.
+                              type: string
+                            discussionitemlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion item.
+                              type: string
+                            discussionitemlastmodifieddate:
+                              description: The date/time the discussion item was last
+                                modified.
+                              type: string
+                            discussionlastmodifiedby:
+                              description: The username of the user who last modified
+                                the discussion.
+                              type: string
+                            discussionlastmodifieddate:
+                              description: The date/time the discussion was last modified.
+                              type: string
+                            note:
+                              description: The notes taken on the discussion.
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  pregnancyproblemlist:
+                    description: Pregnancy problem information.
+                    properties:
+                      listnote:
+                        description: Pregnancy problems note
+                        type: string
+                      problems:
+                        description: Array of all pregnancy problems
+                        items:
+                          properties:
+                            enddate:
+                              description: The end date for the pregnancy problem.
+                              type: string
+                            hidden:
+                              description: Designates whether or not the problem was
+                                hidden from the chart.
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            lastmodifiedby:
+                              description: The username of the user who last modified
+                                this problem.
+                              type: string
+                            lastmodifieddate:
+                              description: The date/time this problem was last modified.
+                              type: string
+                            note:
+                              description: Notes about the pregnancy problem.
+                              type: string
+                            problemname:
+                              description: Problem name.  For example, Gestational
+                                Diabetes.
+                              type: string
+                            resolution:
+                              description: The plan for the resolution of the pregnancy
+                                problem.
+                              type: string
+                            snomedcode:
+                              description: The snomed code for the pregnancy problem.
+                              type: string
+                            startdate:
+                              description: The start date for the pregnancy problem.
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                  prenatalflowsheet:
+                    description: Information from each encounter that has been captured
+                      in the prenatal flowsheet.
+                    items:
+                      properties:
+                        albumin:
+                          description: 'Observations of patient''s albumin.  Options
+                            for albumin values are: None, Trace, 1+,2+,3+,4+'
+                          type: string
+                        bishopscore:
+                          description: Observations of a score that assists in predicting
+                            the likelihood that labor will need to be induced.
+                          type: string
+                        blood:
+                          description: Observations of patient's blood values (neg,Trace,1+,2+,3+)
+                          type: string
+                        bloodpressure:
+                          description: Information about the patient's blood pressure
+                          items:
+                            properties:
+                              diastolic:
+                                description: Diastolic component of the patient's
+                                  blood pressure
+                                type: string
+                              locationtested:
+                                description: Location where patient's blood pressure
+                                  was measured
+                                type: string
+                              refused:
+                                description: If patient refused to have their blood
+                                  pressure measured
+                                type: string
+                              refusedreason:
+                                description: 'Reason for refusal of patient''s blood
+                                  pressure. Options include: not indicated, not tolerated,
+                                  patient refused'
+                                type: string
+                              systolic:
+                                description: Systolic component of the patient's blood
+                                  pressure
+                                type: string
+                              type:
+                                description: 'Type of observation of patient''s blood
+                                  pressure. Options include: sitting, standing, supine,
+                                  lying on side, prone'
+                                type: string
+                            type: object
+                          type: array
+                        cervixexam:
+                          description: Information about cervix exams.
+                          properties:
+                            dilation:
+                              description: Options range from 0 to 10 cms
+                              type: string
+                            effacement:
+                              description: Options range from 0% to 100% with increments
+                                of 10%
+                              type: string
+                            station:
+                              description: Options range from -4 to +4 with increments
+                                of 1
+                              type: string
+                          type: object
+                        comments:
+                          description: Comments for the encounter
+                          type: string
+                        edema:
+                          description: Options for patient's edema values (none, trace,
+                            1+,2+,3+,4+)
+                          type: string
+                        estimatedfetalweight:
+                          description: Observations of the estimated weight of fetus.
+                          type: string
+                        fetalheartrate:
+                          description: Observations of information about the fetal
+                            heart rate.
+                          items:
+                            properties:
+                              fetus:
+                                description: In a multiple fetus pregnancy, this will
+                                  be unique to a specific fetus.
+                                type: string
+                              present:
+                                description: Options are 'Present' or 'Absent'
+                                type: string
+                              rate:
+                                description: The fetal heart rate in beats per minute
+                                type: string
+                            type: object
+                          type: array
+                        fetalmovement:
+                          description: 'Observations of fetal movement. Options include:
+                            Yes,No,Decreased,Increased'
+                          items:
+                            properties:
+                              fetus:
+                                description: In a multiple fetus pregnancy, this will
+                                  be unique to a specific fetus.
+                                type: string
+                              value:
+                                description: Observation
+                                type: string
+                            type: object
+                          type: array
+                        flowsheetdate:
+                          description: Date for this entry in the prenatal flowsheet
+                          type: string
+                        flowsheetid:
+                          description: ID for this prenatal flowsheet.
+                          type: string
+                        fundus:
+                          description: Observations of information about the fundus.  Units
+                            are 'wks' or 'cm'.
+                          properties:
+                            height:
+                              description: Fundal height.
+                              type: string
+                            units:
+                              description: Units are 'wks' or 'cm'
+                              type: string
+                          type: object
+                        gestationage:
+                          description: This is a string that includes the number of
+                            weeks from the beginning of the gestation followed by
+                            a period, followed by the number of days of the gestation.  For
+                            example, a string that says 2.3 means 2 weeks and 3 days,
+                            or a total of 17 days.  There can be multiple observations
+                            of this field.
+                          type: string
+                        glucose:
+                          description: 'Observations of patient''s glucose.  Options
+                            include: none, trace, 1+,2+,3+,4+.'
+                          type: string
+                        ketones:
+                          description: 'Observations of ketones.  Options include:
+                            neg,small,moderate,large,trace'
+                          type: string
+                        leukocytes:
+                          description: 'Observations of Patient''s leukocytes.  Options
+                            include: none, trace, 1+,2+,3+'
+                          type: string
+                        modifiedbishopscore:
+                          description: Observations of a score that assists in predicting
+                            the likelihood that labor will need to be induced, but
+                            weights the solution for a number of other factors (such
+                            as the existence of pre-eclampsia) that aren't captured
+                            by the Bishop Score.
+                          type: string
+                        nitrite:
+                          description: Observations of patient's nitrites.  Options
+                            are Positive or Negative for each observation.
+                          type: string
+                        patientreportofpain:
+                          description: Patient report of pain.  This is a string,
+                            but it's typically reported on a scale from 1 to 10
+                          type: string
+                        phofurine:
+                          description: Observations of PH of patient's urine.
+                          type: string
+                        presentation:
+                          description: 'Observations of presentation.  Options include:
+                            Vertex, Breach,Transverse,Cephalic,Oblique'
+                          items:
+                            properties:
+                              fetus:
+                                description: In a multiple fetus pregnancy, this will
+                                  be unique to a specific fetus.
+                                type: string
+                              value:
+                                description: Observation
+                                type: string
+                            type: object
+                          type: array
+                        pretermlaborsigns:
+                          description: 'Options for preterm labor signs are: None,backpain,bleeding,
+                            cramping,uterine contractions,other,pressure,braxton hicks'
+                          type: string
+                        protein:
+                          description: 'Observations of patient''s protein.  Options
+                            include: neg,trace,1+,2+,3+,4+'
+                          type: string
+                        providerid:
+                          description: Provider id.
+                          type: string
+                        specificgravityofurine:
+                          description: Observations of the specific gravity of patient's
+                            urine.
+                          type: string
+                        weight:
+                          description: Observations of patient's weight.
+                          items:
+                            properties:
+                              outofrange:
+                                description: Whether the patient's weight is out of
+                                  range
+                                type: string
+                              prepostdialysis:
+                                description: Whether the patient's weight was taken
+                                  pre or post dialysis
+                                type: string
+                              refused:
+                                description: If patient refused to have their weight
+                                  measured
+                                type: string
+                              type:
+                                description: 'Type of observation of patient''s weight.
+                                  Options include: stated, dry, preoperative, with
+                                  clothes, without clothes, first'
+                                type: string
+                              weight:
+                                description: Patient weight in lbs
+                                type: string
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  status:
+                    description: The status of this OB episode (OPEN, CLOSED, DELETED,
+                      etc...)
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidObepisodesObepisodeid
+      x-scopes: []
+      tags:
+      - Chart
+      - OB Episodes
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

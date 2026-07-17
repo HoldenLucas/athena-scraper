@@ -1,0 +1,911 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/riskgaps/condition:
+    post:
+      summary: Add risk adjustment gaps to patient chart
+      description: Records risk adjustment gaps in the patient's risk tab
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  entry:
+                    items:
+                      properties:
+                        fullurl:
+                          description: Unique id for the resource in the requester
+                            system
+                          type: string
+                        response:
+                          description: Response information
+                          properties:
+                            conditioncategoryid:
+                              description: Category Id of the condition
+                              type: string
+                            conditiontype:
+                              description: Type of the condition
+                              type: string
+                            diagnosiscode:
+                              description: Diagnosis code of the condition
+                              type: string
+                            location:
+                              description: Location where the condition is stored
+                              type: string
+                            modelname:
+                              description: Model name of the condition
+                              type: string
+                            modelversion:
+                              description: Model version of the condition
+                              type: string
+                            outcome:
+                              description: A collection of error, warning, or information
+                                messages that result from a system action
+                              properties:
+                                issue:
+                                  items:
+                                    properties:
+                                      code:
+                                        description: Issue type code
+                                        type: string
+                                      details:
+                                        properties:
+                                          text:
+                                            description: Detailed text of the issue
+                                            type: string
+                                        type: object
+                                      severity:
+                                        description: Error type. One of fatal, error,
+                                          warning and information
+                                        type: string
+                                    type: object
+                                  type: array
+                                resourcetype:
+                                  description: Operation Outcome of the resource
+                                  type: string
+                              type: object
+                            requestindex:
+                              description: Request index id for the response.
+                              type: integer
+                            status:
+                              description: Response staus code
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  resourcetype:
+                    description: Bundle
+                    type: string
+                  type:
+                    description: Batch-response
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidRiskgapsCondition
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                entry:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fullurl:
+                        type: string
+                        description: Unique id for the resource in the requester system
+                      request:
+                        type: object
+                        properties:
+                          method:
+                            type: string
+                            description: POST supported
+                      resource:
+                        type: object
+                        properties:
+                          code:
+                            type: object
+                            properties:
+                              coding:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: Code for the system
+                                    system:
+                                      type: string
+                                      description: Identity of the terminology system,
+                                        currently ICD10 & HCC are supported
+                                    display:
+                                      type: string
+                                      description: Display text
+                                description: coding
+                            description: Identification of the diagnosis. Supported
+                              terminology systems are ICD10 and Condition Category
+                              (Use ICD10 for Potential gaps, Condition Category for
+                              Suspected gaps).
+                          subject:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: 'Patient Reference id Eg: #P1234'
+                            description: Indicates the patient who has the associated
+                              condition record. Contained resource references have
+                              details of subject and reference is linked using local
+                              reference id.
+                          evidence:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                detail:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                        description: 'Eg: #ClaimResponse57676002'
+                                  description: Links to other relevant information,
+                                    including claim information.
+                            description: Supporting evidence / manifestations that
+                              are the basis of the Condition's verification status,
+                              such as evidence that confirmed or refuted the condition.
+                          recorder:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: Individual who recorded the record and
+                                  takes responsibility for its content
+                            description: Individual who recorded the record and takes
+                              responsibility for its content, Contained resource reference
+                              have details of recorder and reference is linked using
+                              local reference id
+                          contained:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: number
+                                  description: ID which is given in the subject
+                                use:
+                                  type: string
+                                  description: This will be hardcoded to claim
+                                name:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      text:
+                                        type: string
+                                issued:
+                                  type: string
+                                  description: Date and Time of the evidence used
+                                    for Diagnostic Reports
+                                period:
+                                  type: object
+                                  properties:
+                                    start:
+                                      type: string
+                                      description: Date of the resource type
+                                  description: Period
+                                status:
+                                  type: string
+                                  description: can have either of these values registered
+                                    | partial | preliminary | final | cancelled |
+                                    unknown
+                                created:
+                                  type: string
+                                  description: Date and Time of the claim creation
+                                outcome:
+                                  type: string
+                                  description: One of queued, complete, error, partial
+                                location:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      location:
+                                        type: object
+                                        properties:
+                                          display:
+                                            type: string
+                                            description: Reference text of the Location
+                                          reference:
+                                            type: string
+                                            description: Reference ID of the Location
+                                diagnosis:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      sequence:
+                                        type: number
+                                        description: Number to uniquely identify diagnosis
+                                          entries
+                                      diagnosiscodeableconcept:
+                                        type: object
+                                        properties:
+                                          coding:
+                                            type: array
+                                            items:
+                                              type: object
+                                              properties:
+                                                code:
+                                                  type: string
+                                                  description: ICD10 code
+                                                system:
+                                                  type: string
+                                                  description: ICD10 system
+                                performer:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      actor:
+                                        type: string
+                                        description: Provider information
+                                      reference:
+                                        type: string
+                                        description: Reference to Practitioner or
+                                          Organization contained resource.
+                                identifier:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      value:
+                                        type: string
+                                        description: athena patient id
+                                      system:
+                                        type: string
+                                        description: https://athenanet.athenahealth.com/patient
+                                resourcetype:
+                                  type: string
+                                  description: Referenced Resource Type
+                                effectivedatetime:
+                                  type: string
+                                  description: Date and Time of the evidence used
+                                    for MedicationStatement
+                                informationsource:
+                                  type: object
+                                  properties:
+                                    reference:
+                                      type: string
+                                      description: 'Eg: #Org999'
+                                  description: Organization Details
+                                performeddatetime:
+                                  type: string
+                                  description: Date and Time of the evidence used
+                                    for Procedure
+                                medicationcodeableconcept:
+                                  type: object
+                                  properties:
+                                    coding:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          code:
+                                            type: string
+                                            description: Code for the system
+                                          system:
+                                            type: string
+                                            description: Identity of the terminology
+                                              system, like NDC
+                                          display:
+                                            type: string
+                                            description: Display text
+                            description: 'Condition Resource referencing other resources
+                              shall be a contained resource. Ex: Condition resource
+                              referring to other resources like Patient, Encounter,
+                              ClaimResponse, etc.. should be in contained form ensuring
+                              local reference.'
+                          encounter:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: 'Encounter Reference id Eg: #Enc1'
+                            description: The Encounter during which this Condition
+                              was created or to which the creation of this record
+                              is tightly associated. Contained resource references
+                              have details of encounter and reference is linked using
+                              local reference id
+                          extension:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                url:
+                                  type: string
+                                  description: Identity of model, model version, evidence
+                                    status, hierarchy status, period, etc
+                                valuedate:
+                                  type: string
+                                  description: Date of the condition evidence status
+                                    change
+                                valueperiod:
+                                  type: string
+                                  description: This period extension is only valid
+                                    for non-CMS-HCC gaps. If a start or end date is
+                                    specified for this period for a CMS-HCC gap, the
+                                    gap will be rejected and a 400 error will be returned.
+                                valuestring:
+                                  type: string
+                                  description: 'String value used for risk adjustment
+                                    model Eg: "HHS-HCC" and model version Eg: "2022",
+                                    "6.4"'
+                                valuedecimal:
+                                  type: number
+                                  description: 'Value of risk adjustment factor score
+                                    Eg: 1.07'
+                                valuecodeableconcept:
+                                  type: object
+                                  properties:
+                                    coding:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          code:
+                                            type: string
+                                            description: 'code for the system Eg:
+                                              18'
+                                          system:
+                                            type: string
+                                            description: Identity of the Condition
+                                              Category, hierarchy status, evidence
+                                              status
+                                          display:
+                                            type: string
+                                            description: 'Code for the system Eg:
+                                              Condition Category (18, PULH), hierarchy
+                                              status (applied-superseded, applied-not-superseded,
+                                              not-applied, not-applicable), evidence
+                                              status (open-gap, closed-gap)'
+                                          version:
+                                            type: number
+                                            description: version number for system
+                            description: Extended attributes of condition supporting
+                              various risk adjustment models, mandatory for Non-CMS-HCC
+                              modelS and recomended for CMS-HCC
+                          identifier:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                  description: The value that is unique
+                                system:
+                                  type: string
+                                  description: External system uri of the condition
+                            description: Identifiers assigned to this condition by
+                              the performer or other systems which remain constant
+                              as the resource is updated
+                          recordeddate:
+                            type: string
+                            description: Date of the condition recorded in the system
+                          resourcetype:
+                            type: string
+                            description: Resource Type refers to condition resource.
+                              No other resource type is supported.
+                          clinicalstatus:
+                            type: object
+                            properties:
+                              coding:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: FHIR clinicalstatus code; can be
+                                        relapse
+                                    system:
+                                      type: string
+                                      description: FHIR clinicalstatus system
+                            description: The clinical status of the condition.
+                          abatementdatetime:
+                            type: string
+                            description: Date of the condition resolved/remission
+                          verificationstatus:
+                            type: object
+                            properties:
+                              coding:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: FHIR verificationstatus code; Can
+                                        be differential or provisional
+                                    system:
+                                      type: string
+                                      description: FHIR verificationstatus system
+                                description: verification Status
+                            description: The verification status to support or decline
+                              the clinical status of the condition or diagnosis.
+                        description: condition resource
+                  description: Array of risk gaps to be ingested for patient
+        required: true
+      tags:
+      - PatientRisk
+      - Patient Risk Gap API
+  /v1/{practiceid}/riskgaps/modelagnosticsuspectedconditions:
+    post:
+      summary: Add suspected diagnosis gaps for non CMS-HCC models to patient chart
+      description: Records suspected diagnosis gaps for non CMS-HCC models in the
+        patient's risk tab
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  entry:
+                    items:
+                      properties:
+                        response:
+                          description: Response information.
+                          properties:
+                            conditioncategoryid:
+                              description: Category ID of the condition.
+                              type: string
+                            conditiontype:
+                              description: Always "suspected", included to follow
+                                the format of the other endpoint.
+                              type: string
+                            location:
+                              description: Location link to the FHIR object in the
+                                AthenaNet system. e.g. Condition/a-432.CSG-21.RCN-293.
+                              type: string
+                            modelname:
+                              description: Name of the risk adjustment model.
+                              type: string
+                            modelversion:
+                              description: Version of the risk adjustment model for
+                                the diagnosis gap.
+                              type: string
+                            outcome:
+                              description: A collection of error, warning, or information
+                                messages that resulted from a system action.
+                              properties:
+                                issue:
+                                  items:
+                                    properties:
+                                      code:
+                                        description: Issue type code.
+                                        type: string
+                                      details:
+                                        properties:
+                                          text:
+                                            description: Detailed text of the issue.
+                                            type: string
+                                        type: object
+                                      severity:
+                                        description: Error type. One of fatal, error,
+                                          warning and information.
+                                        type: string
+                                    type: object
+                                  type: array
+                                resourcetype:
+                                  description: Operation outcome of the resource.
+                                  type: string
+                              type: object
+                            requestindex:
+                              description: Request index ID for the response.
+                              type: number
+                            status:
+                              description: Response status code.
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                  type:
+                    description: Batch-response
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidRiskgapsModelagnosticsuspectedconditions
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                entry:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      request:
+                        type: object
+                        properties:
+                          method:
+                            type: string
+                            description: POST supported
+                      resource:
+                        type: object
+                        properties:
+                          subject:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: 'Patient Reference ID Eg: Patient/123.'
+                            description: Indicates the patient who has the associated
+                              condition record. Contained resource references have
+                              details of subject. The subject reference is linked
+                              using local reference id.
+                          evidence:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                detail:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      reference:
+                                        type: string
+                                        description: Reference to the evidence e.g.
+                                          "Claim/1 or MedicationStatement/123".
+                                  description: Links to other relevant information,
+                                    including claim information.
+                            description: Supporting evidence / manifestations that
+                              are the basis of the Condition's verification status,
+                              such as evidence that confirmed or refuted the condition.
+                          recorder:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: Practitioner Reference ID e.g. Practitioner/134.
+                            description: Individual who documented the record and
+                              takes responsibility for its content, The contained
+                              resource reference have details of recorder and reference
+                              is linked using local reference ID.
+                          contained:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: number
+                                  description: ID which is given in the subject.
+                                name:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      text:
+                                        type: string
+                                        description: Name, associated with the resource,
+                                          if applicable (e.g. practitioner's name).
+                                period:
+                                  type: object
+                                  properties:
+                                    start:
+                                      type: string
+                                      description: 'Date or datetime of the encounter
+                                        in which the condition was diagnosed. e.g.
+                                        "start": "2011-02-15".'
+                                  description: Period
+                                location:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      location:
+                                        type: object
+                                        properties:
+                                          display:
+                                            type: string
+                                            description: Display text of the Location.
+                                              e.g. Athena Clinic, Boston.
+                                          reference:
+                                            type: string
+                                            description: Reference ID of the Location.
+                                              e.g. Location/1.
+                                identifier:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      value:
+                                        type: string
+                                        description: Athena patient ID.
+                                      system:
+                                        type: string
+                                        description: https://athenanet.athenahealth.com/patient
+                                          (or /chartsharinggroup or /practitioner
+                                          or /organization).
+                                resourcetype:
+                                  type: string
+                                  description: Referenced resource type, e.g. Patient
+                                    or Encounter.
+                            description: Condition resource referencing other resources
+                              shall be a contained resource. For example, the Condition
+                              resource referring to other resources like Patient,
+                              Encounter, ClaimResponse, etc., should be in contained
+                              form ensuring local reference.
+                          encounter:
+                            type: object
+                            properties:
+                              reference:
+                                type: string
+                                description: Encounter Reference ID e.g. Encounter/1
+                            description: The Encounter during which this Condition
+                              was created or to which the creation of this record
+                              is tightly associated. Contained resource references
+                              have details of encounter and reference is linked using
+                              local reference ID.
+                          extension:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                url:
+                                  type: string
+                                  description: Identity of model, model version, evidence
+                                    status, hierarchy status and condition category.
+                                    e.g. "https://fhir.athena.io/StructureDefinition/ra-modelId".
+                                valueperiod:
+                                  type: string
+                                valuestring:
+                                  type: string
+                                  description: String value used for risk adjustment
+                                    model e.g. "HHS-HCC" and model version e.g. "2024"
+                                    or "7.0".
+                                valuecodeableconcept:
+                                  type: object
+                                  properties:
+                                    coding:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          code:
+                                            type: string
+                                            description: Condition category code for
+                                              the system e.g. "E1150".
+                                          system:
+                                            type: string
+                                            description: System URI for the code e.g.
+                                              http://terminology.hl7.org/CodeSystem/hhshcc.
+                                          display:
+                                            type: string
+                                            description: Display text for the condition
+                                              category e.g. "Acute renal failure".
+                                          version:
+                                            type: string
+                                            description: Model version of the risk
+                                              adjustment model.
+                            description: Extended attributes of condition resource.
+                          identifier:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                  description: The value that is unique.
+                                system:
+                                  type: string
+                                  description: External system URI of the condition.
+                            description: Identifiers assigned to this condition by
+                              the performer or other systems which remain constant
+                              as the resource is updated.
+                          recordeddate:
+                            type: string
+                            description: Date of the condition recorded by the sender,
+                              example 2021-05-13T11:07:36-06:00
+                          resourcetype:
+                            type: string
+                            description: Resource Type refers to condition resource.
+                              No other resource type is supported.
+                          clinicalstatus:
+                            type: object
+                            properties:
+                              coding:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: 'FHIR clinicalstatus code: active,
+                                        recurrence or relapse are supported.'
+                                    system:
+                                      type: string
+                                      description: FHIR clinicalstatus system uri
+                                        e.g. http://terminology.hl7.org/CodeSystem/condition-clinical.
+                            description: The clinical status of the condition.
+                          verificationstatus:
+                            type: object
+                            properties:
+                              coding:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    code:
+                                      type: string
+                                      description: FHIR verificationStatus code. only
+                                        provisional is supported by this endpoint.
+                                    system:
+                                      type: string
+                                      description: FHIR verificationstatus system
+                                        uri e.g. http://terminology.hl7.org/CodeSystem/condition-ver-status
+                                description: Verification status.
+                            description: The verification status to support or decline
+                              the clinical status of the condition or diagnosis.
+                        description: condition resource
+                  description: Array of risk gaps to be ingested for patient
+        required: true
+      tags:
+      - PatientRisk
+      - Patient non CMS-HCC Suspected Risk Gap API
+  /v1/{practiceid}/riskgaps/condition/delete:
+    post:
+      summary: Bulk delete diagnosis gaps from patients' charts
+      description: Bulk deletes diagnosis gaps from patients' charts
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: Optional error message in case the operation failed
+                    type: string
+                  responsecode:
+                    default: 200
+                    description: HTTP Response Code for the API
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidRiskgapsConditionDelete
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  description: 'List of Risk Gap IDs. The ID is formatted as follows:
+                    a-{contextId}.CSG-{chartSharingGroupId}.RCN-{riskConditionId}.'
+        required: true
+      tags:
+      - PatientRisk
+      - Patient Risk Gap API
+  /v1/{practiceid}/riskgaps/condition/{conditionid}:
+    delete:
+      summary: Delete diagnosis gap from patient's chart
+      description: Deletes diagnosis gap from patient's chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: conditionid
+        schema:
+          type: string
+        required: true
+        description: conditionid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: Optional error message in case the operation failed
+                    type: string
+                  responsecode:
+                    default: 200
+                    description: HTTP Response Code for the API
+                    type: integer
+                type: object
+          description: Success
+      operationId: deletePracticeidRiskgapsConditionConditionid
+      x-scopes: []
+      tags:
+      - PatientRisk
+      - Patient Risk Gap API
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

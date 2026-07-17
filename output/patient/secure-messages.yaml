@@ -1,0 +1,1474 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}:
+    get:
+      summary: Get all messages from patient's specific message-thread
+      description: Retrieves messages associated to a specific message-thread for
+        a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  brandid:
+                    description: Brandid of the message
+                    type: integer
+                  documentid:
+                    description: ID of the document
+                    type: integer
+                  enterpriseid:
+                    description: ID of the patient
+                    type: integer
+                  messagelist:
+                    description: Internal value of the messages
+                    items:
+                      properties:
+                        displaydate:
+                          description: Fetch date from documentaction table which
+                            calculates time accoding to timezone
+                          type: string
+                        from:
+                          description: Source from which the message received (provider
+                            or practice)
+                          properties:
+                            displayname:
+                              description: Practice or provider name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              type: string
+                          type: object
+                        isreply:
+                          description: Boolean. Whether or not this message is a reply
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        text:
+                          description: Content of the message
+                          type: string
+                        timestamp:
+                          description: Timestamp of the created message
+                          type: integer
+                        to:
+                          description: Destination where the message has to be delivered
+                          properties:
+                            displayname:
+                              description: Patient name or user name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              description: PORTAL by default
+                              type: string
+                          type: object
+                        unread:
+                          description: Boolean. Whether or not the message is unread
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                      type: object
+                    type: array
+                  messagetype:
+                    description: Messagetype of the document
+                    type: string
+                  subject:
+                    description: Subject of the message
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageMessagethreadid
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/CanPatientReplyToMessage:
+    get:
+      summary: Get patient's reply-access rights for specific message thread
+      description: Retrieves information on the access right for a patient to respond
+        to the specific message
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageMessagethreadidCanPatientReplyToMessage
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/reply:
+    post:
+      summary: Submit new reply to a specific message-thread
+      description: Sends a reply to a specific message-thread
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: Can be 0 for no error or a string containing an error
+                      message.
+                    type: string
+                  message:
+                    description: Get messages for a patientid
+                    properties:
+                      brandid:
+                        description: Brandid of the message
+                        type: integer
+                      documentid:
+                        description: ID of the document
+                        type: integer
+                      enterpriseid:
+                        description: ID of the patient
+                        type: integer
+                      messagelist:
+                        description: Internal value of the messages
+                        items:
+                          properties:
+                            displaydate:
+                              description: Fetch date from documentaction table which
+                                calculates time accoding to timezone
+                              type: string
+                            from:
+                              description: Source from which the message received
+                                (provider or practice)
+                              properties:
+                                displayname:
+                                  description: Practice or provider name
+                                  type: string
+                                providerid:
+                                  description: ID of the provider
+                                  type: integer
+                                username:
+                                  type: string
+                              type: object
+                            isreply:
+                              description: Boolean. Whether or not this message is
+                                a reply
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                            text:
+                              description: Content of the message
+                              type: string
+                            timestamp:
+                              description: Timestamp of the created message
+                              type: integer
+                            to:
+                              description: Destination where the message has to be
+                                delivered
+                              properties:
+                                displayname:
+                                  description: Patient name or user name
+                                  type: string
+                                providerid:
+                                  description: ID of the provider
+                                  type: integer
+                                username:
+                                  description: PORTAL by default
+                                  type: string
+                              type: object
+                            unread:
+                              description: Boolean. Whether or not the message is
+                                unread
+                              enum:
+                              - ''
+                              - false
+                              - true
+                              type: string
+                          type: object
+                        type: array
+                      messagetype:
+                        description: Messagetype of the document
+                        type: string
+                      subject:
+                        description: Subject of the message
+                        type: string
+                    type: object
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidSecuremessageMessagethreadidReply
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - text
+              properties:
+                text:
+                  type: string
+                  description: The body of the reply to send
+        required: true
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/securemessage/archivedmessages:
+    get:
+      summary: Get list of archived messages
+      description: Retrieves a list of messages archieved by specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: showplaintext
+        schema:
+          type: string
+        required: false
+        description: If Y, returns the TEXT attribute in plaintext.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  brandid:
+                    description: Brandid of the message
+                    type: integer
+                  documentid:
+                    description: ID of the document
+                    type: integer
+                  enterpriseid:
+                    description: ID of the patient
+                    type: integer
+                  messagelist:
+                    description: Internal value of the messages
+                    items:
+                      properties:
+                        displaydate:
+                          description: Fetch date from documentaction table which
+                            calculates time accoding to timezone
+                          type: string
+                        from:
+                          description: Source from which the message received (provider
+                            or practice)
+                          properties:
+                            displayname:
+                              description: Practice or provider name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              type: string
+                          type: object
+                        isreply:
+                          description: Boolean. Whether or not this message is a reply
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        text:
+                          description: Content of the message
+                          type: string
+                        timestamp:
+                          description: Timestamp of the created message
+                          type: integer
+                        to:
+                          description: Destination where the message has to be delivered
+                          properties:
+                            displayname:
+                              description: Patient name or user name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              description: PORTAL by default
+                              type: string
+                          type: object
+                        unread:
+                          description: Boolean. Whether or not the message is unread
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                      type: object
+                    type: array
+                  messagetype:
+                    description: Messagetype of the document
+                    type: string
+                  subject:
+                    description: Subject of the message
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageArchivedmessages
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/securemessage/inboxmessages:
+    get:
+      summary: Get list of inbox messages
+      description: Retrieves a list of messages in the patient's inbox
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: showplaintext
+        schema:
+          type: string
+        required: false
+        description: If Y, returns the TEXT attribute in plaintext.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  brandid:
+                    description: Brandid of the message
+                    type: integer
+                  documentid:
+                    description: ID of the document
+                    type: integer
+                  enterpriseid:
+                    description: ID of the patient
+                    type: integer
+                  messagelist:
+                    description: Internal value of the messages
+                    items:
+                      properties:
+                        displaydate:
+                          description: Fetch date from documentaction table which
+                            calculates time accoding to timezone
+                          type: string
+                        from:
+                          description: Source from which the message received (provider
+                            or practice)
+                          properties:
+                            displayname:
+                              description: Practice or provider name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              type: string
+                          type: object
+                        isreply:
+                          description: Boolean. Whether or not this message is a reply
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        text:
+                          description: Content of the message
+                          type: string
+                        timestamp:
+                          description: Timestamp of the created message
+                          type: integer
+                        to:
+                          description: Destination where the message has to be delivered
+                          properties:
+                            displayname:
+                              description: Patient name or user name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              description: PORTAL by default
+                              type: string
+                          type: object
+                        unread:
+                          description: Boolean. Whether or not the message is unread
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                      type: object
+                    type: array
+                  messagetype:
+                    description: Messagetype of the document
+                    type: string
+                  subject:
+                    description: Subject of the message
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageInboxmessages
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/securemessage/sentmessages:
+    get:
+      summary: Get list of sent-messages
+      description: Retrieves a list of messages responded or sent by the patient to
+        the practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  brandid:
+                    description: Brandid of the message
+                    type: integer
+                  documentid:
+                    description: ID of the document
+                    type: integer
+                  enterpriseid:
+                    description: ID of the patient
+                    type: integer
+                  messagelist:
+                    description: Internal value of the messages
+                    items:
+                      properties:
+                        displaydate:
+                          description: Fetch date from documentaction table which
+                            calculates time accoding to timezone
+                          type: string
+                        from:
+                          description: Source from which the message received (provider
+                            or practice)
+                          properties:
+                            displayname:
+                              description: Practice or provider name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              type: string
+                          type: object
+                        isreply:
+                          description: Boolean. Whether or not this message is a reply
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                        text:
+                          description: Content of the message
+                          type: string
+                        timestamp:
+                          description: Timestamp of the created message
+                          type: integer
+                        to:
+                          description: Destination where the message has to be delivered
+                          properties:
+                            displayname:
+                              description: Patient name or user name
+                              type: string
+                            providerid:
+                              description: ID of the provider
+                              type: integer
+                            username:
+                              description: PORTAL by default
+                              type: string
+                          type: object
+                        unread:
+                          description: Boolean. Whether or not the message is unread
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                      type: object
+                    type: array
+                  messagetype:
+                    description: Messagetype of the document
+                    type: string
+                  subject:
+                    description: Subject of the message
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageSentmessages
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patientsecuremessage/providers/departmentsmapping:
+    get:
+      summary: Get department mapping information for patient-messaging
+      description: Retrieves the department mapping information for patient messaging
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: providergroupids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more ID's of the ProviderGroup
+      - in: query
+        name: providerids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more ID's of the Provider
+      - in: query
+        name: departmentids
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: One or more ID's of the Department
+      - in: query
+        name: communicatorbrandid
+        schema:
+          type: integer
+        required: false
+        description: ID of the Brand
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsecuremessageProvidersDepartmentsmapping
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patients/{patientid}/patientsecuremessage/marklabresultread/{messagethreadid}:
+    post:
+      summary: mark labresult as Read
+      description: updates the specified LabResult has been read by the patient or
+        a family member on the patient portal
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns true if operation was a success.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidPatientsecuremessageMarklabresultreadMessagethreadid
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient secure messages
+  /v1/{practiceid}/patientsecuremessage/getavailablemessagetypes:
+    get:
+      summary: This API endpoint gets the available message types for a given practice.
+      description: Get a list of active message types for a practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: portalthirdpartyuserid
+        schema:
+          type: integer
+        required: false
+        description: If a user is authenticated for the portal, this should be the
+          ID of the authenticated Portal User.
+      - in: query
+        name: communicatorbrandid
+        schema:
+          type: integer
+        required: false
+        description: ID of the communicatorbrand that we want to know message settings
+          for.
+      - in: query
+        name: patientid
+        schema:
+          type: integer
+        required: false
+        description: ID of the patient that we are sending a message to or from.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    description: The preferred order in which to display the message
+                      types
+                    type: integer
+                  text:
+                    description: Patient friendly display text for message types
+                    type: string
+                  value:
+                    description: Internal value of the message types. This is what
+                      you would pass in as DOCUMENTSUBCLASS to SendMessage
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsecuremessageGetavailablemessagetypes
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Get patient secure message metadata
+  /v1/{practiceid}/patient/{patientid}/securemessage/providers:
+    get:
+      summary: input parameters for get provider list complete
+      description: 'BETA: the output of the provider list'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: string
+        required: true
+        description: patientid
+      - in: query
+        name: brandid
+        schema:
+          type: integer
+        required: false
+        description: the brand ID
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  acceptingnewpatientsyn:
+                    description: accepting patients y/n
+                    type: string
+                  communicatordisplayname:
+                    description: the communicator display name
+                    type: string
+                  entitytypeid:
+                    description: the entity type
+                    type: string
+                  firstname:
+                    description: provider first name
+                    type: string
+                  full:
+                    description: the provider specialty
+                    items:
+                      type: any
+                    type: array
+                  lastname:
+                    description: provider last name
+                    type: string
+                  limited:
+                    description: the provider specialty
+                    items:
+                      type: any
+                    type: array
+                  name:
+                    description: the provider name
+                    type: string
+                  nvlcommunicatordisplayname:
+                    description: the communicator display name
+                    type: string
+                  ordering:
+                    description: the ordering
+                    type: string
+                  providerid:
+                    description: the provider ID
+                    type: string
+                  providertype:
+                    description: the provider type
+                    type: string
+                  reportingname:
+                    description: the reporting name
+                    type: string
+                  specialtyname:
+                    description: the provider specialty
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientPatientidSecuremessageProviders
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient's Secure Messaging with attachments
+  /v1/{practiceid}/brand/{brandid}/patients/{patientid}/securemessage/providers/{providerid}/locations:
+    get:
+      summary: Retrieve available messaging location for given params.
+      description: 'BETA: A locations object'
+      parameters:
+      - in: path
+        name: providerid
+        schema:
+          type: integer
+        required: true
+        description: providerid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: brandid
+        schema:
+          type: integer
+        required: true
+        description: brandid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: Address
+                    type: string
+                  city:
+                    description: City
+                    type: string
+                  communicatordisplayname:
+                    description: The display name if it exists
+                    type: string
+                  departmentid:
+                    description: Department ID
+                    type: string
+                  directionstooffice:
+                    description: Department directions
+                    type: string
+                  name:
+                    description: Name
+                    type: string
+                  providergroupid:
+                    description: provider group id
+                    type: string
+                  providergroupname:
+                    description: name of provider group
+                    type: string
+                  providerid:
+                    description: Provider ID
+                    type: string
+                  state:
+                    description: State
+                    type: string
+                  zip:
+                    description: Zip
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidBrandBrandidPatientsPatientidSecuremessageProvidersProvideridLocations
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Patient's Secure Messaging with attachments
+  /v1/{practiceid}/patients/{patientid}/securemessage/topractice:
+    post:
+      summary: This API endpoint sends a Secure Message to a provider on behalf of
+        a patient.
+      description: This API endpoint sends a Secure Message to a patient or provider.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  messagethreadid:
+                    description: The ID of the message thread that was just created.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidSecuremessageTopractice
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - text
+              - messagetype
+              properties:
+                text:
+                  type: string
+                  description: The content of the message that we are sending.
+                subject:
+                  type: string
+                  description: The subject of the message that is being sent.
+                dayofweek:
+                  type: string
+                  description: This is used to set a preferred day of week when making
+                    an appointment request via the portal. It should be a comma seperated
+                    string of 0-6 where Monday is 0 and Sunday is 6.
+                timeofday:
+                  enum:
+                  - ''
+                  - AM
+                  - PM
+                  - EV
+                  type: string
+                  description: This should be a string of either AM for the morning,
+                    PM for the afternoon, or EV for the evening.
+                providerid:
+                  type: integer
+                  description: ID of the provider that we are either sending to or
+                    sending from.
+                messagetype:
+                  type: string
+                  description: This will tell us what type of message you are trying
+                    to send. The available choices can be retrieved from the /PatientSecureMessage/GetAvailableMessageTypes
+                    endpoint.
+                departmentid:
+                  type: integer
+                  description: ID of the department we are sending to. This is used
+                    to determine which provider group that we are working with.
+                portaluserid:
+                  type: integer
+                  description: If a user is authenticated for the portal, this should
+                    be the ID of the authenticated Portal User.
+        required: true
+      tags:
+      - Patients
+      - Send new patient secure message (Omit)
+  /v1/{practiceid}/patients/{patientid}/securemessage/topatient:
+    post:
+      summary: This API endpoint sends a Secure Message to a patient.
+      description: This API endpoint sends a Secure Message to a patient or provider.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  messagethreadid:
+                    description: The ID of the message thread that was just created.
+                    type: integer
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidSecuremessageTopatient
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - providerid
+              - text
+              - messagetype
+              properties:
+                text:
+                  type: string
+                  description: The content of the message that we are sending.
+                subject:
+                  type: string
+                  description: The subject of the message that is being sent.
+                providerid:
+                  type: integer
+                  description: ID of the provider that we are either sending to or
+                    sending from.
+                messagetype:
+                  type: string
+                  description: This will tell us what type of message you are trying
+                    to send. The available choices can be retrieved from the /PatientSecureMessage/GetAvailableMessageTypes
+                    endpoint.
+                departmentid:
+                  type: integer
+                  description: ID of the department we are sending to. This is used
+                    to determine which provider group that we are working with.
+        required: true
+      tags:
+      - Patients
+      - Send new patient secure message (Omit)
+  /v1/{practiceid}/patientsecuremessage/markread:
+    put:
+      summary: This API endpoint updates the specified patient secure message conversations
+        as having been read by the patient or a patient's family member on the patient
+        portal.
+      description: Mark (a) specified portal secure message conversation(s) as read.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: This is a representation of the errors (if any),
+                      encountered during the process of marking patient secure message
+                      conversations as read.
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsecuremessageMarkread
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                messagethreadids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'Comma separated list of message thread IDs to mark
+                    as having been read by the patient: [ messagethreadid, messagethreadid
+                    ].'
+        required: true
+      tags:
+      - Patient Secure Messaging
+      - Update Patient Message Metadata
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/markread:
+    put:
+      summary: This API endpoint updates the specified patient secure message conversations
+        as having been read by the patient or a patient's family member on the patient
+        portal.
+      description: Mark (a) specified portal secure message conversation(s) as read.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    description: This is a representation of the errors (if any),
+                      encountered during the process of marking patient secure message
+                      conversations as read.
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidSecuremessageMessagethreadidMarkread
+      x-scopes: []
+      tags:
+      - Patients
+      - Update Patient Secure Message Metadata
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/archive:
+    put:
+      summary: Archives or unarchives a conversation
+      description: Update a conversation
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  conversationid:
+                    description: The conversation ID.
+                    type: number
+                  success:
+                    description: The success of performing the action.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidSecuremessageMessagethreadidArchive
+      x-scopes: []
+      tags:
+      - Patients
+      - Update Patient Secure Message Metadata
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/unarchive:
+    put:
+      summary: Archives or unarchives a conversation
+      description: Update a conversation
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  conversationid:
+                    description: The conversation ID.
+                    type: number
+                  success:
+                    description: The success of performing the action.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidSecuremessageMessagethreadidUnarchive
+      x-scopes: []
+      tags:
+      - Patients
+      - Update Patient Secure Message Metadata
+  /v1/{practiceid}/patients/{patientid}/securemessage/{messagethreadid}/attachments:
+    get:
+      summary: Allow for associating Attachments with Secure Messages.
+      description: 'BETA: Get Attachments metadata for a message'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  patientcasefiles:
+                    description: List of Attachment metadata
+                    items:
+                      properties:
+                        createdby:
+                          description: The user associated with the creation
+                          type: string
+                        createdtimestamp:
+                          description: The time the attachment was added
+                          type: integer
+                        filecloudid:
+                          description: The internal FileCloud name
+                          type: string
+                        frompractice:
+                          description: If true, attachment originated from the practice
+                          type: integer
+                        messagethreadid:
+                          description: ID of the document
+                          type: integer
+                        originalfilename:
+                          description: The uploaded filename
+                          type: string
+                        type:
+                          description: The FileCloud type identifier
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidSecuremessageMessagethreadidAttachments
+      x-scopes: []
+      tags:
+      - Patient Secure Messaging
+      - Secure Message Attachment
+    post:
+      summary: Allow for associating Attachments with Secure Messages.
+      description: 'BETA: The output definition'
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: messagethreadid
+        schema:
+          type: integer
+        required: true
+        description: messagethreadid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidSecuremessageMessagethreadidAttachments
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - content
+              - name
+              properties:
+                name:
+                  type: string
+                  description: The user facing name of the file attached.
+                content:
+                  type: string
+                  description: The encoded contents of the file to attach.
+                portalthirdpartyuserid:
+                  type: integer
+                  description: If a user is authenticated for the portal, this should
+                    be the ID of the authenticated Portal User.
+        required: true
+      tags:
+      - Patient Secure Messaging
+      - Secure Message Attachment
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

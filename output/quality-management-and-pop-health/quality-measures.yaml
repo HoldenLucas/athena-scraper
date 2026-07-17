@@ -1,0 +1,273 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/{patientid}/qualitymanagement:
+    get:
+      summary: Get quality measures for given patient
+      description: Retrieves the list of quality measures for a given provider
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: status
+        schema:
+          enum:
+          - All
+          - Needs Attention
+          type: string
+          x-enumDescriptions:
+          - All
+          - Needs Attention (includes NEEDSWORK, UNSATISFIED out of range, and SATISFIED
+            but due in the next 3 months)
+        required: false
+        description: Optional filter to only get results with this status
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      - in: query
+        name: providerid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the provider. If not specified, the default provider
+          is used -- usually the provider that has seen the patient most often / recently.
+      - in: query
+        name: measuretype
+        schema:
+          enum:
+          - All
+          - Clinical Guideline
+          - Pay for Performance
+          type: string
+          x-enumDescriptions:
+          - All
+          - Clinical Guideline
+          - Pay for Performance
+        required: false
+        description: Optional filter to only get clinical guidelines or pay for performance
+          results.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  canonicalname:
+                    description: The canonical name of the QM measure displayed in
+                      the UI.
+                    type: string
+                  description:
+                    description: A long description for this measure.
+                    type: string
+                  duedate:
+                    description: The date this measure is next due. This can be a
+                      description like 'Past Due' and not just a date.
+                    type: string
+                  lastresultdate:
+                    description: The date of the most recent clinical data that affected
+                      this measure's outcome.
+                    type: string
+                  measureid:
+                    description: The athenaID for this measure.
+                    type: integer
+                  measurename:
+                    description: The name of the measure. Note that a given measure
+                      may show up multiple times under different programs.
+                    type: string
+                  measureshortname:
+                    description: A shorter version of the name for this measure, suitable
+                      for display.
+                    type: string
+                  measuretype:
+                    description: Either 'Clinical Guideline' or 'Pay for Performance'.
+                      The latter are sourced from different insurance providers.
+                    type: string
+                  note:
+                    description: The note added to the QM measure.
+                    type: string
+                  programname:
+                    description: The name of the program this measure belongs to.
+                    type: string
+                  status:
+                    description: The status of this measure. The valid values are
+                      NOTSATISFIED (either can no longer be fulfilled or has data
+                      that fails the measure), SATISFIED, NEEDSWORK, EXCLUDED, or
+                      SNOOZED (only possible for Clinical Guidelines).
+                    type: string
+                  statustext:
+                    description: A texual description for the status, often with additional
+                      information.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidQualitymanagement
+      x-scopes: []
+      tags:
+      - Chart
+      - Quality Management
+  /v1/{practiceid}/chart/{patientid}/qualitymanagement/refresh:
+    get:
+      summary: Get last created/refresh time of patient's quality measure
+      description: Retrieves the data and time of the last refresh of patient's quality
+        measures
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: The athenaNet department id.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  lastrefresh:
+                    description: The last time this patient's quality management measures
+                      data was refreshed.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidChartPatientidQualitymanagementRefresh
+      x-scopes: []
+      tags:
+      - Chart
+      - Quality Management
+    post:
+      summary: Refresh quality measures for given patient
+      description: Refreshes a patient's quality measure records
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful or not.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartPatientidQualitymanagementRefresh
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              properties:
+                providerid:
+                  type: integer
+                  description: The ID of the provider. If not specified, the default
+                    provider is used -- usually the provider that has seen the patient
+                    most often / recently.
+                departmentid:
+                  type: integer
+                  description: The athenaNet department id.
+        required: true
+      tags:
+      - Chart
+      - Quality Management
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

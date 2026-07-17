@@ -1,0 +1,162 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/lab:
+    post:
+      summary: Create new lab order for given encounter
+      description: Creates a new lab order record for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  documentid:
+                    description: The ID of the document created.
+                    type: integer
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersLab
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - diagnosissnomedcode
+              properties:
+                loinc:
+                  type: string
+                  description: The LOINC of the lab you wish to order. Either this
+                    or ordertypeid can be used, but not both.
+                facilityid:
+                  type: integer
+                  description: The athena ID of the lab you want to send the order
+                    to. Get a localized list using /chart/configuration/facilities.
+                ordertypeid:
+                  type: integer
+                  description: The athena ID of the lab to order. Get the IDs using
+                    /reference/order/lab. Either this or LOINC can be used, but not
+                    both.
+                facilitynote:
+                  type: string
+                  description: A note to send to the lab.
+                highpriority:
+                  type: boolean
+                  description: If true, then the order should be sent STAT.
+                providernote:
+                  type: string
+                  description: An internal note for the provider or staff.
+                futuresubmitdate:
+                  type: string
+                  description: The date the order should be sent. Defaults to today.
+                diagnosissnomedcode:
+                  type: integer
+                  description: The SNOMED code for diagnosis this order is for.
+        required: true
+      tags:
+      - Encounter
+      - Order Lab
+  /v1/{practiceid}/reference/order/lab:
+    get:
+      summary: Get list of orderable Labs
+      description: Retrieves a list of lab orders configured in the system
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderLab
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Lab
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

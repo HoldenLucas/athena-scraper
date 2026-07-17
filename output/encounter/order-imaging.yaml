@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/orders/imaging:
+    post:
+      summary: Create new Imaging order for given encounter
+      description: Creates a new imaging order record for a specific encounter
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Whether the operation was successful.
+                  documentid:
+                    type: integer
+                    description: The ID of the document created.
+                  errormessage:
+                    type: string
+                    description: If the operation failed, this will contain any error
+                      messages.
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridOrdersImaging
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                dateofimaging:
+                  description: The date of the imaging order.
+                  type: string
+                diagnosissnomedcode:
+                  description: The SNOMED code for diagnosis this order is for.
+                  type: integer
+                facilityid:
+                  description: The athena ID of the imaging center you want to send
+                    the order to. Get a localized list using /chart/configuration/facilities.
+                  type: integer
+                facilitynote:
+                  description: A note to send to the imaging center.
+                  type: string
+                futuresubmitdate:
+                  description: The date the order should be sent. Defaults to today.
+                  type: string
+                highpriority:
+                  description: If true, then the order should be sent STAT.
+                  type: boolean
+                insurances:
+                  description: Insurances used in prior authorization of the order.
+                    Practices with the Authorization Management Service enabled cannot
+                    set insurances; filling in this field will result in an error
+                    if that practice setting is ON.
+                  items:
+                    properties:
+                      additionalinformation:
+                        description: Additional information note.
+                        type: string
+                      authorizationnumber:
+                        description: The authorization number.
+                        type: string
+                      effectiveenddate:
+                        description: Effective end date.
+                        type: string
+                      effectivestartdate:
+                        description: Effective start date.
+                        type: string
+                      patientinsuranceid:
+                        description: The patient insurance ID for this authorization.
+                        type: integer
+                      status:
+                        description: 'The authorization status: APPROVED, DENIED,
+                          or NOTREQUIRED.'
+                        enum:
+                        - ''
+                        - ''
+                        - NOTREQUIRED
+                        - APPROVED
+                        - DENIED
+                        type: string
+                    type: object
+                  required:
+                  - patientinsuranceid
+                  type: array
+                ordertypeid:
+                  description: The athena ID of the imaging study to order. Get the
+                    IDs using /reference/order/imaging.
+                  type: integer
+                procedurecodes:
+                  description: The list of procedure codes.
+                  items:
+                    type: string
+                  type: array
+                providernote:
+                  description: An internal note for the provider or staff.
+                  type: string
+              required:
+              - diagnosissnomedcode
+              - ordertypeid
+              type: object
+        required: true
+      tags:
+      - Encounter
+      - Order Imaging
+  /v1/{practiceid}/reference/order/imaging:
+    get:
+      summary: Get list of orderable Imaging Orders
+      description: Retrieves a list of imaging orders which can be ordered
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: searchvalue
+        schema:
+          type: string
+        required: true
+        description: A term to search for. Must be at least 2 characters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  name:
+                    description: The name of the order
+                    type: string
+                  ordertypeid:
+                    description: The athena ID of the type of order
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidReferenceOrderImaging
+      x-scopes: []
+      tags:
+      - Encounter
+      - Order Imaging
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

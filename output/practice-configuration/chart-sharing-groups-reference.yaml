@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/configuration/chartsharinggroups:
+    get:
+      summary: Get practice's list of chart-sharing groups
+      description: Retrieves information about chart sharing groups at a practice
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  chartsharinggroupid:
+                    description: The ID of this chart sharing group.
+                    type: string
+                  created:
+                    description: The date this chart sharing group was created.
+                    type: string
+                  name:
+                    description: The name of this chart sharing group.
+                    type: string
+                  patientfacingname:
+                    description: The patient-friendly name for this chart sharing
+                      group, if set by the practice.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidConfigurationChartsharinggroups
+      x-scopes: []
+      tags:
+      - Administrative
+      - Chart Sharing Groups
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

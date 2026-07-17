@@ -1,0 +1,189 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/patientstatement:
+    get:
+      summary: Get list of patient-statements (optionally with filters)
+      description: Retrieves a list of patient statements for a specific patient chart
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: enddate
+        schema:
+          type: string
+        required: true
+        description: Statements sent on or before this date (mm/dd/yyyy) will be included
+          in the results.
+      - in: query
+        name: claimsinstatement
+        schema:
+          type: boolean
+        required: false
+        description: To view claim details sent in statement.
+      - in: query
+        name: findpdfexist
+        schema:
+          type: boolean
+        required: false
+        description: To check if the statement PDF is available.
+      - in: query
+        name: startdate
+        schema:
+          type: string
+        required: true
+        description: Statements sent on or after this date (mm/dd/yyyy) will be included
+          in the results.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1500, max 5000)
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  claimgroups:
+                    description: List of Claim Ids with provider and department information.
+                    properties:
+                      claimid:
+                        description: Claim ID.
+                        type: integer
+                      providername:
+                        description: Provider name for claim.
+                        type: string
+                      servicelocation:
+                        description: Department where service was taken.
+                        type: string
+                    type: object
+                  claimids:
+                    description: Claim Ids associated with the particular statement
+                    type: string
+                  dunninglevel:
+                    description: Dunning Level of that particular statement
+                    type: number
+                  hasstatementpdf:
+                    description: True if statement PDF available. Will only work when
+                      FINDPDFEXIST input parameter is used.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  method:
+                    description: Mode in which the statement sent Paper/E-statement/Paper
+                      E-statement.
+                    type: string
+                  recipient:
+                    description: Guarantor Name.
+                    type: string
+                  statementdate:
+                    description: The date (mm/dd/yyyy) the statement was created.
+                    type: string
+                  statementid:
+                    description: The ID of the patient statement.
+                    type: number
+                  totalamountdue:
+                    description: The patient's outstanding balance on the statement.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPatientstatement
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Statements
+  /v1/{practiceid}/patients/{patientid}/patientstatementimage:
+    get:
+      summary: Get selected patient-statement in PDF format
+      description: Retrieves a specific patient statement for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: statementid
+        schema:
+          type: integer
+        required: true
+        description: The patient statement ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  pdf:
+                    description: Base64 encoded PDF.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidPatientstatementimage
+      x-scopes: []
+      tags:
+      - Patients
+      - Patient Statements
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

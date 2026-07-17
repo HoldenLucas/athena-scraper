@@ -1,0 +1,191 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/chart/encounter/{encounterid}/externaldictationmessage:
+    post:
+      summary: Submit external dictation request
+      description: Creates a record of the transcription message and adds it to the
+        corresponding dictation
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Boolean flag to indicate a successful call.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridExternaldictationmessage
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - field
+              - transcriptiontext
+              - totalmessagecount
+              properties:
+                field:
+                  enum:
+                  - EXAMFREETEXT
+                  - FREETEXT_NOTE
+                  - ASSESSMENTNOTE
+                  - DISCUSSIONNOTE
+                  - OTHERNOTES
+                  - TEXT
+                  type: string
+                  description: Use this to specify the field that the dictation should
+                    be added under.  Please refer to the documentation for valid values.
+                encountersection:
+                  enum:
+                  - ''
+                  - DiagnosisOrders
+                  - EncounterReason
+                  - HPI
+                  - HPI_Semistructured
+                  - HPI_Structured
+                  - HPI_Templated
+                  - PhysicalExam
+                  - PhysicalExam_Grid
+                  - ReviewOfSystems
+                  - WellChildROS
+                  type: string
+                  description: Use this to specify which section of the encounter
+                    you are adding the transcription message to.  Please refer to
+                    the documentation for valid values.
+                totalmessagecount:
+                  type: integer
+                  description: This is the total amount of transcription messages
+                    you are going to send for this specific dictation. Upon receipt
+                    of all messages, the encounter may then be closed. Please refer
+                    to the documentation for more information.
+                transcriptiontext:
+                  type: string
+                  description: This is the transcription text.
+        required: true
+      tags:
+      - Encounter
+      - Dictations
+  /v1/{practiceid}/chart/encounter/{encounterid}/startexternaldictation:
+    post:
+      summary: Mark start of external dictation for given encounter
+      description: Mark the specific encounter as in the process of receiving transcription
+        messages
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: encounterid
+        schema:
+          type: integer
+        required: true
+        description: encounterid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Boolean flag to indicate a successful call.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidChartEncounterEncounteridStartexternaldictation
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                dictatedby:
+                  type: string
+                  description: The username of the person who recorded this dictation.
+                    Maximum character limit for DICTATEDBY field is 20.
+                dictationrecordeddatetime:
+                  type: string
+                  description: This is the date/time the actual dictation was recorded.
+                    Please convert this value to Eastern time and use the format MM/DD/YYYY
+                    HH24:MI:SS.
+        required: true
+      tags:
+      - Encounter
+      - Dictations
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

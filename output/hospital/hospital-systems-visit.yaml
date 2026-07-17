@@ -1,0 +1,847 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/visits:
+    get:
+      summary: Get list of hospital visits (with filters)
+      description: This endpoint retrieves visits based on a variety of filters.
+      parameters:
+      - description: practiceid
+        in: path
+        name: practiceid
+        required: true
+        schema:
+          type: integer
+      - description: Boolean flag to only return visits where the registration has
+          not been completed.
+        in: query
+        name: unregistered
+        required: false
+        schema:
+          type: boolean
+      - description: Department ID to filter on.
+        in: query
+        name: departmentid
+        required: false
+        schema:
+          type: integer
+      - description: Boolean flag to include visits where department ID is null.
+        in: query
+        name: nodepartment
+        required: false
+        schema:
+          type: boolean
+      - description: Boolean flag to also return visit charges in the output.
+        in: query
+        name: showvisitcharges
+        required: false
+        schema:
+          type: boolean
+      - description: Patient ID to find visits for.
+        in: query
+        name: patientid
+        required: false
+        schema:
+          type: integer
+      - description: Encounter IDs to filter on.
+        in: query
+        name: encounterids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Only return these visit IDs.
+        in: query
+        name: visitids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Boolean flag to include deleted visits in the output.
+        in: query
+        name: showdeleted
+        required: false
+        schema:
+          type: boolean
+      - description: Array of VisitCase IDs to filter on.
+        in: query
+        name: visitcaseids
+        required: false
+        schema:
+          items:
+            type: integer
+          type: array
+      - description: Only return visits that match one of these statuses
+        in: query
+        name: statusids
+        required: false
+        schema:
+          items:
+            enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 21
+            type: integer
+            x-enumDescriptions:
+            - Visit created
+            - Checked in
+            - Discharged
+            - Claim created
+            - Charges transferred
+          type: array
+      - description: Number of entries to return (default 1500, max 5000)
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: Starting point of entries; 0-indexed
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  visitid:
+                    type: integer
+                    description: ID of this visit.
+                  statusid:
+                    type: integer
+                    description: Status ID of the visit.
+                  allergies:
+                    type: string
+                    description: String of allergies.
+                  patientid:
+                    type: integer
+                    description: Patient ID.
+                  razoriser:
+                    type: integer
+                    description: Indicates if the razor encounter is an ER encounter.
+                  statusname:
+                    type: string
+                    description: Status Name.
+                  checkindate:
+                    type: string
+                    description: Date checked in.
+                  createddate:
+                    type: string
+                    description: Date created.
+                  deleteddate:
+                    type: string
+                    description: Date the visit was deleted.
+                  deletednote:
+                    type: string
+                    description: Note recording the reason for deletion of the visit.
+                  problemlist:
+                    type: string
+                    description: String of problems for the patient for this visit.
+                  visitcaseid:
+                    type: integer
+                    description: Visit Case ID.
+                  departmentid:
+                    type: integer
+                    description: Department ID of this visit.
+                  visitbillids:
+                    type: array
+                    items:
+                      type: integer
+                    description: Visit Bill IDs.
+                  visitcharges:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ndc:
+                          type: string
+                          description: NDC.
+                        type:
+                          type: string
+                          description: Type of charge.
+                        units:
+                          type: string
+                          description: Units.
+                        amount:
+                          type: string
+                          description: Amount of the charge.
+                        postdate:
+                          type: string
+                          description: The date this charge posted.
+                        softcode:
+                          type: string
+                          description: Soft code.
+                        voidedby:
+                          type: string
+                          description: Username of the person that voided this charge.
+                        createdby:
+                          type: string
+                          description: Username that created this charge.
+                        deletedby:
+                          type: string
+                          description: Username that deleted this charge.
+                        modifiers:
+                          type: string
+                          description: Modifiers.
+                        chargedate:
+                          type: string
+                          description: Date of the charge.
+                        drugdosage:
+                          type: string
+                          description: Dosage of the drug.
+                        hcpcsunits:
+                          type: string
+                          description: HCPCS unit.
+                        providerid:
+                          type: integer
+                          description: ID of the provider associated with this charge.
+                        unitamount:
+                          type: string
+                          description: Unit amount.
+                        voideddate:
+                          type: string
+                          description: Date this charge was voided.
+                        createddate:
+                          type: string
+                          description: Date this charge was created.
+                        deleteddate:
+                          type: string
+                          description: Date this charge was deleted.
+                        description:
+                          type: string
+                          description: Description of this charge.
+                        revenuecode:
+                          type: integer
+                          description: Revenue code.
+                        visitbillid:
+                          type: integer
+                          description: ID of the visit bill.
+                        voidparentid:
+                          type: integer
+                          description: ID for the void parent.
+                        levelofcareid:
+                          type: integer
+                          description: Level of care ID.
+                        procedurecode:
+                          type: string
+                          description: Procedure code.
+                        visitchargeid:
+                          type: integer
+                          description: ID of the visit charge.
+                        claimcreatedyn:
+                          enum:
+                          - ''
+                          - false
+                          - true
+                          type: string
+                          description: Boolean indication claim creation.
+                        lastmodifiedby:
+                          type: string
+                          description: The username of the person to last modify this
+                            charge.
+                        visitsegmentid:
+                          type: integer
+                          description: ID of the visit segment.
+                        chargecodeunits:
+                          type: string
+                          description: Units of the charge code.
+                        foreignsystemid:
+                          type: string
+                          description: ID of the foreign system.
+                        originalvisitid:
+                          type: integer
+                          description: ID of the original visit.
+                        lastmodifieddate:
+                          type: string
+                          description: The date this charge was last modified on.
+                        drugunitqualifier:
+                          type: string
+                          description: Drug unit qualifier.
+                        dynamicunitamount:
+                          type: string
+                          description: Dynamic unit amount.
+                        visitdepartmentid:
+                          type: integer
+                          description: ID of the visit department.
+                        chargedepartmentid:
+                          type: integer
+                          description: Charges department ID.
+                        parentvisitchargeid:
+                          type: integer
+                          description: The parent visit charge ID.
+                        servicedepartmentid:
+                          type: integer
+                          description: Service department ID.
+                        chargemasterchargeid:
+                          type: integer
+                          description: Charges master charge ID.
+                        primarypatientinsuranceid:
+                          type: integer
+                          description: Primary patient ID.
+                    description: Visit Charges.
+                  dischargedate:
+                    type: string
+                    description: Date discharged.
+                  hospitalbedid:
+                    type: integer
+                    description: Hospital Bed ID.
+                  levelofcareid:
+                    type: integer
+                    description: Level Of Care ID.
+                  maincomplaint:
+                    type: string
+                    description: Main Complaint.
+                  departmentname:
+                    type: string
+                    description: Department name for this visit.
+                  hospitalroomid:
+                    type: integer
+                    description: Hospital Room ID.
+                  registereddate:
+                    type: string
+                    description: Date registered.
+                  accommodationid:
+                    type: integer
+                    description: Accommodation ID attached to this visit.
+                  admissiontypeid:
+                    type: integer
+                    description: Admission Type ID attached to this visit.
+                  levelofcarename:
+                    type: string
+                    description: Level Of Care Name.
+                  statusshortname:
+                    type: string
+                    description: Status Short Name.
+                  transfervisitid:
+                    type: integer
+                    description: Transfer Visit ID.
+                  lastmodifieddate:
+                    type: string
+                    description: Date the visit was modified last.
+                  razorencounterid:
+                    type: integer
+                    description: Razor Encounter ID.
+                  admissionsourceid:
+                    type: integer
+                    description: Admission Source ID attached to this visit.
+                  admissiontypecode:
+                    type: string
+                    description: Admission Type Code attached to this visit.
+                  admissiontypename:
+                    type: string
+                    description: Admission Type Name attached to this visit.
+                  mspinsurancetypeid:
+                    type: integer
+                    description: MSP Insurance Type ID.
+                  admissionsourcecode:
+                    type: string
+                    description: Admission Source Code attached to this visit.
+                  admissionsourcename:
+                    type: string
+                    description: Admission Source Name attached to this visit.
+                  admittingproviderid:
+                    type: integer
+                    description: Admitting Provider ID attached to this visit.
+                  attendingproviderid:
+                    type: integer
+                    description: Attending Provider ID for this visit.
+                  dischargeproviderid:
+                    type: integer
+                    description: Discharge Provider ID for this visit.
+                  firstvisitsegmentid:
+                    type: integer
+                    description: First Visit Segment ID.
+                  operatingproviderid:
+                    type: integer
+                    description: Operating Provider ID.
+                  currentvisitsegmentid:
+                    type: integer
+                    description: Current Visit Segment ID.
+                  mspinsurancetypesetyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: MSP Insurance Type Set.
+                  dischargedispositionid:
+                    type: integer
+                    description: Discharge Disposition ID for this visit.
+                  registrationcompleteyn:
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                    description: Indicates whether or not registration is complete
+                      for this visit.
+                  dischargedispositioncode:
+                    type: string
+                    description: Discharge Disposition Code of this visit.
+                  dischargedispositionname:
+                    type: string
+                    description: Discharge Disposition Name for this visit.
+                  otheroperatingproviderid:
+                    type: integer
+                    description: Other Operating Provider ID.
+                  primarypatientinsuranceid:
+                    type: integer
+                    description: Primary Patient Insurance ID.
+                  secondarypatientinsuranceid:
+                    type: integer
+                    description: Secondary Patient Insurance ID.
+          description: Success
+      operationId: getPracticeidVisits
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Visits
+  /v1/{practiceid}/visits/{visitid}/visitcharge:
+    post:
+      summary: Add visit charge to a hospital visit
+      description: Create a record of visit charge to a Hospital visit
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: visitid
+        schema:
+          type: integer
+        required: true
+        description: visitid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errormessage:
+                    description: If the operation failed, this will contain any error
+                      messages.
+                    type: string
+                  success:
+                    description: Whether the operation was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  visitchargeids:
+                    description: If the operation succeeded, this will contain the
+                      IDs of any visit charges that were created.
+                    items:
+                      type: integer
+                    type: array
+                type: object
+          description: Success
+      operationId: postPracticeidVisitsVisitidVisitcharge
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - chargedate
+              - visitcharges
+              properties:
+                username:
+                  type: string
+                  description: Username of who is creating the charge.
+                chargedate:
+                  type: string
+                  description: Date of the charge. Formatted as MM/DD/YYYY.
+                visitcharges:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      ndc:
+                        type: string
+                        description: The NDC.
+                      cost:
+                        type: number
+                        description: The cost of this visit charge. Used when submitting
+                          charges without a charge code. Ignored otherwise.
+                      quantity:
+                        type: string
+                        description: The quantity of what is being used.
+                      modifiers:
+                        type: string
+                        description: Comma separated list of modifiers
+                      chargecode:
+                        type: string
+                        description: The charge description master (CDM) code that
+                          is associated with this charge. If null chargecode then
+                          a pending charge is created to be worked by the CDM staff.
+                      chargetime:
+                        type: string
+                        description: The time of day the item or service was charged
+                          (HH24:MI in local time).
+                      drugdosage:
+                        type: string
+                        description: The dosage of the drugs, if this is a drug being
+                          created.
+                      description:
+                        type: string
+                        description: A description of the charge. This is to be used
+                          in conjuction with the null chargecode to create a pending
+                          charge.
+                      foreignsystemid:
+                        type: string
+                        description: The mapping ID to your system.
+                      drugunitqualifier:
+                        type: string
+                        description: A qualifier for the drug unit.
+                  required:
+                  - quantity
+                  description: An array of charges to be added to a Visit.
+                renderingproviderid:
+                  type: integer
+                  description: The rendering provider's ID.
+                servicedepartmentid:
+                  type: integer
+                  description: The department where the service happened.
+        required: true
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+  /v1/{practiceid}/visits/changed:
+    get:
+      summary: Get list of changes in hospital visits based on subscribed events
+      description: Retrieves the list of changes in hospital visits
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: departmentid
+        schema:
+          type: array
+          items:
+            type: integer
+        required: false
+        description: Department ID. Multiple departments are allowed, either comma
+          separated or with multiple values.
+      - in: query
+        name: leaveunprocessed
+        schema:
+          type: boolean
+        required: false
+        description: For testing purposes, do not mark records as processed.
+      - in: query
+        name: showprocessedstartdatetime
+        schema:
+          type: string
+        required: false
+        description: Show already processed changes.  This will show changes that
+          you previously retrieved at some point after this datetime mm/dd/yyyy hh24:mi:ss
+          (Eastern). Can be used to refetch data if there was an error, such as a
+          timeout, and records are marked as already retrieved. This is intended to
+          be used with showprocessedenddatetime and for a short period of time only.
+          Also note that all messages will eventually be deleted.
+      - in: query
+        name: showprocessedenddatetime
+        schema:
+          type: string
+        required: false
+        description: See showprocessedstartdatetime.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  checkindate:
+                    description: Timestamp for when the patient was checked in as
+                      MM/DD/YYY.
+                    type: string
+                  departmentid:
+                    description: The department ID this visit is associated with.
+                    type: integer
+                  dischargedate:
+                    description: Timestamp for when the patient was discharged as
+                      MM/DD/YYY.
+                    type: string
+                  hospitalbed:
+                    description: The hospital bed associated with the visit.
+                    type: string
+                  hospitalroom:
+                    description: The hospital room associated with the visit.
+                    type: string
+                  patientname:
+                    description: The name of the patient for whom this visit belongs
+                      to.
+                    type: string
+                  visitcaseid:
+                    description: The ID of the visitcase associated with this visit.
+                      This is the Visit number shown at the top of the Patient Access
+                      and Billing views of a hospital visit.
+                    type: integer
+                  visitid:
+                    description: The ID of this visit. Although it can be the same,
+                      this is not the Visit number shown at the top of the Patient
+                      Access and Billing views of a hospital visit.
+                    type: integer
+                  visitstatus:
+                    description: The current status of the visit.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidVisitsChanged
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+  /v1/{practiceid}/visits/changed/subscription:
+    post:
+      summary: Subscribe to all/specific change events for hospital visits
+      description: Subscribes for changed hospital visits events
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      visits was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidVisitsChangedSubscription
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                eventname:
+                  type: string
+                  description: By default, you are subscribed to all possible events.  If
+                    you only wish to subscribe to an individual event, pass the event
+                    name with this argument.
+                departmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: 'For every New/Update Subscriptions complete list of
+                    departmentids should be passed. NOTE: Without DepartmentIDs entire
+                    Context/Practice will be subscribed.'
+        required: true
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+    delete:
+      summary: Unsubscribe to all/specific change events for hospital visits
+      description: Delete a specific event which is no longer required
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: query
+        name: eventname
+        schema:
+          type: string
+        required: false
+        description: By default, you are unsubscribed from all possible events.  If
+          you only wish to unsubscribe from an individual event, pass the event name
+          with this argument.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: Returns if the call to manipulate subscriptions for
+                      visits was successful.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: deletePracticeidVisitsChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+    get:
+      summary: Get list of subscribed events for changes in hospital visits
+      description: Retrieves list of events applicable for hospital visit changes
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidVisitsChangedSubscription
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+  /v1/{practiceid}/visits/changed/subscription/events:
+    get:
+      summary: Get list of hospital visits change events to which you can subscribe
+      description: Retrieves a list of events you can subscribe to for when visits
+        are updated or checked in.
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  departmentids:
+                    description: List of Departmentids subscribed
+                    items:
+                      type: integer
+                    type: array
+                  status:
+                    description: 'Will return one of following statuses: ACTIVE, INACTIVE,
+                      or PARTIAL. The PARTIAL status means that not all events are
+                      subscribed to. In the event of a problem, UNKNOWN may be returned.'
+                    type: string
+                  subscriptions:
+                    description: List of events you are subscribed to.
+                    items:
+                      properties:
+                        eventname:
+                          description: Name of event
+                          type: string
+                      type: object
+                    type: array
+                type: object
+          description: Success
+      operationId: getPracticeidVisitsChangedSubscriptionEvents
+      x-scopes: []
+      tags:
+      - Inpatient
+      - Hospital Systems Visits
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

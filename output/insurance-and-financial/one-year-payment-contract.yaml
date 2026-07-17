@@ -1,0 +1,414 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/misc/oneyearcontractterms:
+    get:
+      summary: Get terms for 1-year contract
+      description: Retrieves terms for one year payment contract
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  terms:
+                    description: The static contract terms.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidMiscOneyearcontractterms
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - One Year Contracts
+  /v1/{practiceid}/patients/{patientid}/collectpayment/oneyear:
+    get:
+      summary: Get list of 1-year contract (department)
+      description: Retrieves one year payment contract for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the department where the payment or contract is being
+          collected. This parameter is currently not formally required. However, it
+          will be in a future patch so it is highly recommended that this parameter
+          is used.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    type: string
+                  balance:
+                    description: The remaining balance for this contract.
+                    type: string
+                  endeddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      ends/ended.
+                    type: string
+                  epaymentcontractclass:
+                    description: The contract class, either ONEYEAR or SINGLEAPPOINTMENT.
+                    type: string
+                  epaymentid:
+                    description: The epayment ID associated with this contract. This
+                      is useful for getting a copy of the receipt.
+                    type: string
+                  maxamount:
+                    description: The maximum amount for this contract.
+                    type: string
+                  signeddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      was signed.
+                    type: string
+                  starteddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      was started.
+                    type: string
+                  status:
+                    description: The contract status (ACTIVE, PAID, CANCELLED, FAILED,
+                      EXPIRED).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidCollectpaymentOneyear
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - One Year Contracts
+  /v1/{practiceid}/patients/{patientid}/collectpayment/oneyear/{appointmentid}:
+    post:
+      summary: Submit authorizations for 1-year contract (appointment)
+      description: Creates a record of authorization for 1 year payment contract for
+        a specific appointment
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  epaymentid:
+                    description: "\n\t\t\t\t\tAfter a successful payment, this ID\
+                      \ can be used to retrieve\n\t\t\t\t\tthe receipt.\n\t\t\t\t"
+                    type: integer
+                  errortext:
+                    description: The error text returned by the credit card processor.
+                    type: string
+                  success:
+                    description: true for success.  false for an error.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidCollectpaymentOneyearAppointmentid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - billingzip
+              - email
+              - billingaddress
+              properties:
+                email:
+                  type: string
+                  description: The email address of the patient. This is the email
+                    that the notification that the charge is about to happen and the
+                    receipt afterwards will be emailed to.
+                maxamount:
+                  type: integer
+                  description: The maximum amount that will be charged when remittance
+                    information is received.
+                trackdata:
+                  type: string
+                  description: The track data obtained from the credit card swipe.
+                    This can be track1 and/or track2 data. In either case, please
+                    including the start and end sentinels. ("%" and "?" for track1
+                    and ";" and "?" for track2.)
+                billingzip:
+                  type: string
+                  description: The billing zipcode for the credit card.
+                nameoncard:
+                  type: string
+                  description: 'The name on the credit card.  (Required if trackdata
+                    is not supplied; track 2 does NOT supply name.)  Please truncate
+                    at 30 characters. (Max length: 30)'
+                claimpayment:
+                  type: array
+                  items:
+                    type: object
+                  description: 'A JSON representation of claim ID and payment combinations.  For
+                    example, ''[ { "1":"1.00"}, { "2":"5.00"} ].''  This indicates
+                    a payment of $1 for claim ID #1 and a payment of $5 for claim
+                    ID #2.'
+                departmentid:
+                  type: integer
+                  description: The ID of the department where the payment or contract
+                    is being collected.
+                todayservice:
+                  type: boolean
+                  description: Apply the other amount value to today's service.
+                accountnumber:
+                  type: string
+                  description: The account number of the credit card.  (Required if
+                    trackdata is not supplied.)
+                ecommercemode:
+                  type: boolean
+                  description: Use ECommerce credit card mode (e.g. for telemedicine).
+                    trackdata may NOT be used if this mode is true.
+                billingaddress:
+                  type: string
+                  description: 'The billing address for the credit card. (Max length:
+                    20)'
+                cardsecuritycode:
+                  type: integer
+                  description: 'The CVV2: the 3 (or 4 for Amex) digit value normally
+                    found on the back (or front for Amex) of the credit card.  When
+                    creating contracts, this is required if using accountnumber instead
+                    of track data.'
+                expirationmonthmm:
+                  type: integer
+                  description: The month the credit card expires (MM).  (Required
+                    if trackdata is not supplied.)
+                expirationyearyyyy:
+                  type: integer
+                  description: The year the credit card expires (YYYY).  (Required
+                    if trackdata is not supplied.)
+                allowduplicatepayments:
+                  type: boolean
+                  description: Allows duplicate payments.
+        required: true
+      tags:
+      - Insurance/Financial
+      - One Year Contracts
+    get:
+      summary: View authorizations for 1-year contracts (appointment)
+      description: Retrieves any contracts currently on patient's file
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: path
+        name: appointmentid
+        schema:
+          type: integer
+        required: true
+        description: appointmentid
+      - in: query
+        name: departmentid
+        schema:
+          type: integer
+        required: false
+        description: The ID of the department where the payment or contract is being
+          collected. This parameter is currently not formally required. However, it
+          will be in a future patch so it is highly recommended that this parameter
+          is used.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  appointmentid:
+                    type: string
+                  balance:
+                    description: The remaining balance for this contract.
+                    type: string
+                  endeddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      ends/ended.
+                    type: string
+                  epaymentcontractclass:
+                    description: The contract class, either ONEYEAR or SINGLEAPPOINTMENT.
+                    type: string
+                  epaymentid:
+                    description: The epayment ID associated with this contract. This
+                      is useful for getting a copy of the receipt.
+                    type: string
+                  maxamount:
+                    description: The maximum amount for this contract.
+                    type: string
+                  signeddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      was signed.
+                    type: string
+                  starteddatetime:
+                    description: The mm/dd/yyyy hh24:mi:ss timestamp when this contract
+                      was started.
+                    type: string
+                  status:
+                    description: The contract status (ACTIVE, PAID, CANCELLED, FAILED,
+                      EXPIRED).
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidCollectpaymentOneyearAppointmentid
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - One Year Contracts
+  /v1/{practiceid}/patients/{patientid}/collectpayment/oneyear/{contractid}/emailagreement:
+    post:
+      summary: Send email containing 1-year contract agreement
+      description: Generate an email to the patient and send the Card on File Agreement
+        for one year contracts.
+      parameters:
+      - in: path
+        name: contractid
+        schema:
+          type: integer
+        required: true
+        description: contractid
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    description: True if operation was sucessful, false otherwise.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidCollectpaymentOneyearContractidEmailagreement
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - email
+              properties:
+                email:
+                  type: string
+                  description: The email address that we want to send the Card on
+                    File Agreement to
+                departmentid:
+                  type: integer
+                  description: The id of an active department for the patient.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Email Card on file Agreements
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

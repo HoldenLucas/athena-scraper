@@ -1,0 +1,264 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/departments/{departmentid}:
+    get:
+      summary: Get specific department information
+      description: Retrieves detailed information of a specific department
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: departmentid
+        schema:
+          type: integer
+        required: true
+        description: departmentid
+      - in: query
+        name: providerlist
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, list providers who see patients in this department.
+          Default is false.
+      - in: query
+        name: showalldepartments
+        schema:
+          type: boolean
+        required: false
+        description: By default, departments hidden in the portal do not appear. When
+          this is set to true, that restriction is not applied. Default is false.
+      - in: query
+        name: showdeleted
+        schema:
+          type: boolean
+        required: false
+        description: If set to true, include deleted departments in the result set.
+          Default is false.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    description: The address for this department.
+                    type: string
+                  address2:
+                    description: The address (line 2) for this department.
+                    type: string
+                  chartsharinggroupid:
+                    description: The chart sharing group ID puts departments (that
+                      are enabled for Clinicals) into groups with regards to clinical
+                      information. Any chart related GET calls with department IDs
+                      that are in the same chart sharing group generally return the
+                      same set of information. For example, if department IDs 1 and
+                      2 are in chart sharing group 1000 and department IDs 20 and
+                      21 are in chart sharing group 2000, the allergies endpoint for
+                      department ID 1 or 2 will return the same set of data, and using
+                      department IDs 20 and 21 may return a different set of allergies.
+                      Most commonly, this is used to ensure mental health and other
+                      sensitive charts remain separate from other data.
+                    type: string
+                  city:
+                    description: The city for this department.
+                    type: string
+                  clinicalproviderfax:
+                    description: This is the department's fax number for receiving
+                      orders.
+                    type: string
+                  clinicals:
+                    description: Is Clinicals turned on for this department. Possible
+                      values are "ON", "OFF", "DOCUMENTSONLY" (which means that they
+                      accept documents, but generally not doing encounters in Clinicals)
+                      or "ADMINONLY" which for most purposes is the same as "OFF",
+                      though means that it is in the middle of implementation.
+                    type: string
+                  communicatorbrandid:
+                    description: The ID of the patient-facing brand this department
+                      belongs to.
+                    type: string
+                  creditcardtypes:
+                    description: An array of credit card types accepted in this department
+                      (for retail transactions). If not present, credit cards can
+                      not be processed for this department for retail transactions.
+                    type: string
+                  departmentid:
+                    description: The department ID.  This ID is local to each practice.
+                    type: string
+                  doesnotobservedst:
+                    description: Set to true if this practice does not observe daylight
+                      savings time.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  ecommercecreditcardtypes:
+                    description: An array of credit card types accepted in this department
+                      (for ecommerce transactions). If not present, credit cards can
+                      not be processed for this department for ecommerce transactions.
+                    type: string
+                  fax:
+                    description: This is the department's fax number.  Sometimes this
+                      is not configured even though the department can receive faxes.  This
+                      happens when the main clinical provider has their fax number
+                      set up but the department does not.  You should check both this
+                      field and the "clinicalproviderfax" field when determining if
+                      faxes are possible.
+                    type: string
+                  federaltaxid:
+                    description: This is the Federal Tax id number.
+                    type: string
+                  ishospitaldepartment:
+                    description: Flag denoting if this department is a hospital department.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  latitude:
+                    description: The latitude may be set by the practice to correct
+                      any bad public mapping data.  In degrees, with a decimal component.
+                    type: string
+                  longitude:
+                    description: The longitude may be set by the practice to correct
+                      any bad public mapping data.  In degrees, with a decimal component.
+                    type: string
+                  medicationhistoryconsent:
+                    description: Should medication history consent be asked in this
+                      practice. This is a practice-wide setting at the end of the
+                      day; if it is on for one Clinicals department (of status "ON"),
+                      it will be on for all Clinicals departments.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  name:
+                    description: The department's name.
+                    type: string
+                  oneyearcontractmax:
+                    description: For a year long payment contract, the practice's
+                      suggested maximum amount for this department.
+                    type: string
+                  patientdepartmentname:
+                    description: The patient-friendly name for this department, if
+                      set by the practice.
+                    type: string
+                  phone:
+                    description: This number is not always patient-facing; it may
+                      be a "back line".
+                    type: string
+                  placeofservicefacility:
+                    description: Is this department a "facility" or not
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  placeofservicetypeid:
+                    description: An athena-internal ID for the type of service location
+                      (e.g. office vs. hospital)
+                    type: string
+                  placeofservicetypename:
+                    description: The name describing the type of service location
+                      (e.g. office vs. hospital)
+                    type: string
+                  portalurl:
+                    description: The URL for the practice or the portal, if available,
+                      for this department.  This may be the practice's website where
+                      they have a link to the portal.
+                    type: string
+                  providergroupid:
+                    description: The ID of the financial group this department belongs
+                      to.  Not all practices have distinct financial groups.
+                    type: string
+                  providergroupname:
+                    description: The name of the financial group this department belongs
+                      to.  Not all practices have distinct financial groups.
+                    type: string
+                  providerlist:
+                    description: If providerlist is passed in (set to true), a list
+                      of provider IDs
+                    type: string
+                  servicedepartment:
+                    description: Indicates if this is a department where billable
+                      services are performed (i.e. a department where you can create
+                      claims).
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  singleappointmentcontractmax:
+                    description: For a single appointment payment contract, the practice's
+                      suggested maximum amount for this department.
+                    type: string
+                  state:
+                    description: The state for this department.
+                    type: string
+                  timezone:
+                    description: The timezone for this department, offset from UTC/GMT.
+                    type: string
+                  timezonename:
+                    description: ' Timezone name of the department. '
+                    type: string
+                  timezoneoffset:
+                    description: The "normal" timezone offset from UTC/GMT.  The "timezone"
+                      combines this and "doesnotobservedst".  During daylight savings,
+                      this is 1 less than "timezone".
+                    type: string
+                  typeofbill:
+                    description: This is the name of type of bill for the department.
+                    type: string
+                  zip:
+                    description: The zip code for this department.
+                    type: string
+                type: object
+          description: Success
+      operationId: getPracticeidDepartmentsDepartmentid
+      x-scopes: []
+      tags:
+      - Administrative
+      - Departments
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []

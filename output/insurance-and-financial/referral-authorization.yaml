@@ -1,0 +1,460 @@
+openapi: 3.0.0
+info:
+  description: Welcome to the API developer portal which gives third parties access
+    to our APIs and sandbox to develop integrated solutions that will enhance the
+    value and functionality offered by athenaOne®.
+  title: athena API collection
+  version: '0.1'
+components:
+  securitySchemes:
+    api_auth_preview:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.preview.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Preview
+    api_auth:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.platform.athenahealth.com/oauth2/v1/token
+          scopes:
+            athena/service/Athenanet.MDP.*: API Production
+    bearer_auth:
+      type: http
+      scheme: bearer
+servers:
+- url: https://api.preview.platform.athenahealth.com
+  description: Preview
+- url: https://api.platform.athenahealth.com
+  description: Production
+paths:
+  /v1/{practiceid}/patients/{patientid}/referralauths:
+    post:
+      summary: Submit referral-authorizations
+      description: Adds new referral authorizations for a specific patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  referralauthid:
+                    description: The ID of the referral authorization created.
+                    type: integer
+                  success:
+                    description: True if the API was successfully processed.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: postPracticeidPatientsPatientidReferralauths
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - referringproviderid
+              - insuranceid
+              properties:
+                note:
+                  type: string
+                  description: The note attached to this referral authorization.
+                startdate:
+                  type: string
+                  description: The start date of when the referral authorization is
+                    valid.
+                visitsleft:
+                  type: integer
+                  description: The number of visits remaining from this authorization.
+                insuranceid:
+                  type: integer
+                  description: The athena patient insurance ID.
+                departmentid:
+                  type: integer
+                  description: The department ID associated with this authorization.
+                appointmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: The appointment ID associated with this authorization.
+                expirationdate:
+                  type: string
+                  description: The expiration date of when the referral authorization
+                    is valid.
+                procedurecodes:
+                  type: array
+                  items:
+                    type: string
+                  description: 'The procedure codes (CPT) associated with this referral
+                    authorization. Procedure Codes should be given in double quotes
+                    only. Example: ["00770","15000,AS","0147T"]'
+                visitsapproved:
+                  type: integer
+                  description: The number of visits approved by this authorization.
+                notestoprovider:
+                  type: string
+                  description: The notes for the provider.
+                specifiesvisits:
+                  type: boolean
+                  description: Determines whether or not this authorization specifies
+                    visits.
+                icd9diagnosiscodes:
+                  type: array
+                  items:
+                    type: string
+                  description: The ICD9 codes associated with this referral authorization.
+                noreferralrequired:
+                  type: boolean
+                  description: If set to true, then the insurance authorization number
+                    is not required.
+                referralauthnumber:
+                  type: string
+                  description: The referral authorization number.  This input can
+                    by bypassed with the NOREFERRALREQUIRED parameter.
+                icd10diagnosiscodes:
+                  type: array
+                  items:
+                    type: string
+                  description: The ICD10 codes associated with this referral authorization.
+                referringproviderid:
+                  type: integer
+                  description: The athena referring provider ID associated with this
+                    authorization.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Authorizations and Referrals
+    get:
+      summary: Get referral-authorizations
+      description: Retrieves the list of authorizations and referrals for a specific
+        patient
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: query
+        name: showexpired
+        schema:
+          type: boolean
+        required: false
+        description: If set, results will include expired authorizations/referrals.
+          This defaults to false.
+      - in: query
+        name: insuranceid
+        schema:
+          type: integer
+        required: false
+        description: The insurance ID.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        required: false
+        description: Number of entries to return (default 1000, max 10000)Please note
+          that this endpoint has a different default and max than normal.
+      - in: query
+        name: offset
+        schema:
+          type: integer
+        required: false
+        description: Starting point of entries; 0-indexed
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  ansinamecode:
+                    description: This is the ANSI name and code for this referring
+                      provider's specialty.
+                    type: string
+                  ansispecialtycode:
+                    description: The ANSI specialty code for this referring provider.
+                    type: string
+                  appointmentids:
+                    description: The appointment ID associated with this authorization.
+                    items:
+                      type: integer
+                    type: array
+                  departmentid:
+                    description: The department id
+                    type: integer
+                  diagnosiscode:
+                    description: The diagnosis code(s).
+                    type: string
+                  documentid:
+                    description: The document id
+                    type: string
+                  enddate:
+                    description: The date the authorization/referral is no longer
+                      effective.
+                    type: string
+                  expired:
+                    description: Flag that specifies whether or not the authorization/referral
+                      is expired.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  icd10diagnosiscode:
+                    description: The ICD-10 diagnosis code(s).
+                    type: string
+                  insuranceidnumber:
+                    description: Patient's member number on the insurance package
+                    type: string
+                  insurancepackagename:
+                    description: Name of the patient's insurance package
+                    type: string
+                  lastmodified:
+                    description: The date when the referral auth was last modified
+                    type: string
+                  lastmodifiedby:
+                    description: The user who last modified the referral auth
+                    type: string
+                  noreferralrequired:
+                    description: If set to true, then the insurance authorization
+                      number is not required.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                  note:
+                    description: The note attached to the authorization/referral.
+                    type: string
+                  notestoprovider:
+                    description: The notes for the provider.
+                    type: string
+                  procedurecode:
+                    description: The procedure code(s).
+                    type: string
+                  referralauthid:
+                    description: The referral/authorization ID.
+                    type: integer
+                  referralauthnumber:
+                    description: The referral authorization number.  If this is passed
+                      in, then the REFERRINGPROVIDERID is required. This input can
+                      by bypassed with the NOREFERRALREQUIRED parameter.
+                    type: string
+                  referralauthtype:
+                    description: Determines whether the form is an AUTHORIZATION or
+                      REFERRAL.
+                    type: string
+                  referralauthunits:
+                    description: The unit (VISITS, UNITS) of count for this authorization/referral.
+                    type: string
+                  referredtoproviderid:
+                    description: The referred-to provider ID.
+                    type: integer
+                  referringproviderid:
+                    description: The referring provider ID.
+                    type: integer
+                  requisitionid:
+                    description: The id of requisition the referralauth was obtained
+                      from
+                    type: integer
+                  specialty:
+                    description: A friendly name for this provider's specialty.
+                    type: string
+                  specialtyid:
+                    description: The specialty ID.
+                    type: integer
+                  startdate:
+                    description: The starting date the authorization/referral is effective.
+                    type: string
+                  visitsapproved:
+                    description: The number of visits/units approved. Please see field
+                      REFERRALAUTHUNITS for the type.
+                    type: integer
+                  visitsleft:
+                    description: The number of visits/units remaining. Please see
+                      field REFERRALAUTHUNITS for the type.
+                    type: integer
+                type: object
+          description: Success
+      operationId: getPracticeidPatientsPatientidReferralauths
+      x-scopes: []
+      tags:
+      - Insurance/Financial
+      - Authorizations and Referrals
+  /v1/{practiceid}/patients/{patientid}/referralauths/{referralauthid}:
+    put:
+      summary: Update single referral-authorization
+      description: Modifies an existing record for specific referral authorizations
+      parameters:
+      - in: path
+        name: practiceid
+        schema:
+          type: integer
+        required: true
+        description: practiceid
+      - in: path
+        name: referralauthid
+        schema:
+          type: integer
+        required: true
+        description: referralauthid
+      - in: path
+        name: patientid
+        schema:
+          type: integer
+        required: true
+        description: patientid
+      - in: header
+        name: Content-Type
+        schema:
+          type: string
+        required: true
+        description: Content type of the payload
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  referralauthid:
+                    description: The ID of the referral authorization created.
+                    type: integer
+                  success:
+                    description: True if the API was successfully processed.
+                    enum:
+                    - ''
+                    - false
+                    - true
+                    type: string
+                type: object
+          description: Success
+      operationId: putPracticeidPatientsPatientidReferralauthsReferralauthid
+      x-scopes: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - departmentid
+              - insuranceid
+              properties:
+                notes:
+                  type: string
+                  description: The note attached to this referral authorization.
+                visits:
+                  type: boolean
+                  description: Determines whether or not this authorization specifies
+                    visits.
+                startdate:
+                  type: string
+                  description: The start date of when the referral authorization is
+                    valid.
+                visitsleft:
+                  type: integer
+                  description: The number of visits remaining from this authorization.
+                insuranceid:
+                  type: integer
+                  description: The athena patient insurance ID.
+                departmentid:
+                  type: integer
+                  description: The department ID associated with this authorization.
+                appointmentids:
+                  type: array
+                  items:
+                    type: integer
+                  description: The appointment ID associated with this authorization.
+                    Any appointment IDs updated will add on to the list of associated
+                    appointments.
+                expirationdate:
+                  type: string
+                  description: The expiration date of when the referral authorization
+                    is valid.
+                procedurecodes:
+                  type: array
+                  items:
+                    type: string
+                  description: 'The procedure codes (CPT) associated with this referral
+                    authorization. Any updates will replace the current procedure
+                    codes. Procedure Codes should be given in double quotes only.
+                    Example: ["00770","15000,AS","0147T"]'
+                visitsapproved:
+                  type: integer
+                  description: The number of visits approved by this authorization.
+                notestoprovider:
+                  type: string
+                  description: The notes for the provider.
+                icd9diagnosiscodes:
+                  type: array
+                  items:
+                    type: string
+                  description: The ICD9 codes associated with this referral authorization.
+                    Any updates will replace the current ICD9 diagnosis codes. Updates
+                    to ICD9DIAGNOSISCODES must also be made in tandem with ICD10DIAGNOSISCODES.
+                    If ICD10 codes are not passed in along, existing ones will be
+                    removed.
+                noreferralrequired:
+                  type: boolean
+                  description: If set to true, then the insurance authorization number
+                    is not required.
+                referralauthnumber:
+                  type: string
+                  description: The referral authorization number.  If this is passed
+                    in, then the REFERRINGPROVIDERID is required. This input can by
+                    bypassed with the NOREFERRALREQUIRED parameter.
+                icd10diagnosiscodes:
+                  type: array
+                  items:
+                    type: string
+                  description: The ICD10 codes associated with this referral authorization.
+                    Any updates will replace the current ICD10 diagnosis codes. Updates
+                    to ICD10DIAGNOSISCODES must also be made in tandem with ICD9DIAGNOSISCODES.
+                    IF ICD9 codes are not passed in along, existing ones will be removed
+                referringproviderid:
+                  type: integer
+                  description: The athena referring provider ID associated with this
+                    authorization. Required if REFERRALAUTHNUMBER is passed in.
+        required: true
+      tags:
+      - Insurance/Financial
+      - Authorizations and Referrals
+metadata: []
+security:
+- api_auth_preview:
+  - athena/service/Athenanet.MDP.*
+  api_auth:
+  - athena/service/Athenanet.MDP.*
+  bearer_auth: []
