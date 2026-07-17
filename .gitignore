@@ -1,2 +1,4 @@
 __pycache__/
 .ruff_cache/
+docs/openapi.yaml
+output/_merged.yaml

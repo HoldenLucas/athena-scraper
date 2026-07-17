@@ -12,6 +12,7 @@ from termcolor import colored
 
 from lib.browser import baseUrl, launchChromium
 from lib.specs import fetchSpec
+from merge_specs import main as mergeSpecs
 
 
 def processCategories(page):
@@ -66,3 +67,6 @@ with sync_playwright() as p:
     page.wait_for_selector(".nav-links__list__level-0-collapsible", timeout=30000)
     processCategories(page)
     browser.close()
+
+# Merge every scraped spec into one cleaned doc + build the Redoc site
+mergeSpecs()
