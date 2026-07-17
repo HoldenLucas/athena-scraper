@@ -76,10 +76,13 @@ class Hoister:
         if isinstance(schema.get("required"), bool):
             del schema["required"]
         if schema.get("type") == "array" or "items" in schema:
-            schema["items"] = self.hoist(schema.get("items", {}), singularize(hint))
+            schema["items"] = self.hoist(schema.get("items") or {}, singularize(hint))
             return schema
         props = schema.get("properties")
-        if not isinstance(props, dict) or not props:
+        if "properties" in schema and not isinstance(props, dict):
+            del schema["properties"]  # athena sometimes emits null/scalar here
+            return schema
+        if not props:
             return schema  # scalars / opaque objects: nothing to name
 
         # bottom-up: hoist children first, keyed by their own property name
