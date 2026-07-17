@@ -1,4 +1,2 @@
-*.pyc
-output/*
-!output/.gitkeep
-__pycache__
+__pycache__/
+.ruff_cache/
